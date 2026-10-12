@@ -120,3 +120,7 @@ footer {
   .quiz .feedback, footer { display: none; }
   .quiz .why { display: block; }
 }
+
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95em; }
+th, td { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--rule, #ddd); }
+th { font-weight: 600; }

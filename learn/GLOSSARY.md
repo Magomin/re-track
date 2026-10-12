@@ -14,3 +14,13 @@ _Avoid_: comprobar con `if ... return`
 
 **Línea E**:
 En la salida de pytest, la línea que muestra el valor real frente al esperado. Se lee primero.
+
+**pytest.raises**:
+Bloque `with` en un test que espera un error de un tipo concreto. Si llega, el test pasa; si no, falla con `DID NOT RAISE`.
+_Avoid_: confundir con `raise` (que lanza el error, en el código de la app)
+
+## Errores
+
+**raise**:
+Sentencia que para el programa a propósito con un tipo de error y un mensaje que dice la causa real. Va donde se detecta el problema.
+_Avoid_: `print` del error y seguir, devolver `None`
