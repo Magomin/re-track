@@ -9,3 +9,6 @@ Status: early development. Built as a learning project — the code is written b
 1. **Lesson player** — a floating panel next to Ableton Live that walks you through rebuilding a song step by step.
 2. **Verification** — each step is checked against the live state of your Ableton set (clips, notes, devices, mixer) through a Remote Script socket. No pixel-reading.
 3. **Remake runner** (later) — an AI pipeline that takes any song and produces the lesson data automatically: stems, measurements, sound-matching, step generation.
+
+![tests](https://github.com/Magomin/re-track/actions/workflows/tests.yml/badge.svg)
+
