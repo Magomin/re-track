@@ -6,7 +6,7 @@ def parse(texto):
     resultado = json.loads(texto)
     if resultado["status"] == "error":
         raise RuntimeError(resultado["message"])
-    return resultado
+    return resultado["result"]
 
 
 def send(cmd,params=None):
