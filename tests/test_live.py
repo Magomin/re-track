@@ -1,4 +1,5 @@
 from retrack.live import parse
+import pytest
 
 
 def test_parse_success():
@@ -6,4 +7,9 @@ def test_parse_success():
     result= parse(texto)
     assert result["result"]["tempo"]==123.0
 
+
+def test_parse_error():
+    texto = '{"status": "error", "result": {}, "message": "Unknown command: no_existe"}'
+    with pytest.raises(RuntimeError):
+        result = parse(texto)
 
