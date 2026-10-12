@@ -15,8 +15,12 @@ def send(cmd,params=None):
 
         texto = respuesta.decode()
         resultado = json.loads(texto)
-        if resultado["status"] == "error":
+
+        if resultado["status"]=="error":
             raise RuntimeError(resultado["message"])
+
+            
+
         
         return resultado
 
