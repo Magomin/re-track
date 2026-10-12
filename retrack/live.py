@@ -1,6 +1,14 @@
 import socket, json
 
 
+
+def parse(texto):
+    resultado = json.loads(texto)
+    if resultado["status"] == "error":
+        raise RuntimeError(resultado["message"])
+    return resultado
+
+
 def send(cmd,params=None):
     if params is None:
         params = {}
@@ -14,13 +22,13 @@ def send(cmd,params=None):
         respuesta= conexion.recv(65536)
 
         texto = respuesta.decode()
-        resultado = json.loads(texto)
 
-        if resultado["status"]=="error":
-            raise RuntimeError(resultado["message"])
+        return parse(texto)
 
+  
             
 
         
-        return resultado
+
+
 

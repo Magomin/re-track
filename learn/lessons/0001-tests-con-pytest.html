@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tests con pytest</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main>
+<header>
+<h1>Lección 1: Tests con pytest</h1>
+<p class="subtitle">Comprobar tu código con código, sin abrir Ableton.</p>
+</header>
+
+<section>
+<h2>Qué es un test</h2>
+<p>Un test es código que llama a tu código y comprueba el resultado.</p>
+<p>Hoy compruebas <code>send()</code> a mano: corres <code>scratch.py</code>, miras que salga <code>123.0</code>. Un test es exactamente eso, pero escrito una vez y corrido mil veces, sin mirar tú.</p>
+</section>
+
+<section>
+<h2>Por qué</h2>
+<ul>
+<li>Corre sin Ableton abierto.</li>
+<li>Dentro de dos meses cambias <code>parse()</code> y el test te avisa en un segundo si rompiste algo.</li>
+<li>El test documenta cómo se usa la función.</li>
+</ul>
+</section>
+
+<section>
+<h2>assert</h2>
+<p><code>assert</code> es la pieza central. <code>assert &lt;expresión&gt;</code>: si es verdadera no pasa nada; si es falsa, para con <code>AssertionError</code>.</p>
+<p>Escríbelo tú en la consola de Python:</p>
+<pre><code>&gt;&gt;&gt; assert 2 + 2 == 4
+&gt;&gt;&gt; assert 2 + 2 == 5
+Traceback (most recent call last):
+  ...
+AssertionError</code></pre>
+<p>La primera no dice nada. La segunda peta. Eso es todo lo que hace.</p>
+</section>
+
+<section>
+<h2>Las tres reglas de pytest</h2>
+<p>pytest encuentra tus tests solo si:</p>
+<ol>
+<li>El fichero está en <code>tests/</code> y se llama <code>test_algo.py</code>.</li>
+<li>La función se llama <code>test_algo</code>.</li>
+<li>Dentro hay <code>assert</code>.</li>
+</ol>
+<p>Nada más.</p>
+</section>
+
+<section>
+<h2>Anatomía de un test</h2>
+<p>Un ejemplo de usar y tirar, fuera del proyecto.</p>
+<p class="label"><code>doble.py</code></p>
+<pre><code>def doble(x):
+    return x * 2</code></pre>
+<p class="label"><code>test_doble.py</code></p>
+<pre><code>from doble import doble
+
+
+def test_doble_de_tres():
+    resultado = doble(3)
+    assert resultado == 6</code></pre>
+<p>Todo test sigue el mismo patrón:</p>
+<ul>
+<li><strong>Preparar</strong>: los datos de entrada. Aquí, el <code>3</code>.</li>
+<li><strong>Ejecutar</strong>: llamar a la función. <code>resultado = doble(3)</code>.</li>
+<li><strong>Comprobar</strong>: el <code>assert</code>. <code>assert resultado == 6</code>.</li>
+</ul>
+<p>Guarda lo que devuelve la función en una variable. Luego comparas esa variable. Nunca compares la entrada.</p>
+</section>
+
+<section>
+<h2>Correrlo y leer la salida</h2>
+<p>Desde la carpeta del proyecto:</p>
+<pre><code>.venv\Scripts\python -m pytest</code></pre>
+<p>Si pasa, la salida acaba así:</p>
+<pre><code>tests\test_doble.py .                                    [100%]
+
+============================ 1 passed in 0.02s ============================</code></pre>
+<p>Ahora cambia el assert a <code>== 7</code> y vuelve a correrlo. pytest te enseña esto:</p>
+<pre><code>    def test_doble_de_tres():
+        resultado = doble(3)
+&gt;       assert resultado == 7
+E       assert 6 == 7</code></pre>
+<ul>
+<li>La línea con <code>&gt;</code> es dónde falló.</li>
+<li>La línea con <code>E</code> es lo que pytest encontró (<code>6</code>) frente a lo que esperabas (<code>7</code>).</li>
+</ul>
+<p>Lee siempre la línea <code>E</code> primero.</p>
+</section>
+
+<section>
+<h2>Un test que no puede fallar es inútil</h2>
+<pre><code>def test_malo():
+    resultado = doble(3)
+    if resultado == 6:
+        return</code></pre>
+<p>Si <code>doble</code> devolviera <code>99</code>, este test pasa igual. No hay assert, no hay test. Regla: todo test tiene que poder ponerse rojo.</p>
+</section>
+
+<section>
+<h2>Comprueba</h2>
+
+<fieldset class="quiz">
+<legend>1. ¿Qué hace <code>assert x == 3</code> cuando <code>x</code> vale 5?</legend>
+<label><input type="radio" name="q1"> No hace nada</label>
+<label><input type="radio" name="q1" data-correct> Para con error</label>
+<label><input type="radio" name="q1"> Imprime el valor</label>
+<p class="feedback" aria-live="polite"></p>
+<p class="why" hidden><code>5 == 3</code> es falso, así que <code>assert</code> para con <code>AssertionError</code>. Nunca imprime nada por su cuenta.</p>
+</fieldset>
+
+<fieldset class="quiz">
+<legend>2. pytest ignora una función de test si...</legend>
+<label><input type="radio" name="q2" data-correct> no empieza por test_</label>
+<label><input type="radio" name="q2"> tiene varios assert dentro</label>
+<label><input type="radio" name="q2"> está en otro fichero</label>
+<p class="feedback" aria-live="polite"></p>
+<p class="why" hidden>pytest busca por nombre. Una función <code>comprobar_doble</code> no la corre nunca, aunque esté llena de <code>assert</code>.</p>
+</fieldset>
+
+<fieldset class="quiz">
+<legend>3. En la salida de pytest, la línea que empieza por <code>E</code> te dice...</legend>
+<label><input type="radio" name="q3"> dónde está el fichero</label>
+<label><input type="radio" name="q3" data-correct> qué valor encontró realmente</label>
+<label><input type="radio" name="q3"> cuántos tests han pasado</label>
+<p class="feedback" aria-live="polite"></p>
+<p class="why" hidden>En <code>E       assert 6 == 7</code>, el <code>6</code> es lo que devolvió tu función de verdad. Ahí empieza el diagnóstico.</p>
+</fieldset>
+</section>
+
+<div class="task">
+<h2>Ahora en Re-track</h2>
+<p><code>retrack/live.py</code> tiene <code>parse(texto)</code>: recibe un string JSON y devuelve un dict (o peta si hay error). El fichero <code>tests/test_live.py</code> ya existe con un intento roto.</p>
+<ol>
+<li>Deja el fichero así de vacío: solo <code>from retrack.live import parse</code> arriba.</li>
+<li>Escribe <code>test_parse_success</code>.
+  <ul>
+  <li>Preparar: <code>texto = '{"status": "success", "result": {"tempo": 123.0}}'</code></li>
+  <li>Ejecutar: guarda lo que devuelve <code>parse(texto)</code> en una variable.</li>
+  <li>Comprobar: un <code>assert</code> que compare el tempo que hay dentro de esa variable con <code>123.0</code>.</li>
+  </ul>
+</li>
+<li>Corre <code>.venv\Scripts\python -m pytest</code>. Objetivo: <code>1 passed</code>.</li>
+<li>Comprueba que el test puede fallar: cambia <code>123.0</code> por <code>999</code> en el assert, corre, mira la línea <code>E</code>, vuelve a dejar <code>123.0</code>.</li>
+</ol>
+<p>Pega la salida de pytest a Claude. Siguiente lección: testear que <code>parse</code> peta cuando Ableton devuelve error.</p>
+</div>
+
+<div class="source">
+<h2>Fuente principal</h2>
+<p><a href="https://docs.pytest.org/en/stable/getting-started.html">pytest: Get Started</a></p>
+<p>La guía oficial de arranque de pytest. Lee solo hasta 'Run multiple tests'; el resto todavía no hace falta.</p>
+</div>
+
+<p class="reminder">Cualquier cosa que no cuadre, pregúntasela a Claude en la sesión. Es tu profesor, para eso está.</p>
+</main>
+
+<footer>
+<a href="../MISSION.md">Misión</a>
+<span>Siguiente lección: 0002 (pendiente)</span>
+</footer>
+</body>
+</html>
