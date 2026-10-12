@@ -8,12 +8,15 @@ def send(cmd,params=None):
     with socket.create_connection(("localhost", 9877)) as conexion:
     
         texto =json.dumps({"type":cmd,"params":params})
+    
         datos= texto.encode()
         conexion.sendall(datos)
         respuesta= conexion.recv(65536)
 
         texto = respuesta.decode()
         resultado = json.loads(texto)
+        if resultado["status"] == "error":
+            raise RuntimeError(resultado["message"])
         
         return resultado
 
