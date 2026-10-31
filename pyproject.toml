@@ -5,7 +5,7 @@ requires-python = ">=3.12"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest","ruff"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
