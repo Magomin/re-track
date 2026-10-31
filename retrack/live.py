@@ -18,8 +18,16 @@ def send(cmd, params=None):
 
         datos = texto.encode()
         conexion.sendall(datos)
-        respuesta = conexion.recv(65536)
 
-        texto = respuesta.decode()
+        buffer = b""
 
-        return parse(texto)
+        while True:
+            respuesta = conexion.recv(65536)
+            if respuesta == b"":
+                raise ConnectionError("Live cerro la conexión")
+            buffer += respuesta
+            try:
+                return parse(buffer)
+
+            except json.JSONDecodeError:
+                pass
