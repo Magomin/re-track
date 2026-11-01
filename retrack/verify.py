@@ -3,3 +3,8 @@ def track_existe(snapshot, nombre):
         if nombre.lower() == pista["name"].lower():
             return True
     return False
+
+
+def tempo_es(snapshot, bpm):
+
+    return snapshot["session"]["tempo"] == bpm
