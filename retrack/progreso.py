@@ -33,3 +33,8 @@ def leer(leccion):
         if fila is None:
             return 0
         return fila[0]
+
+
+def borrar(leccion):
+    with conectar() as conexion:
+        conexion.execute("DELETE FROM progreso WHERE leccion = ?", (leccion,))

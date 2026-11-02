@@ -94,6 +94,11 @@ async function empezar() {
   const nombres = await pedir("/lecciones");
   for (const nombre of nombres) selector.add(new Option(nombre, nombre));
   selector.addEventListener("change", () => abrir(selector.value));
+  document.getElementById("reiniciar").addEventListener("click", async () => {
+    if (!confirm(`¿Empezar "${leccion}" desde el paso 1?`)) return;
+    await pedir(`/progreso/${leccion}`, { method: "DELETE" });
+    await abrir(leccion);
+  });
   await abrir(nombres[0]);
 }
 

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from retrack.leccion import cargar
 from retrack.live import send
-from retrack.progreso import guardar, leer
+from retrack.progreso import borrar, guardar, leer
 from retrack.verify import CHECKS, notas_que_faltan
 
 app = FastAPI()
@@ -34,6 +34,12 @@ def comprobar(leccion: str, indice: int):
 def progreso(leccion: str):
     indice = leer(leccion)
     return {"indice": indice}
+
+
+@app.delete("/progreso/{leccion}")
+def reiniciar(leccion: str):
+    borrar(leccion)
+    return {"indice": 0}
 
 
 @app.get("/lecciones")
