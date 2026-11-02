@@ -16,6 +16,9 @@ Subes una canción → la IA la reverse-engineerea y la recrea en Ableton → la
 | 6 | Orden: **lesson player primero** (Jungle como golden data) → **remake runner** después (`claude -p` headless detrás de interfaz `AIProvider`; BYOK futuro cuando usuarios traigan su API key) |
 | 7 | Verificación por niveles: estructura (clip existe, device cargado) → exactitud (notas exactas, params en tolerancia, dB objetivo) |
 | 8 | Repo público. Sin auth/pagos/multiusuario en v1 |
+| 9 | **Solo devices nativos de Ableton** en las lecciones (2026-11-02, Matthieu: "mejor para el usuario", cualquiera con Live puede seguirlas). Sin VST. |
+| 10 | Verificación de sonido con **un check genérico de parámetros** (`class_name` del device + `name` del parámetro + rango), válido para cualquier device nativo. Qué parámetro y qué valor lo decide el pipeline de musichelper midiendo (elements.md), no exploración manual por device. |
+| 11 | **Samples vía Splice opcional**: Re-track detecta si hay Splice disponible y un interruptor en ajustes lo activa o desactiva. Activado → la lección propone samples de Splice (sample-hunter de musichelper, sección C). Desactivado o sin Splice → solo librería local y Core Library. Nunca descarga sin OK del usuario. |
 
 ## Lo aprendido del RE de beatspark (v0.4.2, Electron, macOS-only)
 
@@ -41,6 +44,7 @@ Descartado: portfolio-driven development, OpenAPI/GraphQL (no hay HTTP), Postgre
 ## Roadmap
 
 - **v1 — lesson player**: carga lección JSON (Jungle) → API FastAPI (checks en Python) → panel Electron always-on-top muestra paso y llama a la API → verifica contra Live por socket → progreso en SQLite. Una lección jugable end-to-end.
-- **v1.5 — segunda canción**: valida que el formato generaliza. RE fino de beatspark si hace falta (su schema completo en `step-types.js`).
-- **v2 — remake runner**: `claude -p` headless corre el pipeline remake y emite lesson JSON; cola de jobs, retries. Overlay por zonas.
+- **v1.5 — Jungle suena**: check `parametro_en_rango` (decisión 10) + notas de BASS y LEAD. Valores legibles en el panel (dB/Hz) con el `chain_device` del Remote Script de musichelper, que devuelve el texto de display de Live y llega a devices dentro de racks. Progreso por id de paso, no por posición (hoy se descoloca al insertar pasos).
+- **v1.5b — segunda canción**: valida que el formato generaliza. RE fino de beatspark si hace falta (su schema completo en `step-types.js`).
+- **v2 — remake runner**: `claude -p` headless corre el pipeline remake y emite lesson JSON; cola de jobs, retries. Overlay por zonas. Incluye sample-hunter con el interruptor de Splice (decisión 11) y un check "sample cargado" (Simpler/Drum Rack): requiere ampliar el Remote Script para exponer el fichero del sample (Live 12 lo da en la API; el snapshot actual no).
 - **v3 — producto**: BYOK, overlays finos, más DAWs… solo si v1/v2 se usan de verdad.
