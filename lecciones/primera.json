@@ -1,5 +1,8 @@
-[
-  {"instruccion": "Crea una pista llamada BASS", "check": "track_existe", "valor": "BASS"},
-  {"instruccion": "Pon el tempo a 124 BPM", "check": "tempo_es", "valor": 124},
-  {"instruccion": "Crea una pista llamada DRUMS", "check": "track_existe", "valor": "DRUMS"}
-]
+{
+  "titulo": "Primera lección",
+  "pasos": [
+    {"instruccion": "Crea una pista llamada BASS", "check": "track_existe", "valor": "BASS"},
+    {"instruccion": "Pon el tempo a 124 BPM", "check": "tempo_es", "valor": 124},
+    {"instruccion": "Crea una pista llamada DRUMS", "check": "track_existe", "valor": "DRUMS"}
+  ]
+}
