@@ -1,17 +1,3 @@
-# CHECKS: dict que relaciona cada nombre de check con su función
-# cargar(ruta): abre el JSON y devuelve la lista de pasos
-# jugar(ruta):
-#   cargar los pasos
-#   para cada paso:
-#     imprimir "Paso N de TOTAL: instrucción"
-#     repetir hasta que esté hecho:
-#       esperar Enter
-#       pedir snapshot nuevo
-#       buscar la función en CHECKS y llamarla con (snapshot, valor)
-#       si True: "✔ Hecho" y salir de la repetición
-#       si no: "Todavía no"
-#   imprimir "¡Lección completada!"
-
 import json
 
 from retrack.live import send

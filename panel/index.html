@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; connect-src http://localhost:8000">
+  <title>Re-track</title>
+  <style>
+    body { background: #1e1e1e; color: #ddd; font: 16px "Segoe UI", sans-serif; margin: 16px; }
+    #contador { color: #888; font-size: 13px; margin: 0 0 6px; }
+    #instruccion { font-size: 18px; margin: 0 0 16px; }
+    #resultado { min-height: 1.2em; color: #f0a040; }
+    button { width: 100%; padding: 10px; font-size: 16px; background: #ff764d; color: #111; border: 0; border-radius: 4px; }
+    button:disabled { background: #444; color: #888; }
+  </style>
+</head>
+<body>
+  <p id="contador"></p>
+  <p id="instruccion">Cargando...</p>
+  <p id="resultado"></p>
+  <button id="comprobar">Comprobar</button>
+  <script src="panel.js"></script>
+</body>
+</html>
