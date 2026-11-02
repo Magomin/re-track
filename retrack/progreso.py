@@ -29,7 +29,7 @@ def leer(leccion):
         fila = conexion.execute(
             "SELECT indice FROM progreso WHERE leccion = ?", (leccion,)
         ).fetchone()
-        print(fila)
+
         if fila is None:
             return 0
         return fila[0]

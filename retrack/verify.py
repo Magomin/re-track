@@ -8,3 +8,6 @@ def track_existe(snapshot, nombre):
 def tempo_es(snapshot, bpm):
 
     return snapshot["session"]["tempo"] == bpm
+
+
+CHECKS = {"track_existe": track_existe, "tempo_es": tempo_es}
