@@ -10,6 +10,8 @@
     #contador { color: #888; font-size: 13px; margin: 0 0 6px; }
     #instruccion { font-size: 18px; margin: 0 0 16px; }
     #resultado { min-height: 1.2em; color: #f0a040; }
+    #roll { width: 100%; margin: 0 0 10px; }
+    #roll text { fill: #aaa; font: 11px "Segoe UI", sans-serif; }
     #leccion { width: 100%; margin: 0 0 12px; padding: 4px; background: #2a2a2a; color: #ddd; border: 1px solid #444; }
   </style>
 </head>
@@ -17,6 +19,7 @@
   <select id="leccion"></select>
   <p id="contador"></p>
   <p id="instruccion">Cargando...</p>
+  <svg id="roll" hidden></svg>
   <p id="resultado"></p>
   <script src="panel.js"></script>
 </body>
