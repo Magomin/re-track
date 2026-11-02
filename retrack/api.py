@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from retrack.leccion import cargar
 from retrack.live import send
 from retrack.progreso import guardar, leer
-from retrack.verify import CHECKS
+from retrack.verify import CHECKS, notas_que_faltan
 
 app = FastAPI()
 
@@ -24,7 +24,10 @@ def comprobar(leccion: str, indice: int):
     hecho = funcion(snapshot, paso.valor)
     if hecho:
         guardar(leccion, indice + 1)
-    return {"hecho": hecho}
+    respuesta = {"hecho": hecho}
+    if paso.check == "notas_en_clip" and not hecho:
+        respuesta["faltan"] = notas_que_faltan(snapshot, paso.valor)
+    return respuesta
 
 
 @app.get("/progreso/{leccion}")
