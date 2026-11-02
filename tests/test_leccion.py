@@ -39,3 +39,7 @@ def test_check_que_no_existe_no_entra(tmp_path):
 
 def test_la_leccion_real_es_valida():
     cargar("lecciones/primera.json")
+
+
+def test_jungle_es_valida():
+    cargar("lecciones/jungle.json")

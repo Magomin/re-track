@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 
 from retrack.leccion import cargar
@@ -29,3 +31,11 @@ def comprobar(leccion: str, indice: int):
 def progreso(leccion: str):
     indice = leer(leccion)
     return {"indice": indice}
+
+
+@app.get("/lecciones")
+def lecciones():
+    nombres = []
+    for ruta in Path("lecciones").glob("*.json"):
+        nombres.append(ruta.stem)
+    return nombres

@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 class Paso(BaseModel):
     instruccion: str
-    check: Literal["track_existe", "tempo_es"]
-    valor: str | float
+    check: Literal["track_existe", "tempo_es", "device_en_pista", "clip_en_pista"]
+    valor: str | float | dict[str, str]
 
 
 class Leccion(BaseModel):
