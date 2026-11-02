@@ -20,7 +20,7 @@ Matthieu está aprendiendo desarrollo de software con este proyecto. Claude = pr
 ## Stack y límites
 
 - Python 3.12 (`PythonSoftwareFoundation.Python.3.12...\python.exe` en esta máquina; el `python` por defecto es 3.14).
-- UI: tkinter (stdlib), panel always-on-top. Sin frameworks de frontend.
+- UI: Electron (JS, ventana `alwaysOnTop`) que llama por `fetch` a una API local FastAPI (`retrack/api.py`). La lógica (socket, checks) se queda en Python. Sin frameworks de frontend (HTML/CSS/JS a pelo). Decidido 2026-11-02, antes tkinter.
 - Datos: JSON de lección (schema propio, pydantic) + SQLite para progreso.
 - Ableton: Remote Script AbletonMCP, socket TCP `localhost:9877`, JSON `{"type": cmd, "params": {...}}`. Comandos y gotchas documentados en `C:\Users\domin\Desktop\musichelper\CLAUDE.md` (motor/laboratorio: pipeline remake, medición, render).
 - Golden data v1: `musichelper/songs/fred-again-jungle/` (elements.md medido).
