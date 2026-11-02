@@ -11,7 +11,7 @@ Subes una canción → la IA la reverse-engineerea y la recrea en Ableton → la
 | 1 | Herramienta personal primero; productizar solo si la v1 funciona |
 | 2 | Integrado en Ableton: verificación por Remote Script/socket; UI = panel Python always-on-top → overlay transparente por zonas (v2) → pixel-matching fino solo si hace falta (v3) |
 | 3 | Envuelve el pipeline musichelper existente (scout/demucs/medición/render); reescrituras selectivas como ejercicios |
-| 4 | Stack Python. Foco de aprendizaje: backend, testing, git/CI. Frontend mínimo (tkinter) |
+| 4 | Stack Python. Foco de aprendizaje: backend, testing, git/CI. Frontend: Electron (JS) sobre API HTTP Python (FastAPI). Cambiado de tkinter el 2026-11-02 a petición de Matthieu (sabe JS, quiere arquitectura front + API) |
 | 5 | Protocolo enseñanza: ver CLAUDE.md (regla maestra) |
 | 6 | Orden: **lesson player primero** (Jungle como golden data) → **remake runner** después (`claude -p` headless detrás de interfaz `AIProvider`; BYOK futuro cuando usuarios traigan su API key) |
 | 7 | Verificación por niveles: estructura (clip existe, device cargado) → exactitud (notas exactas, params en tolerancia, dB objetivo) |
@@ -40,7 +40,7 @@ Descartado: portfolio-driven development, OpenAPI/GraphQL (no hay HTTP), Postgre
 
 ## Roadmap
 
-- **v1 — lesson player**: carga lección JSON (Jungle) → panel tkinter muestra paso → verifica contra Live por socket → progreso en SQLite. Una lección jugable end-to-end.
+- **v1 — lesson player**: carga lección JSON (Jungle) → API FastAPI (checks en Python) → panel Electron always-on-top muestra paso y llama a la API → verifica contra Live por socket → progreso en SQLite. Una lección jugable end-to-end.
 - **v1.5 — segunda canción**: valida que el formato generaliza. RE fino de beatspark si hace falta (su schema completo en `step-types.js`).
 - **v2 — remake runner**: `claude -p` headless corre el pipeline remake y emite lesson JSON; cola de jobs, retries. Overlay por zonas.
 - **v3 — producto**: BYOK, overlays finos, más DAWs… solo si v1/v2 se usan de verdad.
