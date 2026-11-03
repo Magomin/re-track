@@ -13,9 +13,18 @@ class Paso(BaseModel):
     valor: str | float | dict[str, str | list[dict[str, float]]]
 
 
+class Modulo(BaseModel):
+    id: str  # "bass": texto corto, se usa en las URLs y en "jungle/bass"
+    titulo: str  # "Bass del drop": texto para enseñar en el panel
+    version: int = 1  # 1, 2, 3...: entero; el "= 1" lo hace opcional
+    tempo: float  # 134.0: float, porque hay tempos con decimales (126.5)
+    tonalidad: str  # "G#m": texto
+    pasos: list[Paso]  # la lista de pasos: el molde de dentro, como antes en Leccion
+
+
 class Leccion(BaseModel):
     titulo: str
-    pasos: list[Paso]
+    modulos: list[Modulo]
 
 
 def cargar(ruta):
@@ -24,3 +33,10 @@ def cargar(ruta):
         datos = json.load(archivo)
 
     return Leccion.model_validate(datos)
+
+
+def buscar_modulo(leccion, id):
+    for modulo in leccion.modulos:
+        if modulo.id == id:
+            return modulo
+    return None

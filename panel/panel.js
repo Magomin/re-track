@@ -2,11 +2,16 @@ const API = "http://localhost:8000";
 
 // Viven fuera de las funciones para sobrevivir entre comprobaciones.
 let leccion = "";
+let modulo = null; // null = estamos en la lista de módulos
 let pasos = [];
 let indice = 0;
 let ocupado = false;
 
 const selector = document.getElementById("leccion");
+const vistaModulos = document.getElementById("vista-modulos");
+const vistaPaso = document.getElementById("vista-paso");
+const listaModulos = document.getElementById("modulos");
+const tituloModulo = document.getElementById("titulo-modulo");
 const contador = document.getElementById("contador");
 const instruccion = document.getElementById("instruccion");
 const resultado = document.getElementById("resultado");
@@ -71,7 +76,7 @@ async function pedir(ruta, opciones) {
 function pintar() {
   if (indice >= pasos.length) {
     contador.textContent = "";
-    instruccion.textContent = "¡Lección completada!";
+    instruccion.textContent = "¡Módulo completado!";
     resultado.textContent = "";
     dibujarRoll();
     return;
@@ -82,34 +87,60 @@ function pintar() {
   dibujarRoll();
 }
 
-// Carga una lección y salta al paso guardado en SQLite.
-async function abrir(nombre) {
+// Lista de módulos de la lección: salen del JSON, el panel no conoce ninguno de antemano.
+async function verModulos(nombre) {
   leccion = nombre;
-  pasos = await pedir(`/pasos/${leccion}`);
-  indice = (await pedir(`/progreso/${leccion}`)).indice;
+  modulo = null;
+  vistaPaso.hidden = true;
+  vistaModulos.hidden = false;
+  listaModulos.replaceChildren();
+  for (const m of await pedir(`/modulos/${leccion}`)) {
+    const hecho = m.hechos >= m.total;
+    const boton = document.createElement("button");
+    boton.className = hecho ? "modulo hecho" : "modulo";
+    const titulo = document.createElement("span");
+    titulo.textContent = m.titulo;
+    const estado = document.createElement("span");
+    estado.className = "estado";
+    estado.textContent = hecho ? "✓" : `${m.hechos}/${m.total}`;
+    boton.append(titulo, estado);
+    boton.addEventListener("click", () => abrirModulo(m.id, m.titulo));
+    listaModulos.append(boton);
+  }
+}
+
+// Entra en un módulo y salta al paso guardado en SQLite.
+async function abrirModulo(id, titulo) {
+  modulo = id;
+  tituloModulo.textContent = titulo;
+  pasos = await pedir(`/pasos/${leccion}/${modulo}`);
+  indice = (await pedir(`/progreso/${leccion}/${modulo}`)).indice;
+  vistaModulos.hidden = true;
+  vistaPaso.hidden = false;
   pintar();
 }
 
 async function empezar() {
   const nombres = await pedir("/lecciones");
   for (const nombre of nombres) selector.add(new Option(nombre, nombre));
-  selector.addEventListener("change", () => abrir(selector.value));
+  selector.addEventListener("change", () => verModulos(selector.value));
+  document.getElementById("volver").addEventListener("click", () => verModulos(leccion));
   document.getElementById("reiniciar").addEventListener("click", async () => {
-    if (!confirm(`¿Empezar "${leccion}" desde el paso 1?`)) return;
-    await pedir(`/progreso/${leccion}`, { method: "DELETE" });
-    await abrir(leccion);
+    if (!confirm(`¿Empezar "${tituloModulo.textContent}" desde el paso 1?`)) return;
+    await pedir(`/progreso/${leccion}/${modulo}`, { method: "DELETE" });
+    await abrirModulo(modulo, tituloModulo.textContent);
   });
-  await abrir(nombres[0]);
+  await verModulos(nombres[0]);
 }
 
 // Cada segundo = una vuelta del while del antiguo player, sin pulsar Enter.
 async function comprobar() {
-  if (ocupado || indice >= pasos.length) return; // no lanzar otra si la anterior no ha vuelto
+  if (ocupado || modulo === null || indice >= pasos.length) return; // no lanzar otra si la anterior no ha vuelto
   ocupado = true;
-  const pedida = leccion; // si cambias de lección a mitad, se descarta la respuesta vieja
+  const pedido = `${leccion}/${modulo}`; // si cambias de módulo a mitad, se descarta la respuesta vieja
   try {
-    const datos = await pedir(`/comprobar/${leccion}/${indice}`, { method: "POST" });
-    if (pedida !== leccion) return;
+    const datos = await pedir(`/comprobar/${leccion}/${modulo}/${indice}`, { method: "POST" });
+    if (pedido !== `${leccion}/${modulo}`) return;
     if (datos.hecho) {
       indice++; // la API ya lo ha guardado en SQLite
       pintar();
