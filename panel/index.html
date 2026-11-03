@@ -7,27 +7,43 @@
   <title>Re-track</title>
   <style>
     body { background: #1e1e1e; color: #ddd; font: 16px "Segoe UI", sans-serif; margin: 16px; }
+    button, select { background: #2a2a2a; color: #ddd; border: 1px solid #444; font: inherit; }
+    button { cursor: pointer; }
+    button:hover { border-color: #ff764d; }
+    #leccion { width: 100%; margin: 0 0 12px; padding: 4px; }
+    #modulos { display: flex; flex-direction: column; gap: 6px; }
+    .modulo { display: flex; justify-content: space-between; padding: 10px 12px; text-align: left; }
+    .modulo .estado { color: #888; font-size: 13px; }
+    .modulo.hecho .estado { color: #7a9a5a; }
+    .barra { display: flex; gap: 8px; align-items: center; margin: 0 0 12px; }
+    .barra button { padding: 4px 10px; font-size: 13px; }
+    #titulo-modulo { flex: 1; color: #888; font-size: 13px; }
     #contador { color: #888; font-size: 13px; margin: 0 0 6px; }
     #instruccion { font-size: 18px; margin: 0 0 16px; }
     #resultado { min-height: 1.2em; color: #f0a040; }
     #roll { width: 100%; margin: 0 0 10px; }
     #roll text { fill: #aaa; font: 11px "Segoe UI", sans-serif; }
-    #cabecera { display: flex; gap: 8px; margin: 0 0 12px; }
-    #cabecera select { flex: 1; margin: 0; }
-    #reiniciar { padding: 4px 10px; background: #2a2a2a; color: #ddd; border: 1px solid #444; cursor: pointer; }
-    #reiniciar:hover { border-color: #ff764d; }
-    #leccion { width: 100%; margin: 0 0 12px; padding: 4px; background: #2a2a2a; color: #ddd; border: 1px solid #444; }
   </style>
 </head>
 <body>
-  <div id="cabecera">
-    <select id="leccion"></select>
-    <button id="reiniciar" title="Empezar la lección desde el paso 1">Reiniciar</button>
+  <select id="leccion"></select>
+
+  <div id="vista-modulos">
+    <div id="modulos"></div>
   </div>
-  <p id="contador"></p>
-  <p id="instruccion">Cargando...</p>
-  <svg id="roll" hidden></svg>
-  <p id="resultado"></p>
+
+  <div id="vista-paso" hidden>
+    <div class="barra">
+      <button id="volver">← Módulos</button>
+      <span id="titulo-modulo"></span>
+      <button id="reiniciar" title="Empezar este módulo desde el paso 1">Reiniciar</button>
+    </div>
+    <p id="contador"></p>
+    <p id="instruccion"></p>
+    <svg id="roll" hidden></svg>
+    <p id="resultado"></p>
+  </div>
+
   <script src="panel.js"></script>
 </body>
 </html>
