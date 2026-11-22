@@ -1,25 +1,46 @@
-// Los mismos 6 endpoints que tenía retrack/api.py, ahora como comandos que el panel llama con invoke().
-// Cada uno es un hueco que se rellena en las lecciones (16 en adelante); la lógica irá en
-// módulos propios (leccion.rs, verify.rs, progreso.rs, live.rs) sin nada de Tauri dentro.
-use serde_json::Value;
+// Capa fina entre el panel y la lógica: cada comando traduce la petición del panel a una llamada
+// a los módulos (leccion.rs, ...), que no saben nada de Tauri.
+mod leccion;
 
-const PENDIENTE: &str = "Comando sin implementar todavía (lección 16)";
+use serde_json::{Value, json};
+use std::path::PathBuf;
+
+const PENDIENTE: &str = "Comando sin implementar todavía";
+
+// shortcut: ruta fijada al compilar (src-tauri/../lecciones), vale para `tauri dev`;
+// al empaquetar la app hay que meter lecciones/ como resource y leerla de ahí.
+fn carpeta_lecciones() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../lecciones")
+}
+
+fn cargar(nombre: &str) -> Result<leccion::Leccion, String> {
+    leccion::cargar(&carpeta_lecciones().join(format!("{nombre}.json")))
+}
 
 #[tauri::command]
-fn lecciones() -> Result<Value, String> {
-    Err(PENDIENTE.into())
+fn lecciones() -> Result<Vec<String>, String> {
+    leccion::listar(&carpeta_lecciones())
 }
 
 #[tauri::command]
 fn modulos(leccion: String) -> Result<Value, String> {
-    let _ = leccion;
-    Err(PENDIENTE.into())
+    let contenido = cargar(&leccion)?;
+    let resumen: Vec<Value> = contenido
+        .modulos
+        .iter()
+        // hechos: 0 hasta que el progreso pase a Rust (paso 2)
+        .map(|m| json!({"id": m.id, "titulo": m.titulo, "total": m.pasos.len(), "hechos": 0}))
+        .collect();
+    Ok(json!(resumen))
 }
 
 #[tauri::command]
 fn pasos(leccion: String, modulo: String) -> Result<Value, String> {
-    let _ = (leccion, modulo);
-    Err(PENDIENTE.into())
+    let contenido = cargar(&leccion)?;
+    let encontrado = contenido
+        .buscar_modulo(&modulo)
+        .ok_or(format!("La lección {leccion} no tiene el módulo {modulo}"))?;
+    serde_json::to_value(&encontrado.pasos).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
