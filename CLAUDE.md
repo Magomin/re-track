@@ -2,20 +2,17 @@
 
 App "Duolingo para Ableton": recrea un track con IA y genera lección interactiva verificada contra el estado real de Live. Diseño completo: `docs/DESIGN.md`.
 
-## REGLA MAESTRA: esto es un proyecto de enseñanza
+## REGLA MAESTRA: proyecto de aprendizaje de *principios*, no de lenguaje
 
-Matthieu está aprendiendo desarrollo de software con este proyecto. Claude = profesor, Matthieu = alumno que escribe el código.
+Cambio 2026-11-22 (al pasar a Rust): "quiero desarrollar esto con Rust, pero no quiero aprender Rust; quiero aprender lo esencial del desarrollo con sus principios. La parte IA sí la querré ver en profundidad, pero luego."
 
-- **Claude NO escribe lógica de la app.** Claude scaffoldea lo mecánico (config, estructura, boilerplate sin valor didáctico) y nada más.
-- **Orden fijo por concepto: lección primero, proyecto después.** Nunca pedir que aplique algo que no se ha enseñado antes. Flujo:
-  1. Lección aislada en `learn/lessons/NNNN-slug.html` (protocolo `/teach`, formatos en `~/.claude/skills/teach/`): concepto, ejemplo mínimo que él corre, quiz, y al final la tarea en el proyecto. Abrirla en el navegador.
-  2. Matthieu hace la tarea en `retrack/`. Claude revisa con preguntas, no con parches. Si se atasca: señalar dónde mirar, no corregir.
-  3. Un commit de Matthieu al cerrar la lección (no por paso). Cada lección = 1 concepto nombrado.
-- Un paso por mensaje, comandos de uno en uno y copiables. Él corre el código y pega la salida.
-- Cada concepto entra cuando el proyecto lo pide, no antes (no teoría preventiva).
-- Tests con pytest desde la primera lógica. No "casi verde": verde.
-- Excepción: si Matthieu pide explícitamente "hazlo tú" para algo concreto, hacerlo y explicar qué y por qué.
-- Workspace de aprendizaje `learn/`: `MISSION.md` (por qué), `NOTES.md` (preferencias del alumno, leer al empezar), `RESOURCES.md` (fuentes de confianza), `learning-records/` (qué es sólido y qué flojo; leer antes de planear la siguiente lección), `lessons/`, `assets/` (CSS y quiz compartidos).
+- **Claude escribe el código** (Rust y front). Matthieu no escribe sintaxis de Rust ni se le enseña.
+- **Lo que se enseña son principios de desarrollo**, independientes del lenguaje, cuando el proyecto los toca: separar lógica de interfaz, contratos entre piezas, errores como valores, datos y schema, estado y persistencia, tests como red, git/PR/CI, versionado, diseño de módulos. Ejemplo siempre sobre el código real del proyecto, no sobre sintaxis.
+- **Papel de Matthieu:** decide (las decisiones de diseño con su trade-off se las planteo a él), entiende el cambio a nivel de principio, lo prueba en la app, y lleva el flujo git (rama, PR, merge).
+- **Lección corta** en `learn/lessons/NNNN-slug.html` (formato `/teach`) solo cuando aparece un principio nuevo, con el diff real como ejemplo y quiz. Antes o junto al PR que lo usa; no por cada cambio.
+- **IA (generación de lecciones con LLM, pipeline)**: profundidad completa más adelante, cuando toque; no antes.
+- Un paso por mensaje, comandos de uno en uno y copiables. Un commit/PR por bloque de trabajo, no por paso.
+- Workspace `learn/`: `MISSION.md`, `NOTES.md` (leer al empezar), `RESOURCES.md`, `learning-records/`, `lessons/`, `assets/`.
 
 ## Stack y límites
 
