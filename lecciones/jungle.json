@@ -7,18 +7,16 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"instruccion": "Jungle va a 134 BPM. Pon el tempo a 134.", "check": "tempo_es", "valor": 134},
-        {"instruccion": "Crea una pista MIDI y llámala PAD. Es el colchón de acordes que suena desde el principio.", "check": "track_existe", "valor": "PAD"},
-        {"instruccion": "Carga un Operator en PAD. El pad de Fred son ondas casi senoidales, y Operator las hace limpias.", "check": "device_en_pista", "valor": {"pista": "PAD", "device": "Operator"}},
-        {"instruccion": "Crea un clip MIDI en PAD (doble clic en un hueco vacío). Ahí irán los acordes.", "check": "clip_en_pista", "valor": "PAD"},
-        {"instruccion": "Alarga el clip de PAD a 4 compases (en la vista Clip, Length = 4.0.0). Compás 1: copia el dibujo.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [
-          {"pitch": 45, "inicio": 0, "duracion": 4}, {"pitch": 52, "inicio": 0, "duracion": 4}]}},
-        {"instruccion": "Compás 2 del pad: la nota de arriba baja a mitad de compás.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [
-          {"pitch": 44, "inicio": 4, "duracion": 4}, {"pitch": 51, "inicio": 4, "duracion": 2}, {"pitch": 49, "inicio": 6, "duracion": 2}]}},
-        {"instruccion": "Compás 3 del pad.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [
-          {"pitch": 44, "inicio": 8, "duracion": 4}, {"pitch": 52, "inicio": 8, "duracion": 4}]}},
-        {"instruccion": "Compás 4 del pad: la nota de arriba sube a mitad de compás. Dale al play: es el ciclo de Jungle.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [
-          {"pitch": 49, "inicio": 12, "duracion": 4}, {"pitch": 52, "inicio": 12, "duracion": 2}, {"pitch": 51, "inicio": 14, "duracion": 2}]}}
+        {"id": "tempo", "instruccion": "Jungle va a 134 BPM. Pon el tempo a 134.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Crea una pista MIDI y llámala PAD. Es el colchón de acordes que suena desde el principio.", "check": "track_existe", "valor": "PAD"},
+        {"id": "operator", "instruccion": "Carga un Operator en PAD. El pad de Fred son ondas casi senoidales, y Operator las hace limpias.", "check": "device_en_pista", "valor": {"pista": "PAD", "device": "Operator"}},
+        {"id": "clip", "instruccion": "Crea un clip MIDI en PAD (doble clic en un hueco vacío). Ahí irán los acordes.", "check": "clip_en_pista", "valor": "PAD"},
+        {"id": "notas-c1", "instruccion": "Alarga el clip de PAD a 4 compases (en la vista Clip, Length = 4.0.0). Compás 1: copia el dibujo.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [{"pitch": 45, "inicio": 0, "duracion": 4}, {"pitch": 52, "inicio": 0, "duracion": 4}]}},
+        {"id": "notas-c2", "instruccion": "Compás 2 del pad: la nota de arriba baja a mitad de compás.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [{"pitch": 44, "inicio": 4, "duracion": 4}, {"pitch": 51, "inicio": 4, "duracion": 2}, {"pitch": 49, "inicio": 6, "duracion": 2}]}},
+        {"id": "notas-c3", "instruccion": "Compás 3 del pad.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [{"pitch": 44, "inicio": 8, "duracion": 4}, {"pitch": 52, "inicio": 8, "duracion": 4}]}},
+        {"id": "notas-c4", "instruccion": "Compás 4 del pad: la nota de arriba sube a mitad de compás. Dale al play: es el ciclo de Jungle.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [{"pitch": 49, "inicio": 12, "duracion": 4}, {"pitch": 52, "inicio": 12, "duracion": 2}, {"pitch": 51, "inicio": 14, "duracion": 2}]}},
+        {"id": "ataque", "instruccion": "Dale forma al pad. En Operator, envolvente del oscilador A: sube el Attack hasta que el panel lo dé por bueno. El pad de Fred entra suave, sin golpe.", "check": "parametro_en_rango", "valor": {"pista": "PAD", "device": "Operator", "parametro": "Ae Attack", "min": 0.28, "max": 0.35}},
+        {"id": "release", "instruccion": "Ahora el Release de la misma envolvente (A): súbelo para que cada acorde se apague despacio y se pise con el siguiente.", "check": "parametro_en_rango", "valor": {"pista": "PAD", "device": "Operator", "parametro": "Ae Release", "min": 0.34, "max": 0.41}}
       ]
     },
     {
@@ -27,9 +25,13 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"instruccion": "Jungle va a 134 BPM. Pon el tempo a 134.", "check": "tempo_es", "valor": 134},
-        {"instruccion": "Crea una pista MIDI llamada LEAD. Es la 'alarma' del drop 2 (E4 ↔ D#4).", "check": "track_existe", "valor": "LEAD"},
-        {"instruccion": "Carga un Operator en LEAD.", "check": "device_en_pista", "valor": {"pista": "LEAD", "device": "Operator"}}
+        {"id": "tempo", "instruccion": "Jungle va a 134 BPM. Pon el tempo a 134.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Crea una pista MIDI llamada LEAD. Es la 'alarma' del drop 2 (E4 ↔ D#4).", "check": "track_existe", "valor": "LEAD"},
+        {"id": "operator", "instruccion": "Carga un Operator en LEAD.", "check": "device_en_pista", "valor": {"pista": "LEAD", "device": "Operator"}},
+        {"id": "clip", "instruccion": "Crea un clip MIDI en LEAD y alárgalo a 4 compases (Length = 4.0.0).", "check": "clip_en_pista", "valor": "LEAD"},
+        {"id": "notas-c1-2", "instruccion": "La alarma, compases 1 y 2: E4 todo el compás 1, D#4 todo el compás 2. Copia el dibujo.", "check": "notas_en_clip", "valor": {"pista": "LEAD", "notas": [{"pitch": 76, "inicio": 0, "duracion": 4}, {"pitch": 75, "inicio": 4, "duracion": 4}]}},
+        {"id": "notas-c3-4", "instruccion": "Compases 3 y 4: D#4 al empezar el 3, sube a E4 en el 2.3 (beat 2, tercera semicorchea) y E4 todo el compás 4.", "check": "notas_en_clip", "valor": {"pista": "LEAD", "notas": [{"pitch": 75, "inicio": 8, "duracion": 1.5}, {"pitch": 76, "inicio": 9.5, "duracion": 2.5}, {"pitch": 76, "inicio": 12, "duracion": 4}]}},
+        {"id": "osc-b", "instruccion": "Sonido de la alarma: en Operator sube el nivel del oscilador B (Osc-B Level) a unos dos tercios. Añade los armónicos que la hacen sonar a sirena.", "check": "parametro_en_rango", "valor": {"pista": "LEAD", "device": "Operator", "parametro": "Osc-B Level", "min": 0.6, "max": 0.72}}
       ]
     },
     {
@@ -38,10 +40,14 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"instruccion": "Jungle va a 134 BPM. Pon el tempo a 134.", "check": "tempo_es", "valor": 134},
-        {"instruccion": "Crea una pista MIDI llamada BASS. El sub de los drops: G#0 casi puro.", "check": "track_existe", "valor": "BASS"},
-        {"instruccion": "Carga un Operator en BASS.", "check": "device_en_pista", "valor": {"pista": "BASS", "device": "Operator"}},
-        {"instruccion": "Crea un clip MIDI en BASS para la línea del drop.", "check": "clip_en_pista", "valor": "BASS"}
+        {"id": "tempo", "instruccion": "Jungle va a 134 BPM. Pon el tempo a 134.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Crea una pista MIDI llamada BASS. El sub de los drops: G#0 casi puro.", "check": "track_existe", "valor": "BASS"},
+        {"id": "operator", "instruccion": "Carga un Operator en BASS.", "check": "device_en_pista", "valor": {"pista": "BASS", "device": "Operator"}},
+        {"id": "clip", "instruccion": "Crea un clip MIDI en BASS para la línea del drop.", "check": "clip_en_pista", "valor": "BASS"},
+        {"id": "notas-c1-4", "instruccion": "Alarga el clip de BASS a 8 compases (Length = 8.0.0). Compases 1-4, una nota por compás: G#0, F#0, G#0, G#1.", "check": "notas_en_clip", "valor": {"pista": "BASS", "notas": [{"pitch": 32, "inicio": 0, "duracion": 4}, {"pitch": 30, "inicio": 4, "duracion": 4}, {"pitch": 32, "inicio": 8, "duracion": 4}, {"pitch": 44, "inicio": 12, "duracion": 4}]}},
+        {"id": "notas-c5-8", "instruccion": "Compases 5-8: G#0, F#0, G#0, G#0.", "check": "notas_en_clip", "valor": {"pista": "BASS", "notas": [{"pitch": 32, "inicio": 16, "duracion": 4}, {"pitch": 30, "inicio": 20, "duracion": 4}, {"pitch": 32, "inicio": 24, "duracion": 4}, {"pitch": 32, "inicio": 28, "duracion": 4}]}},
+        {"id": "osc-b", "instruccion": "El sub de Fred es G#0 más su segundo armónico. En Operator sube Osc-B Level casi arriba: es lo que hace que el bajo se oiga también en altavoces pequeños.", "check": "parametro_en_rango", "valor": {"pista": "BASS", "device": "Operator", "parametro": "Osc-B Level", "min": 0.8, "max": 0.92}},
+        {"id": "glide", "instruccion": "Activa Glide en Operator: las notas del bajo se deslizan de una a otra en vez de saltar.", "check": "parametro_en_rango", "valor": {"pista": "BASS", "device": "Operator", "parametro": "Glide On", "min": 1, "max": 1}}
       ]
     }
   ]

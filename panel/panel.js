@@ -139,8 +139,10 @@ async function comprobar() {
     const datos = await invoke("comprobar", { leccion, modulo, indice });
     if (pedido !== `${leccion}/${modulo}`) return;
     if (datos.hecho) {
-      indice++; // Rust ya lo ha guardado en SQLite
+      indice = datos.indice; // el siguiente sin hacer (Rust ya lo ha guardado en SQLite)
       pintar();
+    } else if (datos.detalle) {
+      resultado.textContent = datos.detalle; // parametro_en_rango: valor actual en Live
     } else if (datos.faltan) {
       resultado.textContent = `Faltan: ${datos.faltan.map((f) => `${f.nombre} (compás ${f.compas}, ${f.duracion} beats)`).join(", ")}`;
       dibujarRoll(datos.faltan);

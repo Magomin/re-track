@@ -31,6 +31,24 @@ pub struct Pista {
 #[serde(default)]
 pub struct Device {
     pub class_name: String,
+    pub parameters: Vec<Parametro>,
+    // Devices dentro de un rack (Instrument/Drum/Audio Effect Rack): ahí suele estar el sonido.
+    pub chains: Vec<Cadena>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct Parametro {
+    pub name: String,
+    pub value: f64,
+    // Lo que Live enseña en pantalla ("-6.0 dB", "1.20 kHz").
+    pub value_string: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct Cadena {
+    pub devices: Vec<Device>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -71,11 +89,7 @@ pub fn cumple(check: &Check, snapshot: &Snapshot) -> bool {
         Check::DeviceEnPista {
             pista: nombre,
             device,
-        } => pistas(snapshot, nombre).any(|p| {
-            p.devices
-                .iter()
-                .any(|d| d.class_name.to_lowercase() == device.to_lowercase())
-        }),
+        } => devices(snapshot, nombre, device).next().is_some(),
         Check::ClipEnPista(nombre) => {
             pistas(snapshot, nombre).any(|p| p.clip_slots.iter().any(|h| h.has_clip))
         }
@@ -83,6 +97,48 @@ pub fn cumple(check: &Check, snapshot: &Snapshot) -> bool {
             pista: nombre,
             notas,
         } => buscadas(notas).is_subset(&notas_de_pista(snapshot, nombre)),
+        Check::ParametroEnRango {
+            pista,
+            device,
+            parametro,
+            min,
+            max,
+        } => {
+            parametros(snapshot, pista, device, parametro).any(|p| (*min..=*max).contains(&p.value))
+        }
+    }
+}
+
+// Texto para el panel cuando un parametro_en_rango no se cumple: hacia dónde girar el
+// parámetro (el snapshot de Live 12 no trae el texto de pantalla, solo el valor bruto),
+// o qué falta para poder leerlo.
+pub fn detalle_parametro(
+    snapshot: &Snapshot,
+    pista: &str,
+    device: &str,
+    parametro: &str,
+    min: f64,
+    max: f64,
+) -> String {
+    if self::pista(snapshot, pista).is_none() {
+        return format!("No encuentro la pista {pista}");
+    }
+    if devices(snapshot, pista, device).next().is_none() {
+        return format!("No encuentro {device} en {pista}");
+    }
+    let Some(p) = parametros(snapshot, pista, device, parametro).next() else {
+        return format!("{device} no tiene el parámetro {parametro}");
+    };
+    let ahora = match &p.value_string {
+        Some(texto) => format!("{parametro} ahora {texto}"),
+        None => parametro.to_string(),
+    };
+    if p.value < min {
+        format!("{ahora}: súbelo")
+    } else if p.value > max {
+        format!("{ahora}: bájalo")
+    } else {
+        format!("{ahora}: ya está en su sitio")
     }
 }
 
@@ -122,6 +178,41 @@ fn pistas<'a>(snapshot: &'a Snapshot, nombre: &str) -> impl Iterator<Item = &'a 
 
 fn pista<'a>(snapshot: &'a Snapshot, nombre: &str) -> Option<&'a Pista> {
     pistas(snapshot, nombre).next()
+}
+
+// Todos los devices de la pista con ese class_name, también los que están dentro de racks.
+fn devices<'a>(
+    snapshot: &'a Snapshot,
+    pista: &str,
+    class_name: &str,
+) -> impl Iterator<Item = &'a Device> {
+    fn aplanar<'a>(lista: &'a [Device], salida: &mut Vec<&'a Device>) {
+        for d in lista {
+            salida.push(d);
+            for cadena in &d.chains {
+                aplanar(&cadena.devices, salida);
+            }
+        }
+    }
+    let mut todos = Vec::new();
+    for p in pistas(snapshot, pista) {
+        aplanar(&p.devices, &mut todos);
+    }
+    let class_name = class_name.to_lowercase();
+    todos
+        .into_iter()
+        .filter(move |d| d.class_name.to_lowercase() == class_name)
+}
+
+fn parametros<'a>(
+    snapshot: &'a Snapshot,
+    pista: &str,
+    device: &str,
+    parametro: &'a str,
+) -> impl Iterator<Item = &'a Parametro> {
+    devices(snapshot, pista, device)
+        .flat_map(|d| &d.parameters)
+        .filter(move |p| p.name.eq_ignore_ascii_case(parametro))
 }
 
 // Beats en semicorcheas enteras (0.25 beats): una nota dibujada a mano cae justo ahí,
@@ -257,6 +348,83 @@ mod tests {
         let corta = snap(json!({"tracks": [{"name": "PAD", "clip_slots": [
             {"has_clip": true, "clip": {"notes": [nota_live(45, 0.0, 1.0)]}}]}]}));
         assert!(!cumple(&en_clip("PAD", &[(45, 0.0)]), &corta));
+    }
+
+    fn con_operator(osc_b: f64, en_rack: bool) -> Snapshot {
+        let operator = json!({"class_name": "Operator", "parameters": [
+            {"name": "Device On", "value": 1.0, "value_string": "On"},
+            {"name": "Osc-B Level", "value": osc_b, "value_string": "-1.5 dB"}
+        ]});
+        let devices = if en_rack {
+            json!([{"class_name": "InstrumentGroupDevice", "parameters": [],
+                    "chains": [{"devices": [operator]}]}])
+        } else {
+            json!([operator])
+        };
+        snap(json!({"tracks": [{"name": "BASS", "devices": devices, "clip_slots": []}]}))
+    }
+
+    fn osc_b(min: f64, max: f64) -> Check {
+        Check::ParametroEnRango {
+            pista: "bass".into(),
+            device: "operator".into(),
+            parametro: "osc-b level".into(),
+            min,
+            max,
+        }
+    }
+
+    #[test]
+    fn parametro_en_rango() {
+        assert!(cumple(&osc_b(0.8, 0.92), &con_operator(0.84, false)));
+        assert!(cumple(&osc_b(0.8, 0.92), &con_operator(0.8, false))); // los bordes cuentan
+        assert!(!cumple(&osc_b(0.8, 0.92), &con_operator(0.75, false)));
+        assert!(cumple(&osc_b(0.8, 0.92), &con_operator(0.84, true))); // dentro de un rack
+        assert!(!cumple(&osc_b(0.8, 0.92), &base())); // sin Operator con ese parámetro
+    }
+
+    #[test]
+    fn detalle_de_parametro() {
+        let d = |s: &Snapshot, pista: &str| {
+            detalle_parametro(s, pista, "Operator", "Osc-B Level", 0.8, 0.92)
+        };
+        assert_eq!(
+            d(&con_operator(0.5, true), "BASS"),
+            "Osc-B Level ahora -1.5 dB: súbelo"
+        );
+        assert_eq!(
+            d(&con_operator(0.95, false), "BASS"),
+            "Osc-B Level ahora -1.5 dB: bájalo"
+        );
+        assert_eq!(d(&base(), "BASS"), "No encuentro la pista BASS");
+        assert_eq!(d(&base(), "2-MIDI"), "No encuentro Operator en 2-MIDI");
+        let otro = detalle_parametro(
+            &con_operator(0.5, false),
+            "BASS",
+            "Operator",
+            "Filtro",
+            0.0,
+            1.0,
+        );
+        assert_eq!(otro, "Operator no tiene el parámetro Filtro");
+        // Live 12: el snapshot no trae value_string
+        let sin_texto = snap(
+            json!({"tracks": [{"name": "PAD", "devices": [{"class_name": "Operator",
+            "parameters": [{"name": "Ae Attack", "value": 0.0, "min": 0.0, "max": 1.0}]}]}]}),
+        );
+        assert_eq!(
+            detalle_parametro(&sin_texto, "PAD", "Operator", "Ae Attack", 0.28, 0.35),
+            "Ae Attack: súbelo"
+        );
+    }
+
+    #[test]
+    fn device_en_pista_tambien_dentro_de_un_rack() {
+        let check = Check::DeviceEnPista {
+            pista: "BASS".into(),
+            device: "Operator".into(),
+        };
+        assert!(cumple(&check, &con_operator(0.5, true)));
     }
 
     #[test]
