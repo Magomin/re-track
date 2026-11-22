@@ -1,4 +1,5 @@
-const API = "http://localhost:8000";
+// Tauri inyecta window.__TAURI__ (withGlobalTauri); invoke llama a un #[tauri::command] de src-tauri/src/lib.rs.
+const { invoke } = window.__TAURI__.core;
 
 // Viven fuera de las funciones para sobrevivir entre comprobaciones.
 let leccion = "";
@@ -69,10 +70,6 @@ function dibujarRoll(faltan = null) {
   roll.hidden = false;
 }
 
-async function pedir(ruta, opciones) {
-  return (await fetch(`${API}${ruta}`, opciones)).json();
-}
-
 function pintar() {
   if (indice >= pasos.length) {
     contador.textContent = "";
@@ -94,7 +91,7 @@ async function verModulos(nombre) {
   vistaPaso.hidden = true;
   vistaModulos.hidden = false;
   listaModulos.replaceChildren();
-  for (const m of await pedir(`/modulos/${leccion}`)) {
+  for (const m of await invoke("modulos", { leccion })) {
     const hecho = m.hechos >= m.total;
     const boton = document.createElement("button");
     boton.className = hecho ? "modulo hecho" : "modulo";
@@ -113,21 +110,21 @@ async function verModulos(nombre) {
 async function abrirModulo(id, titulo) {
   modulo = id;
   tituloModulo.textContent = titulo;
-  pasos = await pedir(`/pasos/${leccion}/${modulo}`);
-  indice = (await pedir(`/progreso/${leccion}/${modulo}`)).indice;
+  pasos = await invoke("pasos", { leccion, modulo });
+  indice = (await invoke("progreso", { leccion, modulo })).indice;
   vistaModulos.hidden = true;
   vistaPaso.hidden = false;
   pintar();
 }
 
 async function empezar() {
-  const nombres = await pedir("/lecciones");
+  const nombres = await invoke("lecciones");
   for (const nombre of nombres) selector.add(new Option(nombre, nombre));
   selector.addEventListener("change", () => verModulos(selector.value));
   document.getElementById("volver").addEventListener("click", () => verModulos(leccion));
   document.getElementById("reiniciar").addEventListener("click", async () => {
     if (!confirm(`¿Empezar "${tituloModulo.textContent}" desde el paso 1?`)) return;
-    await pedir(`/progreso/${leccion}/${modulo}`, { method: "DELETE" });
+    await invoke("reiniciar", { leccion, modulo });
     await abrirModulo(modulo, tituloModulo.textContent);
   });
   await verModulos(nombres[0]);
@@ -139,10 +136,10 @@ async function comprobar() {
   ocupado = true;
   const pedido = `${leccion}/${modulo}`; // si cambias de módulo a mitad, se descarta la respuesta vieja
   try {
-    const datos = await pedir(`/comprobar/${leccion}/${modulo}/${indice}`, { method: "POST" });
+    const datos = await invoke("comprobar", { leccion, modulo, indice });
     if (pedido !== `${leccion}/${modulo}`) return;
     if (datos.hecho) {
-      indice++; // la API ya lo ha guardado en SQLite
+      indice++; // Rust ya lo ha guardado en SQLite
       pintar();
     } else if (datos.faltan) {
       resultado.textContent = `Faltan: ${datos.faltan.map((f) => `${f.nombre} (compás ${f.compas}, ${f.duracion} beats)`).join(", ")}`;
@@ -150,14 +147,14 @@ async function comprobar() {
     } else {
       resultado.textContent = "Esperando a que lo hagas en Live...";
     }
-  } catch {
-    resultado.textContent = "No encuentro la API (¿uvicorn y Ableton abiertos?)";
+  } catch (error) {
+    resultado.textContent = String(error); // el Err(String) del comando Rust
   } finally {
     ocupado = false;
   }
 }
 
 setInterval(comprobar, 1000);
-empezar().catch(() => {
-  instruccion.textContent = "No encuentro la API. Arranca uvicorn y reabre el panel.";
+empezar().catch((error) => {
+  listaModulos.textContent = String(error); // la vista de módulos es la única visible al arrancar
 });
