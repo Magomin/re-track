@@ -25,7 +25,7 @@ Implicación inmediata: el schema pasa a `Leccion → modulos[] (id, version, te
 | 1 | Herramienta personal primero; productizar solo si la v1 funciona |
 | 2 | Integrado en Ableton: verificación por Remote Script/socket; UI = panel Python always-on-top → overlay transparente por zonas (v2) → pixel-matching fino solo si hace falta (v3) |
 | 3 | Envuelve el pipeline musichelper existente (scout/demucs/medición/render); reescrituras selectivas como ejercicios |
-| 4 | Stack Python. Foco de aprendizaje: backend, testing, git/CI. Frontend: Electron (JS) sobre API HTTP Python (FastAPI). Cambiado de tkinter el 2026-11-02 a petición de Matthieu (sabe JS, quiere arquitectura front + API) |
+| 4 | Stack Rust + Tauri 2 (2026-11-22; antes Python + FastAPI + Electron, y antes tkinter). Lógica en módulos Rust sin Tauri; panel HTML/CSS/JS llama por `invoke`. Rune (Anomaly) descartado por ahora: pre-release |
 | 5 | Protocolo enseñanza: ver CLAUDE.md (regla maestra) |
 | 6 | Orden: **lesson player primero** (Jungle como golden data) → **remake runner** después (`claude -p` headless detrás de interfaz `AIProvider`; BYOK futuro cuando usuarios traigan su API key) |
 | 7 | Verificación por niveles: estructura (clip existe, device cargado) → exactitud (notas exactas, params en tolerancia, dB objetivo) |

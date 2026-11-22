@@ -3,23 +3,21 @@ name: tests
 on: [push, pull_request]
 
 jobs:
-  pytest:
+  test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src-tauri
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      # Lo que Tauri necesita para compilar en Linux (WebKitGTK y compañía).
+      - run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          python-version: "3.12"
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest
-
-  ruff:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
         with:
-          python-version: "3.12"
-      - run: pip install -e ".[dev]"
-      - run: ruff check .
-      - run: ruff format --check .
+          workspaces: src-tauri
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
