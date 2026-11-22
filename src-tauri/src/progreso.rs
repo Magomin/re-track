@@ -1,6 +1,7 @@
-// Progreso por módulo en SQLite (antes retrack/progreso.py). Misma tabla y mismo fichero,
-// así el progreso guardado desde Python sigue valiendo. Clave = "leccion/modulo".
+// Progreso en SQLite: qué pasos (por id) ha hecho el usuario en cada módulo.
+// Clave del módulo = "leccion/modulo". Mismo fichero que usaba la versión Python.
 use rusqlite::{Connection, OptionalExtension, params};
+use std::collections::HashSet;
 use std::path::Path;
 
 fn conectar(ruta: &Path) -> Result<Connection, String> {
@@ -9,40 +10,70 @@ fn conectar(ruta: &Path) -> Result<Connection, String> {
     }
     let conexion = Connection::open(ruta).map_err(|e| e.to_string())?;
     conexion
-        .execute(
-            "CREATE TABLE IF NOT EXISTS progreso (leccion TEXT PRIMARY KEY, indice INTEGER)",
-            [],
+        .execute_batch(
+            "CREATE TABLE IF NOT EXISTS hechos (modulo TEXT, paso TEXT, PRIMARY KEY (modulo, paso));
+             -- Formato anterior (índice por posición). Se lee una vez para migrar y se borra.
+             CREATE TABLE IF NOT EXISTS progreso (leccion TEXT PRIMARY KEY, indice INTEGER);",
         )
         .map_err(|e| e.to_string())?;
     Ok(conexion)
 }
 
-pub fn guardar(ruta: &Path, clave: &str, indice: usize) -> Result<(), String> {
+pub fn marcar(ruta: &Path, modulo: &str, paso: &str) -> Result<(), String> {
     conectar(ruta)?
         .execute(
-            "INSERT OR REPLACE INTO progreso VALUES (?1, ?2)",
-            params![clave, indice as i64],
+            "INSERT OR IGNORE INTO hechos VALUES (?1, ?2)",
+            params![modulo, paso],
         )
         .map_err(|e| e.to_string())?;
     Ok(())
 }
 
-pub fn leer(ruta: &Path, clave: &str) -> Result<usize, String> {
-    let indice: Option<i64> = conectar(ruta)?
+// `orden` = ids del módulo en orden: si hay progreso del formato anterior ("voy por el paso N"),
+// los N primeros pasan a hechos.
+pub fn hechos(ruta: &Path, modulo: &str, orden: &[String]) -> Result<HashSet<String>, String> {
+    let mut conexion = conectar(ruta)?;
+    let antiguo: Option<i64> = conexion
         .query_row(
             "SELECT indice FROM progreso WHERE leccion = ?1",
-            [clave],
+            [modulo],
             |fila| fila.get(0),
         )
         .optional()
         .map_err(|e| e.to_string())?;
-    Ok(indice.unwrap_or(0) as usize)
+    if let Some(indice) = antiguo {
+        let tx = conexion.transaction().map_err(|e| e.to_string())?;
+        for paso in orden.iter().take(indice.max(0) as usize) {
+            tx.execute(
+                "INSERT OR IGNORE INTO hechos VALUES (?1, ?2)",
+                params![modulo, paso],
+            )
+            .map_err(|e| e.to_string())?;
+        }
+        tx.execute("DELETE FROM progreso WHERE leccion = ?1", [modulo])
+            .map_err(|e| e.to_string())?;
+        tx.commit().map_err(|e| e.to_string())?;
+    }
+
+    let mut consulta = conexion
+        .prepare("SELECT paso FROM hechos WHERE modulo = ?1")
+        .map_err(|e| e.to_string())?;
+    let filas = consulta
+        .query_map([modulo], |fila| fila.get::<_, String>(0))
+        .map_err(|e| e.to_string())?;
+    filas.collect::<Result<_, _>>().map_err(|e| e.to_string())
 }
 
-pub fn borrar(ruta: &Path, clave: &str) -> Result<(), String> {
-    conectar(ruta)?
-        .execute("DELETE FROM progreso WHERE leccion = ?1", [clave])
-        .map_err(|e| e.to_string())?;
+pub fn borrar(ruta: &Path, modulo: &str) -> Result<(), String> {
+    let conexion = conectar(ruta)?;
+    for tabla in [
+        "DELETE FROM hechos WHERE modulo = ?1",
+        "DELETE FROM progreso WHERE leccion = ?1",
+    ] {
+        conexion
+            .execute(tabla, [modulo])
+            .map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 
@@ -50,17 +81,50 @@ pub fn borrar(ruta: &Path, clave: &str) -> Result<(), String> {
 mod tests {
     use super::*;
 
+    fn ruta(nombre: &str) -> std::path::PathBuf {
+        std::env::temp_dir().join(format!("retrack-test-{nombre}-{}.db", std::process::id()))
+    }
+
+    fn ids(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
+
     #[test]
-    fn guardar_leer_borrar() {
-        let ruta = std::env::temp_dir().join(format!("retrack-test-{}.db", std::process::id()));
-        assert_eq!(leer(&ruta, "jungle/pad").unwrap(), 0); // nunca empezado
-        guardar(&ruta, "jungle/pad", 3).unwrap();
-        guardar(&ruta, "jungle/pad", 4).unwrap(); // sobrescribe, no duplica
-        guardar(&ruta, "jungle/bass", 1).unwrap();
-        assert_eq!(leer(&ruta, "jungle/pad").unwrap(), 4);
+    fn marcar_leer_borrar() {
+        let ruta = ruta("basico");
+        let orden = ids(&["tempo", "pista"]);
+        assert!(hechos(&ruta, "jungle/pad", &orden).unwrap().is_empty()); // nunca empezado
+        marcar(&ruta, "jungle/pad", "tempo").unwrap();
+        marcar(&ruta, "jungle/pad", "tempo").unwrap(); // dos veces no duplica
+        marcar(&ruta, "jungle/bass", "tempo").unwrap();
+        assert_eq!(
+            hechos(&ruta, "jungle/pad", &orden).unwrap(),
+            ["tempo".to_string()].into()
+        );
         borrar(&ruta, "jungle/pad").unwrap();
-        assert_eq!(leer(&ruta, "jungle/pad").unwrap(), 0);
-        assert_eq!(leer(&ruta, "jungle/bass").unwrap(), 1);
+        assert!(hechos(&ruta, "jungle/pad", &orden).unwrap().is_empty());
+        assert_eq!(hechos(&ruta, "jungle/bass", &orden).unwrap().len(), 1);
+        std::fs::remove_file(&ruta).unwrap();
+    }
+
+    #[test]
+    fn migra_el_indice_del_formato_anterior_una_sola_vez() {
+        let ruta = ruta("migra");
+        let conexion = conectar(&ruta).unwrap();
+        conexion
+            .execute("INSERT INTO progreso VALUES ('jungle/pad', 2)", [])
+            .unwrap();
+        conexion
+            .execute("INSERT INTO progreso VALUES ('jungle', 13)", [])
+            .unwrap(); // clave de antes de los módulos: no se toca
+        drop(conexion);
+
+        let orden = ids(&["tempo", "pista", "operator"]);
+        let esperado: HashSet<String> = ids(&["tempo", "pista"]).into_iter().collect();
+        assert_eq!(hechos(&ruta, "jungle/pad", &orden).unwrap(), esperado);
+        // Ya migrado: la fila vieja no vuelve a aplicarse aunque se reinicie el módulo.
+        borrar(&ruta, "jungle/pad").unwrap();
+        assert!(hechos(&ruta, "jungle/pad", &orden).unwrap().is_empty());
         std::fs::remove_file(&ruta).unwrap();
     }
 }

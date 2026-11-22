@@ -15,6 +15,7 @@ ustup`, `CARGO_HOME=D:
 ust\cargo`, `CARGO_TARGET_DIR=D:
 ust	arget` (variables de usuario). Primera compilación de Tauri ~5 min.
 - Datos: JSON de lección (schema en `src-tauri/src/leccion.rs`, serde: un check desconocido o un `valor` mal formado no carga) + SQLite en `data/progreso.db` (clave `leccion/modulo`).
+- Lecciones: cada paso lleva `id` fijo (el progreso va por id; tabla `hechos`). Pasos nuevos en un módulo con progreso antiguo: al final, la migración marca los N primeros. `parametro_en_rango`: nombres de parámetro de Live (`Ae Attack`, `Osc-B Level`, `Glide On`; catálogo en `musichelper/reference/beatspark/src/data/device-catalog.json`), rango en valor bruto. El snapshot de Live 12 no trae `value_string`.
 - Socket a Live: `127.0.0.1`, no `localhost` (AbletonMCP solo escucha IPv4; en Windows probar `::1` antes cuesta ~2 s por llamada).
 - Verificar: `cargo test` / `cargo clippy --all-targets -- -D warnings` / `cargo fmt --check` en `src-tauri/` (lo mismo que el CI).
 - Ableton: Remote Script AbletonMCP, socket TCP `localhost:9877`, JSON `{"type": cmd, "params": {...}}`. Comandos y gotchas documentados en `C:\Users\domin\Desktop\musichelper\CLAUDE.md` (motor/laboratorio: pipeline remake, medición, render).
