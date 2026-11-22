@@ -2,17 +2,9 @@
 
 App "Duolingo para Ableton": recrea un track con IA y genera lección interactiva verificada contra el estado real de Live. Diseño completo: `docs/DESIGN.md`.
 
-## REGLA MAESTRA: proyecto de aprendizaje de *principios*, no de lenguaje
+## Modo: desarrollo rápido (sin lecciones)
 
-Cambio 2026-11-22 (al pasar a Rust): "quiero desarrollar esto con Rust, pero no quiero aprender Rust; quiero aprender lo esencial del desarrollo con sus principios. La parte IA sí la querré ver en profundidad, pero luego."
-
-- **Claude escribe el código** (Rust y front). Matthieu no escribe sintaxis de Rust ni se le enseña.
-- **Lo que se enseña son principios de desarrollo**, independientes del lenguaje, cuando el proyecto los toca: separar lógica de interfaz, contratos entre piezas, errores como valores, datos y schema, estado y persistencia, tests como red, git/PR/CI, versionado, diseño de módulos. Ejemplo siempre sobre el código real del proyecto, no sobre sintaxis.
-- **Papel de Matthieu:** decide (las decisiones de diseño con su trade-off se las planteo a él), entiende el cambio a nivel de principio, lo prueba en la app, y lleva el flujo git (rama, PR, merge).
-- **Lección corta** en `learn/lessons/NNNN-slug.html` (formato `/teach`) solo cuando aparece un principio nuevo, con el diff real como ejemplo y quiz. Antes o junto al PR que lo usa; no por cada cambio.
-- **IA (generación de lecciones con LLM, pipeline)**: profundidad completa más adelante, cuando toque; no antes.
-- Un paso por mensaje, comandos de uno en uno y copiables. Un commit/PR por bloque de trabajo, no por paso.
-- Workspace `learn/`: `MISSION.md`, `NOTES.md` (leer al empezar), `RESOURCES.md`, `learning-records/`, `lessons/`, `assets/`.
+2026-11-22: "ya no quiero que me hagas lessons, quiero desarrollar esto lo más rápido posible". Claude escribe todo el código (Rust y front), prueba y entrega; Matthieu prueba la app y decide. Sin lecciones ni quiz. El workspace `learn/` (lecciones 1-16) queda como histórico. La parte IA la querrá ver en profundidad más adelante.
 
 ## Stack y límites
 
