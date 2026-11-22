@@ -42,7 +42,9 @@ fn modulos(leccion: String) -> Result<Value, String> {
     let mut resumen = Vec::new();
     for m in &contenido.modulos {
         let hechos = progreso::leer(&base_de_datos(), &clave(&leccion, &m.id))?;
-        resumen.push(json!({"id": m.id, "titulo": m.titulo, "total": m.pasos.len(), "hechos": hechos}));
+        resumen.push(
+            json!({"id": m.id, "titulo": m.titulo, "total": m.pasos.len(), "hechos": hechos}),
+        );
     }
     Ok(json!(resumen))
 }
@@ -64,8 +66,9 @@ async fn comprobar(leccion: String, modulo: String, indice: usize) -> Result<Val
         .buscar_modulo(&modulo)
         .and_then(|m| m.pasos.get(indice))
         .ok_or(format!("No existe el paso {indice} de {leccion}/{modulo}"))?;
-    let snapshot: verify::Snapshot = serde_json::from_value(live::send("get_session_snapshot", json!({}))?)
-        .map_err(|e| format!("Snapshot de Live inesperado: {e}"))?;
+    let snapshot: verify::Snapshot =
+        serde_json::from_value(live::send("get_session_snapshot", json!({}))?)
+            .map_err(|e| format!("Snapshot de Live inesperado: {e}"))?;
 
     let hecho = verify::cumple(&paso.check, &snapshot);
     if hecho {

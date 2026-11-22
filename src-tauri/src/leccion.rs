@@ -118,8 +118,13 @@ mod tests {
             let ruta = carpeta.join(format!("{nombre}.json"));
             let leccion = cargar(&ruta).unwrap();
             // El panel lee check/valor tal cual venían en el JSON: al reenviarlo no debe cambiar la forma.
-            let original: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&ruta).unwrap()).unwrap();
-            for (m, m_original) in leccion.modulos.iter().zip(original["modulos"].as_array().unwrap()) {
+            let original: serde_json::Value =
+                serde_json::from_str(&std::fs::read_to_string(&ruta).unwrap()).unwrap();
+            for (m, m_original) in leccion
+                .modulos
+                .iter()
+                .zip(original["modulos"].as_array().unwrap())
+            {
                 for (p, p_original) in m.pasos.iter().zip(m_original["pasos"].as_array().unwrap()) {
                     let enviado = serde_json::to_value(p).unwrap();
                     assert_eq!(enviado["check"], p_original["check"]);

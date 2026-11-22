@@ -19,14 +19,21 @@ fn conectar(ruta: &Path) -> Result<Connection, String> {
 
 pub fn guardar(ruta: &Path, clave: &str, indice: usize) -> Result<(), String> {
     conectar(ruta)?
-        .execute("INSERT OR REPLACE INTO progreso VALUES (?1, ?2)", params![clave, indice as i64])
+        .execute(
+            "INSERT OR REPLACE INTO progreso VALUES (?1, ?2)",
+            params![clave, indice as i64],
+        )
         .map_err(|e| e.to_string())?;
     Ok(())
 }
 
 pub fn leer(ruta: &Path, clave: &str) -> Result<usize, String> {
     let indice: Option<i64> = conectar(ruta)?
-        .query_row("SELECT indice FROM progreso WHERE leccion = ?1", [clave], |fila| fila.get(0))
+        .query_row(
+            "SELECT indice FROM progreso WHERE leccion = ?1",
+            [clave],
+            |fila| fila.get(0),
+        )
         .optional()
         .map_err(|e| e.to_string())?;
     Ok(indice.unwrap_or(0) as usize)

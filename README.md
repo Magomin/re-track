@@ -2,7 +2,9 @@
 
 Learn Ableton Live by rebuilding real songs. Re-track reverse-engineers a track with AI, recreates it in your own Ableton set, and turns the process into an interactive, verified lesson — checked against the real state of your Live project, not screenshots.
 
-Status: early development. Built as a learning project — the code is written by a student with an AI teacher reviewing every line.
+Status: early development. Desktop app in Rust + [Tauri 2](https://tauri.app/): the lesson logic lives in `src-tauri/src/`, the panel in `panel/`.
+
+Run it: `npm install`, then `npm run tauri dev` (needs Rust and, on Windows, the Visual Studio C++ build tools).
 
 ## How it works (target architecture)
 

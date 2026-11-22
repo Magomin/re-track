@@ -68,14 +68,21 @@ pub fn cumple(check: &Check, snapshot: &Snapshot) -> bool {
         Check::TrackExiste(nombre) => pista(snapshot, nombre).is_some(),
         // Tolerancia mínima: Live guarda el tempo como float (126.5 puede volver como 126.4999).
         Check::TempoEs(bpm) => (snapshot.session.tempo - bpm).abs() < 0.01,
-        Check::DeviceEnPista { pista: nombre, device } => pistas(snapshot, nombre)
-            .any(|p| p.devices.iter().any(|d| d.class_name.to_lowercase() == device.to_lowercase())),
+        Check::DeviceEnPista {
+            pista: nombre,
+            device,
+        } => pistas(snapshot, nombre).any(|p| {
+            p.devices
+                .iter()
+                .any(|d| d.class_name.to_lowercase() == device.to_lowercase())
+        }),
         Check::ClipEnPista(nombre) => {
             pistas(snapshot, nombre).any(|p| p.clip_slots.iter().any(|h| h.has_clip))
         }
-        Check::NotasEnClip { pista: nombre, notas } => {
-            buscadas(notas).is_subset(&notas_de_pista(snapshot, nombre))
-        }
+        Check::NotasEnClip {
+            pista: nombre,
+            notas,
+        } => buscadas(notas).is_subset(&notas_de_pista(snapshot, nombre)),
     }
 }
 
@@ -94,14 +101,23 @@ pub fn notas_que_faltan(snapshot: &Snapshot, nombre_pista: &str, notas: &[Nota])
 }
 
 pub fn nombre_nota(pitch: u8) -> String {
-    const NOMBRES: [&str; 12] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const NOMBRES: [&str; 12] = [
+        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+    ];
     // Convención de Live: C3 = 60, así que la octava es pitch / 12 - 2.
-    format!("{}{}", NOMBRES[(pitch % 12) as usize], pitch as i32 / 12 - 2)
+    format!(
+        "{}{}",
+        NOMBRES[(pitch % 12) as usize],
+        pitch as i32 / 12 - 2
+    )
 }
 
 fn pistas<'a>(snapshot: &'a Snapshot, nombre: &str) -> impl Iterator<Item = &'a Pista> {
     let nombre = nombre.to_lowercase();
-    snapshot.tracks.iter().filter(move |p| p.name.to_lowercase() == nombre)
+    snapshot
+        .tracks
+        .iter()
+        .filter(move |p| p.name.to_lowercase() == nombre)
 }
 
 fn pista<'a>(snapshot: &'a Snapshot, nombre: &str) -> Option<&'a Pista> {
@@ -118,7 +134,10 @@ fn en_rejilla(beat: f64) -> i64 {
 type NotaRejilla = (i64, u8, i64);
 
 fn buscadas(notas: &[Nota]) -> BTreeSet<NotaRejilla> {
-    notas.iter().map(|n| (en_rejilla(n.inicio), n.pitch, en_rejilla(n.duracion))).collect()
+    notas
+        .iter()
+        .map(|n| (en_rejilla(n.inicio), n.pitch, en_rejilla(n.duracion)))
+        .collect()
 }
 
 fn notas_de_pista(snapshot: &Snapshot, nombre: &str) -> BTreeSet<NotaRejilla> {
@@ -164,11 +183,21 @@ mod tests {
     }
 
     fn notas(pares: &[(u8, f64)]) -> Vec<Nota> {
-        pares.iter().map(|&(pitch, inicio)| Nota { pitch, inicio, duracion: 4.0 }).collect()
+        pares
+            .iter()
+            .map(|&(pitch, inicio)| Nota {
+                pitch,
+                inicio,
+                duracion: 4.0,
+            })
+            .collect()
     }
 
     fn en_clip(pista: &str, n: &[(u8, f64)]) -> Check {
-        Check::NotasEnClip { pista: pista.into(), notas: notas(n) }
+        Check::NotasEnClip {
+            pista: pista.into(),
+            notas: notas(n),
+        }
     }
 
     #[test]
@@ -181,7 +210,10 @@ mod tests {
 
     #[test]
     fn device_en_pista() {
-        let check = |pista: &str, device: &str| Check::DeviceEnPista { pista: pista.into(), device: device.into() };
+        let check = |pista: &str, device: &str| Check::DeviceEnPista {
+            pista: pista.into(),
+            device: device.into(),
+        };
         assert!(cumple(&check("pad", "Operator"), &base()));
         assert!(!cumple(&check("PAD", "Wavetable"), &base()));
         assert!(!cumple(&check("2-MIDI", "Operator"), &base()));
@@ -196,16 +228,25 @@ mod tests {
 
     #[test]
     fn notas_en_clip() {
-        assert!(cumple(&en_clip("pad", &[(45, 0.0), (52, 0.0)]), &clip_pad()));
+        assert!(cumple(
+            &en_clip("pad", &[(45, 0.0), (52, 0.0)]),
+            &clip_pad()
+        ));
         assert!(cumple(&en_clip("PAD", &[(44, 4.0)]), &clip_pad()));
-        assert!(!cumple(&en_clip("PAD", &[(44, 0.0), (51, 0.0)]), &clip_pad()));
+        assert!(!cumple(
+            &en_clip("PAD", &[(44, 0.0), (51, 0.0)]),
+            &clip_pad()
+        ));
         assert!(!cumple(&en_clip("BASS", &[(45, 0.0)]), &clip_pad()));
     }
 
     #[test]
     fn nota_en_otro_compas_no_cuenta() {
         // G#1 está en el compás 2 (beat 4), pero el compás 3 la pide en el beat 8.
-        assert!(!cumple(&en_clip("PAD", &[(44, 8.0), (52, 8.0)]), &clip_pad()));
+        assert!(!cumple(
+            &en_clip("PAD", &[(44, 8.0), (52, 8.0)]),
+            &clip_pad()
+        ));
     }
 
     #[test]
@@ -228,8 +269,15 @@ mod tests {
 
     #[test]
     fn notas_que_faltan_en_orden() {
-        let faltan = notas_que_faltan(&clip_pad(), "PAD", &notas(&[(52, 8.0), (44, 8.0), (45, 0.0)]));
-        let resumen: Vec<_> = faltan.iter().map(|f| (f.nombre.as_str(), f.compas)).collect();
+        let faltan = notas_que_faltan(
+            &clip_pad(),
+            "PAD",
+            &notas(&[(52, 8.0), (44, 8.0), (45, 0.0)]),
+        );
+        let resumen: Vec<_> = faltan
+            .iter()
+            .map(|f| (f.nombre.as_str(), f.compas))
+            .collect();
         assert_eq!(resumen, [("G#1", 3), ("E2", 3)]);
         assert_eq!(faltan[0].inicio, 8.0);
     }
