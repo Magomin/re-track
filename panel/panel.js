@@ -1,5 +1,6 @@
 // Tauri inyecta window.__TAURI__ (withGlobalTauri); invoke llama a un #[tauri::command] de src-tauri/src/lib.rs.
 const { invoke } = window.__TAURI__.core;
+const ventana = window.__TAURI__.window.getCurrentWindow();
 
 // Viven fuera de las funciones para sobrevivir entre comprobaciones.
 let leccion = "";
@@ -168,6 +169,8 @@ async function abrirModulo(id, titulo) {
 }
 
 async function empezar() {
+  $("minimizar").addEventListener("click", () => ventana.minimize());
+  $("cerrar").addEventListener("click", () => ventana.close());
   const nombres = await invoke("lecciones");
   for (const nombre of nombres) selector.add(new Option(nombre, nombre));
   selector.addEventListener("change", () => verModulos(selector.value));

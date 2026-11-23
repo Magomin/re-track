@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!-- Fuente del icono de la app. Regenerar: copiar panel/fonts/*.ttf aquí, captura 1024x1024 con Chrome headless (fondo transparente) y `npx tauri icon icono.png -o src-tauri/icons`. --><style>
+@font-face { font-family: Rajdhani; font-weight: 700; src: url(Rajdhani-Bold.ttf); }
+html,body { margin:0; background: transparent; }
+.cuadro { position: relative; width: 1024px; height: 1024px; overflow: hidden; background: #08080a;
+  clip-path: polygon(0 0, calc(100% - 190px) 0, 100% 190px, 100% 100%, 190px 100%, 0 calc(100% - 190px)); }
+.cuadro::before { content:""; position:absolute; left:0; top:0; right:190px; height:34px; background:#fcee0a; }
+.cuadro::after { content:""; position:absolute; inset:0;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 4px, transparent 4px 12px); }
+.r { position:absolute; left:0; right:0; top:90px; text-align:center; font: 700 900px/1 Rajdhani; color:#fcee0a;
+  transform: skewX(-12deg); text-shadow: -26px 0 #ff2a3d, 26px 0 #00e5ff; }
+.r::after { content:"R"; position:absolute; left:0; right:0; top:0; color:#fcee0a; clip-path: inset(50% 0 32% 0);
+  transform: translateX(60px); text-shadow: -26px 0 #ff2fb0; }
+.barra { position:absolute; left:120px; bottom:120px; height:22px; width:330px;
+  background: linear-gradient(90deg, #ff2fb0 0 55%, transparent 55% 64%, #ff2fb0 64% 80%, transparent 80%); }
+</style></head><body><div class="cuadro"><div class="r">R</div><div class="barra"></div></div></body></html>

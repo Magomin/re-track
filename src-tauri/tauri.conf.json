@@ -13,7 +13,8 @@
         "title": "Re-track",
         "width": 460,
         "height": 460,
-        "alwaysOnTop": true
+        "alwaysOnTop": true,
+        "decorations": false
       }
     ],
     "security": {
