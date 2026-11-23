@@ -49,6 +49,22 @@
         {"id": "osc-b", "instruccion": "Osc-B Level → 0.80–0.92. Medido: 0.84 da h2 −10 dB, 0.90 da −3; Fred, −7. Sin h2 el sub no se oye en altavoces pequeños.", "check": "parametro_en_rango", "valor": {"pista": "BASS", "device": "Operator", "parametro": "Osc-B Level", "min": 0.8, "max": 0.92}},
         {"id": "glide", "instruccion": "Glide On. Con una sola voz, cada nota se desliza desde la anterior en vez de saltar (el G#0 → F#1 → F#0 del drop 3).", "check": "parametro_en_rango", "valor": {"pista": "BASS", "device": "Operator", "parametro": "Glide On", "min": 1, "max": 1}}
       ]
+    },
+    {
+      "id": "drums",
+      "titulo": "Drums: el 909 del drop",
+      "tempo": 134,
+      "tonalidad": "G#m",
+      "pasos": [
+        {"id": "tempo", "instruccion": "Tempo a 134 BPM, medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Pista MIDI llamada DRUMS. Los drops van sobre un patrón 909: kick, clap, hat abierto y hat cerrado.", "check": "track_existe", "valor": "DRUMS"},
+        {"id": "drum-rack", "instruccion": "Drum Rack con un kit 909 en DRUMS (Browser → Drums → 909 Core Kit). El loop del original es una 909.", "check": "device_en_pista", "valor": {"pista": "DRUMS", "device": "DrumGroupDevice"}},
+        {"id": "clip", "instruccion": "Clip MIDI de 1 compás en DRUMS. En el drop 1 el patrón se repite idéntico cada compás.", "check": "clip_en_pista", "valor": "DRUMS"},
+        {"id": "kick", "instruccion": "Kick (C1) en los 4 tiempos, notas de 1/16 (four-on-the-floor). Kick medido: f0 ~59 Hz (A#0), redondo, sin click.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 36, "inicio": 0, "duracion": 0.25}, {"pitch": 36, "inicio": 1, "duracion": 0.25}, {"pitch": 36, "inicio": 2, "duracion": 0.25}, {"pitch": 36, "inicio": 3, "duracion": 0.25}]}},
+        {"id": "clap", "instruccion": "Clap (D#1) en los tiempos 2 y 4. Va ~9 dB por debajo del kick: marca el backbeat sin taparlo.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 39, "inicio": 1, "duracion": 0.25}, {"pitch": 39, "inicio": 3, "duracion": 0.25}]}},
+        {"id": "hat-abierto", "instruccion": "Hat abierto (A#1) en cada contratiempo (las «&»). Medido: cae −20 dB en ~95 ms, no se solapa con el siguiente.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 46, "inicio": 0.5, "duracion": 0.25}, {"pitch": 46, "inicio": 1.5, "duracion": 0.25}, {"pitch": 46, "inicio": 2.5, "duracion": 0.25}, {"pitch": 46, "inicio": 3.5, "duracion": 0.25}]}},
+        {"id": "hat-cerrado", "instruccion": "Hat cerrado (F#1) en cada tiempo, encima del kick. Play: el groove del drop 1.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 42, "inicio": 0, "duracion": 0.25}, {"pitch": 42, "inicio": 1, "duracion": 0.25}, {"pitch": 42, "inicio": 2, "duracion": 0.25}, {"pitch": 42, "inicio": 3, "duracion": 0.25}]}}
+      ]
     }
   ]
 }
