@@ -10,10 +10,6 @@ App "Duolingo para Ableton": recrea un track con IA y genera lección interactiv
 
 - Rust + Tauri 2 (decidido 2026-11-15, sustituye Python + FastAPI + Electron; paridad alcanzada 2026-11-22 y Python borrado, queda en el historial de git). Backend en `src-tauri/` (comandos `#[tauri::command]` en `lib.rs`; la lógica en módulos sin nada de Tauri, para poder cambiar de UI). Front HTML/CSS/JS a pelo en `panel/`, llama con `window.__TAURI__.core.invoke`. Arrancar: `npm run tauri dev`. Rune (Anomaly) evaluado 2026-11-22 y descartado por ahora: pre-release, sin ventana siempre encima.
 - Toolchain en D: (C: va justo): `RUSTUP_HOME=D:/rust/rustup`, `CARGO_HOME=D:/rust/cargo`, `CARGO_TARGET_DIR=D:/rust/target` (variables de usuario). Primera compilación de Tauri ~5 min.
-ust
-ustup`, `CARGO_HOME=D:
-ust\cargo`, `CARGO_TARGET_DIR=D:
-ust	arget` (variables de usuario). Primera compilación de Tauri ~5 min.
 - Datos: JSON de lección (schema en `src-tauri/src/leccion.rs`, serde: un check desconocido o un `valor` mal formado no carga) + SQLite en `data/progreso.db` (clave `leccion/modulo`).
 - Lecciones: cada paso lleva `id` fijo (el progreso va por id; tabla `hechos`). Pasos nuevos en un módulo con progreso antiguo: al final, la migración marca los N primeros. `parametro_en_rango`: nombres de parámetro de Live (`Ae Attack`, `Osc-B Level`, `Glide On`; catálogo en `musichelper/reference/beatspark/src/data/device-catalog.json`), rango en valor bruto. El snapshot de Live 12 no trae `value_string`.
 - Socket a Live: `127.0.0.1`, no `localhost` (AbletonMCP solo escucha IPv4; en Windows probar `::1` antes cuesta ~2 s por llamada).
