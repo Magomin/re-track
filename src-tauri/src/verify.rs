@@ -3,6 +3,7 @@
 // comprobación no compila (sustituye al test "checks y schema van a la par").
 use crate::leccion::{Check, Nota};
 use serde::{Deserialize, Serialize};
+use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
 // Solo lo que miramos del snapshot de get_session_snapshot; el resto se ignora.
@@ -11,6 +12,8 @@ use std::collections::BTreeSet;
 pub struct Snapshot {
     pub session: Session,
     pub tracks: Vec<Pista>,
+    // El master como una pista más (nombre "Master" en las lecciones): devices y fader.
+    pub master_track: Option<Pista>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -25,6 +28,9 @@ pub struct Pista {
     pub name: String,
     pub devices: Vec<Device>,
     pub clip_slots: Vec<Hueco>,
+    // El snapshot solo trae el valor bruto del fader; el dB lo pone `leer_volumen`.
+    #[serde(skip)]
+    pub volumen_db: Option<f64>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -109,6 +115,72 @@ pub fn cumple(check: &Check, snapshot: &Snapshot) -> bool {
         } => {
             parametros(snapshot, pista, device, parametro).any(|p| (*min..=*max).contains(&p.value))
         }
+        Check::VolumenEnRango {
+            pista: nombre,
+            min,
+            max,
+        } => pista(snapshot, nombre)
+            .and_then(|p| p.volumen_db)
+            .is_some_and(|db| (*min..=*max).contains(&db)),
+    }
+}
+
+// Pide a Live el fader de la pista en dB (comando "mixer" sin cambios = solo lectura) y lo
+// guarda en el snapshot. `mixer` = la llamada a Live, inyectada para poder probarlo sin Live.
+pub fn leer_volumen(
+    snapshot: &mut Snapshot,
+    nombre: &str,
+    mixer: impl FnOnce(Value) -> Result<Value, String>,
+) -> Result<(), String> {
+    let destino = if nombre.eq_ignore_ascii_case("master") {
+        json!({"master": true})
+    } else {
+        let nombre_min = nombre.to_lowercase();
+        match snapshot
+            .tracks
+            .iter()
+            .position(|p| p.name.to_lowercase() == nombre_min)
+        {
+            Some(i) => json!({"track_index": i}),
+            None => return Ok(()), // sin pista: el check ya falla y el detalle lo explica
+        }
+    };
+    let texto = mixer(destino)?["volume"].as_str().unwrap_or("").to_string();
+    let db = db_de_texto(&texto).ok_or(format!("Volumen de Live ilegible: {texto:?}"))?;
+    if let Some(p) = pista_mut(snapshot, nombre) {
+        p.volumen_db = Some(db);
+    }
+    Ok(())
+}
+
+// "-13.0 dB" -> -13.0; "-inf dB" -> -70 (el fondo de la escala del panel; JSON no admite -inf).
+fn db_de_texto(texto: &str) -> Option<f64> {
+    let numero = texto.trim().trim_end_matches("dB").trim();
+    if numero == "-inf" {
+        return Some(-70.0);
+    }
+    numero.parse::<f64>().ok().map(|db| db.max(-70.0))
+}
+
+// Para el panel: el fader como un parámetro (valor en dB y la escala de un fader de Live).
+pub fn volumen_como_parametro(snapshot: &Snapshot, nombre: &str) -> Option<Parametro> {
+    pista(snapshot, nombre)
+        .and_then(|p| p.volumen_db)
+        .map(|db| Parametro {
+            name: "Volumen".into(),
+            value: db,
+            min: -40.0,
+            max: 6.0,
+            value_string: None,
+        })
+}
+
+pub fn detalle_volumen(snapshot: &Snapshot, nombre: &str, min: f64, max: f64) -> String {
+    match pista(snapshot, nombre).and_then(|p| p.volumen_db) {
+        None => format!("No encuentro la pista {nombre}"),
+        Some(db) if db < min => format!("Volumen de {nombre} ahora {db:.1} dB: súbelo"),
+        Some(db) if db > max => format!("Volumen de {nombre} ahora {db:.1} dB: bájalo"),
+        Some(db) => format!("Volumen de {nombre} ahora {db:.1} dB: ya está en su sitio"),
     }
 }
 
@@ -183,10 +255,26 @@ pub fn nombre_nota(pitch: u8) -> String {
 
 fn pistas<'a>(snapshot: &'a Snapshot, nombre: &str) -> impl Iterator<Item = &'a Pista> {
     let nombre = nombre.to_lowercase();
+    let master = snapshot
+        .master_track
+        .as_ref()
+        .filter(|_| nombre == "master");
     snapshot
         .tracks
         .iter()
         .filter(move |p| p.name.to_lowercase() == nombre)
+        .chain(master)
+}
+
+fn pista_mut<'a>(snapshot: &'a mut Snapshot, nombre: &str) -> Option<&'a mut Pista> {
+    if nombre.eq_ignore_ascii_case("master") {
+        return snapshot.master_track.as_mut();
+    }
+    let nombre = nombre.to_lowercase();
+    snapshot
+        .tracks
+        .iter_mut()
+        .find(|p| p.name.to_lowercase() == nombre)
 }
 
 fn pista<'a>(snapshot: &'a Snapshot, nombre: &str) -> Option<&'a Pista> {
@@ -469,5 +557,51 @@ mod tests {
             .collect();
         assert_eq!(resumen, [("G#1", 3), ("E2", 3)]);
         assert_eq!(faltan[0].inicio, 8.0);
+    }
+
+    #[test]
+    fn volumen_de_pista_y_master() {
+        let mut s = snap(json!({
+            "tracks": [{"name": "BASS"}, {"name": "PAD"}],
+            "master_track": {"devices": [{"class_name": "Limiter"}]}
+        }));
+        let check = |pista: &str| Check::VolumenEnRango {
+            pista: pista.into(),
+            min: -14.0,
+            max: -12.0,
+        };
+        // Antes de leer el fader no se da por bueno.
+        assert!(!cumple(&check("PAD"), &s));
+        leer_volumen(&mut s, "pad", |destino| {
+            assert_eq!(destino, json!({"track_index": 1}));
+            Ok(json!({"volume": "-13.0 dB"}))
+        })
+        .unwrap();
+        assert!(cumple(&check("PAD"), &s));
+        assert_eq!(volumen_como_parametro(&s, "PAD").unwrap().value, -13.0);
+
+        leer_volumen(&mut s, "Master", |destino| {
+            assert_eq!(destino, json!({"master": true}));
+            Ok(json!({"volume": "-inf dB"}))
+        })
+        .unwrap();
+        assert!(!cumple(&check("Master"), &s));
+        assert_eq!(
+            detalle_volumen(&s, "Master", -14.0, -12.0),
+            "Volumen de Master ahora -70.0 dB: súbelo"
+        );
+        let limiter = Check::DeviceEnPista {
+            pista: "Master".into(),
+            device: "Limiter".into(),
+        };
+        assert!(cumple(&limiter, &s));
+
+        // Pista que no existe: no se llama a Live.
+        leer_volumen(&mut s, "LEAD", |_| panic!("no debería llamar a Live")).unwrap();
+        assert_eq!(
+            detalle_volumen(&s, "LEAD", -1.0, 1.0),
+            "No encuentro la pista LEAD"
+        );
+        assert!(leer_volumen(&mut s, "PAD", |_| Ok(json!({"volume": "??"}))).is_err());
     }
 }
