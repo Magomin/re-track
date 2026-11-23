@@ -36,11 +36,14 @@ pub struct Device {
     pub chains: Vec<Cadena>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Parametro {
     pub name: String,
     pub value: f64,
+    // Rango del parámetro en Live (la escala de la barra del panel).
+    pub min: f64,
+    pub max: f64,
     // Lo que Live enseña en pantalla ("-6.0 dB", "1.20 kHz").
     pub value_string: Option<String>,
 }
@@ -107,6 +110,16 @@ pub fn cumple(check: &Check, snapshot: &Snapshot) -> bool {
             parametros(snapshot, pista, device, parametro).any(|p| (*min..=*max).contains(&p.value))
         }
     }
+}
+
+// El parámetro tal como está en Live (valor y escala, para la aguja del panel).
+pub fn leer_parametro<'a>(
+    snapshot: &'a Snapshot,
+    pista: &str,
+    device: &str,
+    parametro: &'a str,
+) -> Option<&'a Parametro> {
+    parametros(snapshot, pista, device, parametro).next()
 }
 
 // Texto para el panel cuando un parametro_en_rango no se cumple: hacia dónde girar el
@@ -353,7 +366,7 @@ mod tests {
     fn con_operator(osc_b: f64, en_rack: bool) -> Snapshot {
         let operator = json!({"class_name": "Operator", "parameters": [
             {"name": "Device On", "value": 1.0, "value_string": "On"},
-            {"name": "Osc-B Level", "value": osc_b, "value_string": "-1.5 dB"}
+            {"name": "Osc-B Level", "value": osc_b, "min": 0.0, "max": 1.0, "value_string": "-1.5 dB"}
         ]});
         let devices = if en_rack {
             json!([{"class_name": "InstrumentGroupDevice", "parameters": [],
@@ -381,6 +394,14 @@ mod tests {
         assert!(!cumple(&osc_b(0.8, 0.92), &con_operator(0.75, false)));
         assert!(cumple(&osc_b(0.8, 0.92), &con_operator(0.84, true))); // dentro de un rack
         assert!(!cumple(&osc_b(0.8, 0.92), &base())); // sin Operator con ese parámetro
+    }
+
+    #[test]
+    fn valor_actual_del_parametro() {
+        let snapshot = con_operator(0.84, true);
+        let p = leer_parametro(&snapshot, "BASS", "Operator", "Osc-B Level").unwrap();
+        assert_eq!((p.value, p.min, p.max), (0.84, 0.0, 1.0));
+        assert!(leer_parametro(&base(), "BASS", "Operator", "Osc-B Level").is_none());
     }
 
     #[test]

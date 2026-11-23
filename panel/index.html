@@ -4,43 +4,110 @@
   <meta charset="utf-8">
   <title>Re-track</title>
   <style>
-    body { background: #1e1e1e; color: #ddd; font: 16px "Segoe UI", sans-serif; margin: 16px; }
-    button, select { background: #2a2a2a; color: #ddd; border: 1px solid #444; font: inherit; }
-    button { cursor: pointer; }
-    button:hover { border-color: #ff764d; }
-    #leccion { width: 100%; margin: 0 0 12px; padding: 4px; }
+    /* Dirección visual (DESIGN.md, decisión 13): instrumento de medida con ambiente cyberpunk.
+       Rajdhani (OFL, fonts/OFL.txt) en todo; amarillo = objetivo/bien, rojo = falta, magenta = detalle. */
+    @font-face { font-family: Rajdhani; font-weight: 500; src: url(fonts/Rajdhani-Medium.ttf); }
+    @font-face { font-family: Rajdhani; font-weight: 600; src: url(fonts/Rajdhani-SemiBold.ttf); }
+    @font-face { font-family: Rajdhani; font-weight: 700; src: url(fonts/Rajdhani-Bold.ttf); }
+    :root {
+      --negro: #08080a; --panel: #111114; --linea: #26262c;
+      --amarillo: #fcee0a; --rojo: #ff2a3d; --magenta: #ff2fb0; --cian: #00e5ff;
+      --texto: #c9c9cf; --tenue: #6c6c78;
+    }
+    html { height: 100%; background: var(--negro); scrollbar-width: thin; scrollbar-color: var(--linea) var(--negro); }
+    body { min-height: 100%; margin: 0; padding: 14px 16px 40px; box-sizing: border-box; position: relative;
+      background: var(--negro); color: var(--texto); font: 500 15px Rajdhani, sans-serif;
+      border-top: 2px solid var(--amarillo); }
+    body::after { content: ""; position: fixed; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
+    button, select { font: 600 13px Rajdhani, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+      background: var(--panel); color: var(--texto); border: 1px solid var(--linea); cursor: pointer; }
+    button:hover, select:hover { border-color: var(--amarillo); color: #fff; }
+    button:focus-visible, select:focus-visible { outline: 1px solid var(--amarillo); outline-offset: 2px; }
+
+    .cab { display: flex; justify-content: space-between; align-items: center; }
+    .logo { position: relative; display: inline-block; font: 700 26px/1 Rajdhani, sans-serif; letter-spacing: .04em;
+      color: var(--amarillo); transform: skewX(-12deg); text-shadow: -2px 0 var(--rojo), 2px 0 var(--cian); }
+    .logo::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: var(--amarillo);
+      clip-path: inset(52% 0 30% 0); transform: translateX(5px); text-shadow: -2px 0 var(--magenta); }
+    #ruta { font: 600 12px Rajdhani, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--tenue); }
+    .glitch { height: 2px; margin: 10px 0 14px;
+      background: linear-gradient(90deg, var(--magenta) 0 12%, transparent 12% 14%, var(--magenta) 14% 17%, transparent 17%); }
+
+    #leccion { width: 100%; padding: 6px 8px; margin: 0 0 12px; }
     #modulos { display: flex; flex-direction: column; gap: 6px; }
-    .modulo { display: flex; justify-content: space-between; padding: 10px 12px; text-align: left; }
-    .modulo .estado { color: #888; font-size: 13px; }
-    .modulo.hecho .estado { color: #7a9a5a; }
-    .barra { display: flex; gap: 8px; align-items: center; margin: 0 0 12px; }
-    .barra button { padding: 4px 10px; font-size: 13px; }
-    #titulo-modulo { flex: 1; color: #888; font-size: 13px; }
-    #contador { color: #888; font-size: 13px; margin: 0 0 6px; }
-    #instruccion { font-size: 18px; margin: 0 0 16px; }
-    #resultado { min-height: 1.2em; color: #f0a040; }
-    #roll { width: 100%; margin: 0 0 10px; }
-    #roll text { fill: #aaa; font: 11px "Segoe UI", sans-serif; }
+    .modulo { display: flex; justify-content: space-between; padding: 10px 12px; text-align: left; text-transform: none;
+      letter-spacing: 0; font-size: 16px;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%); }
+    .modulo .estado { color: var(--tenue); font-size: 14px; }
+    .modulo.hecho .estado { color: var(--amarillo); }
+
+    .barra-nav { display: flex; gap: 8px; margin: 0 0 6px; }
+    .barra-nav button { padding: 3px 10px; }
+    .barra-nav span { flex: 1; }
+
+    .etiqueta { margin: 10px 0 0; font: 600 12px Rajdhani, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--tenue); }
+    #valor { font: 600 46px/1 Rajdhani, sans-serif; color: #fff; text-shadow: 0 0 12px rgba(252,238,10,.25); }
+    #valor small { font-size: 18px; color: var(--amarillo); text-shadow: none; }
+    #accion { margin: 2px 0 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--rojo); }
+    #accion.ok { color: var(--amarillo); }
+    .medidor { position: relative; height: 14px; background: var(--panel); border: 1px solid var(--linea); }
+    #zona { position: absolute; top: 0; bottom: 0;
+      background: repeating-linear-gradient(90deg, rgba(252,238,10,.55) 0 2px, rgba(252,238,10,.18) 2px 4px); }
+    #aguja { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--rojo); box-shadow: 0 0 8px var(--rojo); }
+    #aguja.ok { background: var(--amarillo); box-shadow: 0 0 8px var(--amarillo); }
+    .escala[hidden] { display: none; }
+    .escala { display: flex; justify-content: space-between; font-size: 11px; color: #44444d; margin-top: 3px; }
+
+    #instruccion { margin: 10px 0 12px; color: #fff; font-size: 17px; line-height: 1.35; }
+    #instruccion.porque { font-size: 15px; color: #9a9aa6; border-left: 2px solid var(--magenta); padding-left: 10px; margin-top: 14px; }
+    #roll { width: 100%; margin: 0 0 8px; }
+    #roll text { fill: var(--tenue); font: 600 11px Rajdhani, sans-serif; }
+    #resultado { min-height: 1.2em; color: var(--rojo); }
+    #resultado.espera { color: var(--tenue); }
+
+    .pie { position: fixed; left: 16px; right: 16px; bottom: 10px; display: flex; justify-content: space-between;
+      font: 600 12px Rajdhani, sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+    #live { color: var(--tenue); }
+    #live::before { content: "■ "; }
+    #live.si { color: var(--amarillo); }
+    #live.no { color: var(--rojo); }
+    #progreso-modulo { color: var(--tenue); }
   </style>
 </head>
 <body>
-  <select id="leccion"></select>
+  <div class="cab">
+    <span class="logo" data-t="RE-TRACK">RE-TRACK</span>
+    <span id="ruta"></span>
+  </div>
+  <div class="glitch"></div>
 
   <div id="vista-modulos">
+    <select id="leccion" aria-label="Lección"></select>
     <div id="modulos"></div>
   </div>
 
   <div id="vista-paso" hidden>
-    <div class="barra">
+    <div class="barra-nav">
       <button id="volver">← Módulos</button>
-      <span id="titulo-modulo"></span>
+      <span></span>
       <button id="reiniciar" title="Empezar este módulo desde el paso 1">Reiniciar</button>
     </div>
-    <p id="contador"></p>
+
+    <div id="medida" hidden>
+      <div class="etiqueta" id="parametro"></div>
+      <div id="valor"></div>
+      <div id="accion"></div>
+      <div class="medidor" id="medidor"><div id="zona"></div><div id="aguja" hidden></div></div>
+      <div class="escala" id="escalas"><span id="escala-min"></span><span id="escala-mid"></span><span id="escala-max"></span></div>
+    </div>
+
     <p id="instruccion"></p>
     <svg id="roll" hidden></svg>
     <p id="resultado"></p>
   </div>
+
+  <div class="pie"><span id="live">Live</span><span id="progreso-modulo"></span></div>
 
   <script src="panel.js"></script>
 </body>
