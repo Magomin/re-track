@@ -104,6 +104,8 @@ async fn comprobar(leccion: String, modulo: String, indice: usize) -> Result<Val
                 respuesta["detalle"] = json!(verify::detalle_parametro(
                     &snapshot, pista, device, parametro, *min, *max
                 ));
+                respuesta["actual"] =
+                    json!(verify::leer_parametro(&snapshot, pista, device, parametro));
             }
             _ => {}
         }
