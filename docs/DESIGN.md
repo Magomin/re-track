@@ -33,6 +33,7 @@ Implicación inmediata: el schema pasa a `Leccion → modulos[] (id, version, te
 | 9 | **Solo devices nativos de Ableton** en las lecciones (2026-11-02, Matthieu: "mejor para el usuario", cualquiera con Live puede seguirlas). Sin VST. |
 | 10 | Verificación de sonido con **un check genérico de parámetros** (`class_name` del device + `name` del parámetro + rango), válido para cualquier device nativo. Qué parámetro y qué valor lo decide el pipeline de musichelper midiendo (elements.md), no exploración manual por device. |
 | 11 | **Samples vía Splice opcional**: Re-track detecta si hay Splice disponible y un interruptor en ajustes lo activa o desactiva. Activado → la lección propone samples de Splice (sample-hunter de musichelper, sección C). Desactivado o sin Splice → solo librería local y Core Library. Nunca descarga sin OK del usuario. |
+| 12 | **Tono de las lecciones: profe técnico** (2026-11-23). Sobrio y preciso: acción + dato medido + razón técnica en una frase ("Osc-B Level → 0,80–0,92. El sub de Fred = G#0 + 2.º armónico (−7 dB)"). Sin adornos, emojis ni hype. Los datos salen de `elements.md`. |
 
 ## Lo aprendido del RE de beatspark (v0.4.2, Electron, macOS-only)
 
