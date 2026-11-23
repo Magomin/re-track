@@ -83,11 +83,42 @@ function dibujarRoll(faltan = null) {
   roll.hidden = false;
 }
 
+// Cambio de valor = efecto glitch: los dígitos se barajan ~0.3 s hasta el número real.
+const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)");
+let ultimoValor = null;
+let animacion = 0;
+function glitchNumero(el, final) {
+  cancelAnimationFrame(animacion);
+  if (sinMovimiento.matches) {
+    el.textContent = final;
+    return;
+  }
+  el.classList.remove("glitch-on");
+  void el.offsetWidth; // reinicia la animación CSS aunque llegue otro cambio a mitad
+  el.classList.add("glitch-on");
+  const signos = "0123456789#/_-";
+  const inicio = performance.now();
+  const fotograma = (ahora) => {
+    const avance = (ahora - inicio) / 300;
+    if (avance >= 1) {
+      el.textContent = final;
+      return;
+    }
+    // De izquierda a derecha, cada carácter se queda fijo cuando le llega su turno.
+    el.textContent = [...final]
+      .map((c, i) => (i / final.length < avance || c === "." ? c : signos[Math.floor(Math.random() * signos.length)]))
+      .join("");
+    animacion = requestAnimationFrame(fotograma);
+  };
+  animacion = requestAnimationFrame(fotograma);
+}
+
 // Pasos parametro_en_rango / volumen_en_rango: lectura grande del valor y barra con la zona objetivo.
 // `actual` = el parámetro tal como lo devuelve Rust ({value, min, max}) o null si aún no se ha leído.
 function dibujarMedida(actual = null) {
   const paso = pasos[indice];
   const medida = $("medida");
+  if (!actual) ultimoValor = null; // paso nuevo o sin lectura: el siguiente valor entra sin glitch
   if (!conMedida(paso)) {
     medida.hidden = true;
     return;
@@ -101,7 +132,13 @@ function dibujarMedida(actual = null) {
 
   $("parametro").textContent = parametro;
   const objetivo = min === max ? num(min) : volumen ? `${num(min)} … ${num(max)} dB` : `${num(min)}–${num(max)}`;
-  $("valor").replaceChildren(actual ? (volumen ? actual.value.toFixed(1) : num(actual.value)) : "—", " ", Object.assign(document.createElement("small"), { textContent: `→ ${objetivo}` }));
+  const texto = actual ? (volumen ? actual.value.toFixed(1) : num(actual.value)) : "—";
+  const numero = Object.assign(document.createElement("span"), { id: "numero", textContent: ultimoValor ?? texto });
+  $("valor").replaceChildren(numero, " ", Object.assign(document.createElement("small"), { textContent: `→ ${objetivo}` }));
+  // Solo anima si cambia un valor ya leído (no al entrar en el paso ni en la primera lectura).
+  if (actual && ultimoValor !== null && ultimoValor !== "—" && texto !== ultimoValor) glitchNumero(numero, texto);
+  else numero.textContent = texto;
+  ultimoValor = actual ? texto : null;
   $("zona").style.left = pos(min);
   $("zona").style.width = `max(2px, calc(${pos(max)} - ${pos(min)}))`;
   const aguja = $("aguja");
