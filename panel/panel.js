@@ -26,6 +26,8 @@ const NOMBRES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 const nombreNota = (pitch) => `${NOMBRES[pitch % 12]}${Math.floor(pitch / 12) - 2}`; // Live: C3 = 60
 const dos = (n) => String(n).padStart(2, "0");
 const num = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2));
+// Pasos con lectura y aguja: un parámetro de device o el fader de una pista (en dB).
+const conMedida = (paso) => paso && (paso.check === "parametro_en_rango" || paso.check === "volumen_en_rango");
 
 function svg(etiqueta, atributos, texto) {
   const el = document.createElementNS("http://www.w3.org/2000/svg", etiqueta);
@@ -81,23 +83,25 @@ function dibujarRoll(faltan = null) {
   roll.hidden = false;
 }
 
-// Paso parametro_en_rango: lectura grande del valor y barra con la zona objetivo.
+// Pasos parametro_en_rango / volumen_en_rango: lectura grande del valor y barra con la zona objetivo.
 // `actual` = el parámetro tal como lo devuelve Rust ({value, min, max}) o null si aún no se ha leído.
 function dibujarMedida(actual = null) {
   const paso = pasos[indice];
   const medida = $("medida");
-  if (!paso || paso.check !== "parametro_en_rango") {
+  if (!conMedida(paso)) {
     medida.hidden = true;
     return;
   }
-  const { parametro, min, max } = paso.valor;
+  const { min, max } = paso.valor;
+  const volumen = paso.check === "volumen_en_rango";
+  const parametro = volumen ? `Volumen ${paso.valor.pista} (dB)` : paso.valor.parametro;
   const escalaMin = actual && actual.max > actual.min ? actual.min : 0;
   const escalaMax = actual && actual.max > actual.min ? actual.max : 1;
   const pos = (v) => `${((v - escalaMin) / (escalaMax - escalaMin)) * 100}%`;
 
   $("parametro").textContent = parametro;
-  const objetivo = min === max ? num(min) : `${num(min)}–${num(max)}`;
-  $("valor").replaceChildren(actual ? num(actual.value) : "—", " ", Object.assign(document.createElement("small"), { textContent: `→ ${objetivo}` }));
+  const objetivo = min === max ? num(min) : volumen ? `${num(min)} … ${num(max)} dB` : `${num(min)}–${num(max)}`;
+  $("valor").replaceChildren(actual ? (volumen ? actual.value.toFixed(1) : num(actual.value)) : "—", " ", Object.assign(document.createElement("small"), { textContent: `→ ${objetivo}` }));
   $("zona").style.left = pos(min);
   $("zona").style.width = `max(2px, calc(${pos(max)} - ${pos(min)}))`;
   const aguja = $("aguja");
@@ -125,7 +129,7 @@ function pintar() {
   ruta.textContent = `${leccion} // ${modulo} · ${completo ? "OK" : `${dos(indice + 1)}/${dos(pasos.length)}`}`;
   progresoModulo.textContent = `${tituloModulo.split(":")[0]} ${Math.min(indice, pasos.length)}/${pasos.length}`;
   const paso = pasos[indice];
-  instruccion.className = paso && paso.check === "parametro_en_rango" ? "porque" : "";
+  instruccion.className = conMedida(paso) ? "porque" : "";
   instruccion.textContent = completo ? "Módulo completado." : paso.instruccion;
   resultado.className = "espera";
   resultado.textContent = completo ? "" : "Esperando a Live…";
@@ -196,7 +200,7 @@ async function comprobar() {
       indice = datos.indice; // el siguiente sin hacer (Rust ya lo ha guardado en SQLite)
       pintar();
     } else if (datos.detalle) {
-      dibujarMedida(datos.actual); // parametro_en_rango: aguja sobre el valor actual en Live
+      dibujarMedida(datos.actual); // parámetro o volumen: aguja sobre el valor actual en Live
       resultado.className = datos.actual ? "espera" : "";
       resultado.textContent = datos.actual ? "" : datos.detalle; // sin parámetro: qué falta (pista, device…)
     } else if (datos.faltan) {

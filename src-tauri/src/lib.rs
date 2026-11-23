@@ -101,10 +101,13 @@ async fn comprobar(leccion: String, modulo: String, indice: usize) -> Result<Val
         .pasos
         .get(indice)
         .ok_or(format!("No existe el paso {indice} de {leccion}/{modulo}"))?;
-    let snapshot: verify::Snapshot =
+    let mut snapshot: verify::Snapshot =
         serde_json::from_value(live::send("get_session_snapshot", json!({}))?)
             .map_err(|e| format!("Snapshot de Live inesperado: {e}"))?;
 
+    if let Check::VolumenEnRango { pista, .. } = &paso.check {
+        verify::leer_volumen(&mut snapshot, pista, |destino| live::send("mixer", destino))?;
+    }
     let hecho = verify::cumple(&paso.check, &snapshot);
     if hecho {
         progreso::marcar(&base_de_datos(), &clave(&leccion, &modulo), &paso.id)?;
@@ -127,6 +130,10 @@ async fn comprobar(leccion: String, modulo: String, indice: usize) -> Result<Val
                 ));
                 respuesta["actual"] =
                     json!(verify::leer_parametro(&snapshot, pista, device, parametro));
+            }
+            Check::VolumenEnRango { pista, min, max } => {
+                respuesta["detalle"] = json!(verify::detalle_volumen(&snapshot, pista, *min, *max));
+                respuesta["actual"] = json!(verify::volumen_como_parametro(&snapshot, pista));
             }
             _ => {}
         }

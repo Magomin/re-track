@@ -65,6 +65,18 @@
         {"id": "hat-abierto", "instruccion": "Hat abierto (A#1) en cada contratiempo (las «&»). Medido: cae −20 dB en ~95 ms, no se solapa con el siguiente.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 46, "inicio": 0.5, "duracion": 0.25}, {"pitch": 46, "inicio": 1.5, "duracion": 0.25}, {"pitch": 46, "inicio": 2.5, "duracion": 0.25}, {"pitch": 46, "inicio": 3.5, "duracion": 0.25}]}},
         {"id": "hat-cerrado", "instruccion": "Hat cerrado (F#1) en cada tiempo, encima del kick. Play: el groove del drop 1.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 42, "inicio": 0, "duracion": 0.25}, {"pitch": 42, "inicio": 1, "duracion": 0.25}, {"pitch": 42, "inicio": 2, "duracion": 0.25}, {"pitch": 42, "inicio": 3, "duracion": 0.25}]}}
       ]
+    },
+    {
+      "id": "mezcla",
+      "titulo": "Mezcla: niveles y master",
+      "tempo": 134,
+      "tonalidad": "G#m",
+      "pasos": [
+        {"id": "pad-volumen", "instruccion": "Fader de PAD → −13 dB. A ese nivel el render del pad quedó a 1–3 dB del original (−20 dB RMS en la intro).", "check": "volumen_en_rango", "valor": {"pista": "PAD", "min": -14, "max": -12}},
+        {"id": "lead-volumen", "instruccion": "Fader de LEAD → −24 dB. La alarma va ~5 dB bajo el pad: con −23.8 dB el render dio −34 dB en su banda; Fred, −33.", "check": "volumen_en_rango", "valor": {"pista": "LEAD", "min": -25, "max": -23}},
+        {"id": "glue", "instruccion": "Glue Compressor en el Master. Compacta el bus entero: con Glue + Limiter el drop 1 dio 7.8 dB de crest; Fred, 7.9.", "check": "device_en_pista", "valor": {"pista": "Master", "device": "GlueCompressor"}},
+        {"id": "limiter", "instruccion": "Limiter en el Master, detrás del Glue. El drop del original va a −7.6 dB RMS: sin limiter, a ese nivel clipea.", "check": "device_en_pista", "valor": {"pista": "Master", "device": "Limiter"}}
+      ]
     }
   ]
 }

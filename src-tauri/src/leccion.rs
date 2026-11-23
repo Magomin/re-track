@@ -61,6 +61,12 @@ pub enum Check {
         min: f64,
         max: f64,
     },
+    // Fader de la pista en dB, tal como lo enseña Live. pista = "Master" para el master.
+    VolumenEnRango {
+        pista: String,
+        min: f64,
+        max: f64,
+    },
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
@@ -88,7 +94,9 @@ pub fn desde_texto(texto: &str) -> Result<Leccion, String> {
             }
         }
         if let Some(paso) = modulo.pasos.iter().find(|p| match &p.check {
-            Check::ParametroEnRango { min, max, .. } => min > max,
+            Check::ParametroEnRango { min, max, .. } | Check::VolumenEnRango { min, max, .. } => {
+                min > max
+            }
             _ => false,
         }) {
             return Err(format!("el paso {} tiene min > max", paso.id));
