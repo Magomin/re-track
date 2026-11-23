@@ -35,6 +35,23 @@
       color: var(--amarillo); transform: skewX(-12deg); text-shadow: -2px 0 var(--rojo), 2px 0 var(--cian); }
     .logo::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: var(--amarillo);
       clip-path: inset(52% 0 30% 0); transform: translateX(5px); text-shadow: -2px 0 var(--magenta); }
+    /* Cada 5 s, medio segundo de glitch en el logo: saltos secos (steps) del texto y del corte. */
+    .logo { animation: logo-glitch 5s steps(1) infinite; }
+    .logo::after { animation: logo-corte 5s steps(1) infinite; }
+    @keyframes logo-glitch {
+      0%, 90%, 100% { transform: skewX(-12deg); text-shadow: -2px 0 var(--rojo), 2px 0 var(--cian); }
+      91% { transform: skewX(-12deg) translate(-3px, 0); text-shadow: 4px 0 var(--rojo), -4px 0 var(--cian); }
+      93% { transform: skewX(-20deg) translate(2px, 1px); text-shadow: -5px 0 var(--magenta), 3px 0 var(--cian); }
+      95% { transform: skewX(-12deg) translate(-1px, -1px); text-shadow: 2px 0 var(--rojo), -2px 0 var(--cian); }
+      97% { transform: skewX(-6deg) translate(3px, 0); text-shadow: -3px 0 var(--rojo), 5px 0 var(--cian); }
+    }
+    @keyframes logo-corte {
+      0%, 90%, 100% { clip-path: inset(52% 0 30% 0); transform: translateX(5px); }
+      91% { clip-path: inset(10% 0 70% 0); transform: translateX(-8px); }
+      93% { clip-path: inset(70% 0 5% 0); transform: translateX(10px); }
+      95% { clip-path: inset(35% 0 45% 0); transform: translateX(-4px); }
+      97% { clip-path: inset(60% 0 25% 0); transform: translateX(7px); }
+    }
     #ruta { font: 600 12px Rajdhani, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--tenue); }
     .glitch { height: 2px; margin: 10px 0 14px;
       background: linear-gradient(90deg, var(--magenta) 0 12%, transparent 12% 14%, var(--magenta) 14% 17%, transparent 17%); }
@@ -73,7 +90,7 @@
     #aguja { transition: left .25s cubic-bezier(.2, .8, .2, 1); position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--rojo); box-shadow: 0 0 8px var(--rojo); }
     #aguja.ok { background: var(--amarillo); box-shadow: 0 0 8px var(--amarillo); }
     .escala[hidden] { display: none; }
-    @media (prefers-reduced-motion: reduce) { #numero.glitch-on { animation: none; } #aguja { transition: none; } }
+    @media (prefers-reduced-motion: reduce) { .logo, .logo::after, #numero.glitch-on { animation: none; } #aguja { transition: none; } }
     .escala { display: flex; justify-content: space-between; font-size: 11px; color: #44444d; margin-top: 3px; }
 
     #instruccion { margin: 10px 0 12px; color: #fff; font-size: 17px; line-height: 1.35; }
