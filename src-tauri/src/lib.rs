@@ -9,19 +9,40 @@ use leccion::Check;
 use serde_json::{Value, json};
 use std::collections::HashSet;
 use std::path::PathBuf;
+use std::sync::OnceLock;
+use tauri::Manager;
 
-// shortcut: rutas fijadas al compilar (relativas a src-tauri/), valen para `tauri dev`;
-// al empaquetar la app, lecciones/ va como resource y la base de datos al app_data_dir.
+// Carpeta de lecciones y base de datos; se fijan una vez al arrancar (ver `rutas`).
+static RUTAS: OnceLock<(PathBuf, PathBuf)> = OnceLock::new();
+
+// La carpeta del repo, fijada al compilar: solo existe en el PC donde se compiló.
 fn raiz() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..")
 }
 
+// `tauri dev`: lecciones y progreso del repo (editar un JSON se ve sin recompilar).
+// App instalada: lecciones empaquetadas como resource y progreso en la carpeta de datos de la app.
+fn rutas(app: &tauri::App) -> Result<(PathBuf, PathBuf), Box<dyn std::error::Error>> {
+    if cfg!(debug_assertions) {
+        return Ok((raiz().join("lecciones"), raiz().join("data/progreso.db")));
+    }
+    let datos = app.path().app_data_dir()?;
+    std::fs::create_dir_all(&datos)?;
+    let db = datos.join("progreso.db");
+    // Primera vez: se trae el progreso de `tauri dev` si la app se compiló en este PC.
+    let del_repo = raiz().join("data/progreso.db");
+    if !db.exists() && del_repo.exists() {
+        std::fs::copy(&del_repo, &db)?;
+    }
+    Ok((app.path().resource_dir()?.join("lecciones"), db))
+}
+
 fn carpeta_lecciones() -> PathBuf {
-    raiz().join("lecciones")
+    RUTAS.get().expect("rutas fijadas en setup").0.clone()
 }
 
 fn base_de_datos() -> PathBuf {
-    raiz().join("data/progreso.db")
+    RUTAS.get().expect("rutas fijadas en setup").1.clone()
 }
 
 fn cargar(nombre: &str) -> Result<leccion::Leccion, String> {
@@ -129,6 +150,10 @@ fn reiniciar(leccion: String, modulo: String) -> Result<Value, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .setup(|app| {
+            RUTAS.set(rutas(app)?).ok();
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             lecciones, modulos, pasos, comprobar, progreso, reiniciar
         ])
