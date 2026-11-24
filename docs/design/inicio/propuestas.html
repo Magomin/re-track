@@ -2,83 +2,77 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Re-track · pantalla de inicio · cuatro propuestas (segunda ronda, con aire)</title>
-<!-- Segunda ronda (2026-11-24): la primera se descartó por apretada («no podemos respirar»). Regla de esta ronda: tres cosas
-     por pantalla como mucho, letra grande, separar con espacio y no con líneas. Ventana real: 460×460.
+<title>Re-track · pantalla de inicio · cuatro propuestas (tercera ronda, con carátula)</title>
+<!-- Tercera ronda (2026-11-24). La primera: apretada. La segunda: bonita pero poco práctica. Esta: todas las canciones a la vista,
+     un toque para entrar, y la carátula de cada canción con líneas de VHS (sin carátula, la inicial). Ventana real: 460×460.
      Jungle y Primera lección salen de lecciones/*.json; su progreso y «Around the World» son de muestra. -->
 <link rel="stylesheet" href="../propuestas.css">
 <style>
-  .aire { position: absolute; inset: 58px 28px 36px; display: flex; flex-direction: column; }
+  .aire { position: absolute; inset: 54px 20px 32px; display: flex; flex-direction: column; }
   .fila { display: flex; align-items: center; gap: 14px; }
   .gr { flex: 1; min-width: 0; }
-  .suave { font-size: 17px; color: var(--tenue); }
-  .cta.gr2 { padding: 11px 20px; font-size: 16px; }
-  .bloques { height: 8px; }
-  .abajo { margin-top: auto; margin-bottom: 8px; }
+  .suave { font-size: 16px; color: var(--tenue); }
+  .abajo { margin-top: auto; }
+  .pct { font: 600 22px/1 Rajdhani; }
+  .mas { display: grid; place-items: center; border: 2px dashed #3a3a44; font: 700 16px Rajdhani; color: #fff; text-align: center; box-sizing: border-box; }
 
-  .a-nombre { font: 700 60px/1 Rajdhani; color: #fff; margin: 6px 0 4px; }
-  .a-pct { font: 600 34px/1 Rajdhani; color: var(--amarillo); }
+  .a-rej { flex: 1; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; }
+  .losa { position: relative; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%); }
+  .losa > .car { position: absolute; inset: 0; width: auto; aspect-ratio: auto; }
+  .losa > div { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 12px 9px; background: linear-gradient(transparent, rgba(8,8,10,.94) 55%); }
+  .losa b { display: block; font: 700 20px/1.1 Rajdhani; color: #fff; }
+  .losa .hex { position: absolute; top: 8px; left: 8px; width: 26px; height: 26px; }
 
   .b-fila { height: 92px; }
-  .b-fila .hex, .mas { width: 44px; height: 44px; font-size: 15px; }
-  .b-fila b { display: block; font: 700 26px/1.1 Rajdhani; color: #fff; }
-  .b-fila .pct { font: 600 26px/1 Rajdhani; }
+  .b-fila b { display: block; font: 700 22px/1.1 Rajdhani; color: #fff; }
+  .b-fila .bloques { margin-top: 8px; }
 
-  .c-hexes { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 34px; }
-  .c-hexes > div { width: 92px; text-align: center; line-height: 1.2; }
-  .c-hexes .hex { width: 68px; height: 68px; margin: 0 auto 12px; font-size: 20px; }
-  .c-hexes b { display: block; font: 700 17px/1.1 Rajdhani; color: #fff; }
+  .c-nombre { font: 700 38px/1 Rajdhani; color: #fff; margin: 6px 0 2px; }
+  .c-tira { display: flex; gap: 14px; margin-top: 8px; }
+  .c-tira > div { width: 88px; font: 600 14px/1.2 Rajdhani; color: #fff; }
+  .c-tira .car, .c-tira .mas { width: 88px; height: 88px; margin-bottom: 6px; }
 
-  .d-grande { margin-top: 14px; padding: 22px 24px 24px; background: var(--amarillo); color: #08080a;
-    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
-  .d-grande b { display: block; font: 700 44px/1 Rajdhani; margin: 2px 0 6px; }
-  .d-grande span { font: 600 17px Rajdhani; }
-  .d-otra { padding: 18px 24px; background: var(--panel); margin-top: 12px; font: 700 22px Rajdhani; color: #fff; }
+  .d-cartel { position: relative; height: 196px; margin: -6px -20px 6px; }
+  .d-cartel > .car { position: absolute; inset: 0; width: auto; aspect-ratio: auto; }
+  .d-cartel > div { position: absolute; inset: 0; padding: 0 20px 14px; display: flex; align-items: flex-end; gap: 14px; background: linear-gradient(transparent 20%, rgba(8,8,10,.95)); }
+  .d-cartel b { display: block; font: 700 46px/1 Rajdhani; color: #fff; }
+  .d-fila { height: 56px; font: 700 20px Rajdhani; color: #fff; }
 </style>
 </head>
 <body>
+<script src="../propuestas.js"></script>
 <script>
-// [pasos, hechos] por módulo.
-const L = [
-  { t: "Jungle", a: "Fred again..", m: [[10, 10], [7, 7], [8, 6], [8, 0], [13, 0], [6, 0]] },
-  { t: "Around the World", a: "Daft Punk", m: [[9, 0], [6, 0], [7, 0], [8, 0], [12, 0]] },
-  { t: "Primera lección", a: "Re-track", m: [[3, 3]] },
-];
 const total = (l) => l.m.reduce((s, m) => s + m[0], 0), hechos = (l) => l.m.reduce((s, m) => s + m[1], 0);
 const pct = (l) => Math.round((hechos(l) / total(l)) * 100);
 const estado = (l) => (hechos(l) === total(l) ? "on" : hechos(l) ? "sig" : "");
 const SIMBOLO = { on: "■", sig: "▸", "": "" };
 const cifra = (l) => estado(l) === "on" ? `<span class="am">■ OK</span>` : `<span class="num ${hechos(l) ? "bl" : "te"}">${pct(l)} %</span>`;
 const bloques = (l) => `<div class="bloques">${l.m.map((m) => `<i style="flex:${m[0]}"><b style="width:${(m[1] / m[0]) * 100}%"></b></i>`).join("")}</div>`;
-const J = L[0];
-const cab = (ruta) => `<div class="cab"><span class="logo">RE-TRACK</span><span class="ruta">${ruta}</span>
-  <span class="vent">―</span><span class="vent">✕</span></div><div class="glitch"></div>`;
-const pie = `<div class="pie"><span class="am">■ Live conectado</span></div>`;
-const celda = (letra, nombre, idea, ruta, html) =>
-  `<div class="celda"><h2>${letra} · ${nombre}<small>${idea}</small></h2><div class="app">${cab(ruta)}<div class="aire">${html}</div>${pie}</div></div>`;
+const J = L[0], otras = L.slice(1);
+const DONDE = "Bass · paso 7 de 8";
 
-// A · Una a la vez: una sola canción en pantalla; las flechas pasan a la siguiente.
-const A = `<div style="margin-top:22px"><span class="et ro">▸ Donde se dejó</span><div class="a-nombre">${J.t}</div><span class="suave">${J.a}</span></div>
-  <div style="margin-top:34px">${bloques(J)}<div class="fila" style="margin-top:12px"><span class="a-pct num gr">${pct(J)} %</span><span class="suave">Bass · paso 7 de 8</span></div></div>
-  <div class="fila abajo"><span class="suave gr">◂ &nbsp;1 de ${L.length}&nbsp; ▸</span><span class="cta gr2">Continuar ▸</span></div>`;
+// A · Rejilla: cada canción es su carátula; tocarla entra. La última losa crea una lección.
+const A = `<div class="a-rej">${L.map((l) => `<div class="losa">${car(l, 0, "font-size:80px")}${estado(l) ? `<span class="hex ${estado(l)}">${SIMBOLO[estado(l)]}</span>` : ""}
+    <div class="fila"><span class="gr"><b>${l.t}</b><span class="suave">${l.a}</span></span><span class="pct">${cifra(l)}</span></div></div>`).join("")}
+  <div class="losa mas">+ Nueva lección</div></div>`;
 
-// B · Tres filas: solo el nombre y el porcentaje; tocar una fila entra en ella.
-const B = `${L.map((l) => `<div class="fila b-fila"><span class="hex ${estado(l)}">${SIMBOLO[estado(l)]}</span>
-    <span class="gr"><b>${l.t}</b><span class="suave">${l.a}</span></span><span class="pct">${cifra(l)}</span></div>`).join("")}
-  <div class="fila abajo"><span class="hex mas bl" style="font-size:18px">+</span><span style="font:700 20px Rajdhani" class="bl">Nueva lección</span></div>`;
+// B · Lista: una fila por canción, con su carátula, su barra de módulos y su porcentaje.
+const B = `${L.map((l) => `<div class="fila b-fila">${car(l, 68)}<span class="gr"><b>${l.t}</b><span class="suave">${l.a}</span>${bloques(l)}</span><span class="pct">${cifra(l)}</span></div>`).join("")}
+  <div class="fila abajo"><span class="suave gr">${L.length} lecciones</span><span class="cta">+ Nueva lección</span></div>`;
 
-// C · Camino: las canciones son hexágonos, como los módulos dentro de una lección.
-const C = `<div class="c-hexes">${L.map((l) => `<div><span class="hex ${estado(l)}">${SIMBOLO[estado(l)]}</span><b>${l.t}</b><span class="te">${estado(l) === "on" ? "OK" : pct(l) + " %"}</span></div>`).join("")}
-    <div><span class="hex bl">+</span><b>Nueva</b></div></div>
-  <div class="fila abajo"><span class="gr"><span class="et ro">▸ Jungle</span><br><span style="font:600 20px Rajdhani" class="bl">Bass · paso 7 de 8</span></span><span class="cta gr2">Continuar ▸</span></div>`;
+// C · Destacada y tira: arriba la canción donde se dejó, con su botón; abajo las demás.
+const C = `<div class="fila" style="align-items:flex-start;margin-top:4px">${car(J, 150)}<div class="gr"><span class="et ro">▸ Donde se dejó</span><div class="c-nombre">${J.t}</div>
+    <span class="suave">${J.a}</span><div class="pct am num" style="margin:14px 0 2px">${pct(J)} %</div><span class="suave">${DONDE}</span></div></div>
+  <div class="fila" style="margin-top:12px"><span class="gr"></span><span class="cta">Continuar ▸</span></div>
+  <div class="abajo"><span class="et">Otras lecciones</span><div class="c-tira">${otras.map((l) => `<div>${car(l, 88)}${l.t}</div>`).join("")}<div><span class="mas">+</span>Nueva lección</div></div></div>`;
 
-// D · Dos botones: seguir o elegir; nada más.
-const D = `<div class="d-grande"><span>CONTINUAR ▸</span><b>${J.t}</b><span class="num">${pct(J)} % · Bass, paso 7 de 8</span></div>
-  <div class="d-otra fila"><span class="gr">Otra lección</span><span class="suave">${L.length} canciones ▸</span></div>
-  <div class="d-otra fila"><span class="gr">+ Nueva lección</span><span class="suave">con IA ▸</span></div>`;
+// D · Cartel: la carátula de la canción en curso llena media pantalla; debajo, las demás en filas.
+const D = `<div class="d-cartel">${car(J, 0)}<div><span class="gr"><span class="et ro">▸ Donde se dejó</span><b>${J.t}</b><span class="bl num" style="font-size:17px">${pct(J)} % · ${DONDE}</span></span><span class="cta">Continuar ▸</span></div></div>
+  ${otras.map((l) => `<div class="fila d-fila">${car(l, 40)}<span class="gr">${l.t}</span><span class="pct">${cifra(l)}</span></div>`).join("")}
+  <div class="fila d-fila"><span class="mas" style="width:40px;height:40px">+</span><span class="gr">Nueva lección</span></div>`;
 
-document.body.innerHTML = celda("A", "UNA A LA VEZ", "una canción en pantalla, flechas para cambiar", "<b>+ Nueva</b>", A) + celda("B", "TRES FILAS", "nombre y porcentaje, nada más", "", B) +
-  celda("C", "CAMINO", "las canciones como hexágonos", "", C) + celda("D", "DOS BOTONES", "seguir o elegir", "", D);
+document.body.innerHTML = celda("A", "REJILLA", "cada canción es su carátula", A) + celda("B", "LISTA", "una fila por canción, con su barra", B) +
+  celda("C", "DESTACADA Y TIRA", "la que toca arriba, las demás abajo", C) + celda("D", "CARTEL", "la carátula en curso llena media pantalla", D);
 console.assert(hechos(J) === 23 && total(J) === 52 && pct(J) === 44, "Jungle: 23/52");
 </script>
 </body>

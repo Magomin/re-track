@@ -52,3 +52,11 @@ body { margin: 0; padding: 24px; background: #1d1d23; font: 500 15px Rajdhani, s
 .bloques b { position: absolute; left: 0; top: 0; bottom: 0; background: var(--amarillo); }
 .bloques u { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--rojo); box-shadow: 0 0 6px var(--rojo); }
 h1 { margin: 0; font: 700 17px/1.1 Rajdhani; color: #fff; letter-spacing: .02em; }
+/* Carátula «digitalizada»: la foto con líneas de VHS, una franja corrida y un filo rojo/cian. Sin foto (.sin): la inicial. */
+.car { position: relative; flex: none; width: 64px; aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
+  background: var(--hueco) center/cover; filter: saturate(.7) contrast(1.15); font: 700 30px/1 Rajdhani; color: var(--amarillo); }
+.car.sin { background: repeating-linear-gradient(135deg, #1a1a20 0 6px, #141418 6px 12px); filter: none; }
+.car::before { content: ""; position: absolute; inset: 0; background: inherit; clip-path: inset(61% 0 31% 0); transform: translateX(7px); }
+.car::after { content: ""; position: absolute; inset: 0; background:
+  repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px),
+  linear-gradient(90deg, rgba(255,42,61,.22), transparent 25%, transparent 75%, rgba(0,229,255,.22)); }
