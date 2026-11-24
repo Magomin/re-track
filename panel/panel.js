@@ -12,6 +12,7 @@ let ocupado = false;
 
 const $ = (id) => document.getElementById(id);
 const selector = $("leccion");
+const vistaInicio = $("vista-inicio");
 const vistaModulos = $("vista-modulos");
 const vistaPaso = $("vista-paso");
 const mapa = $("mapa");
@@ -459,6 +460,87 @@ function pintar() {
   dibujarEspejo();
 }
 
+// Una sola pantalla a la vez. body.inicio = cabecera compacta (inicio y lecciones); body.portada = pantalla de inicio.
+function mostrar(vista) {
+  for (const v of [vistaInicio, vistaModulos, vistaPaso]) v.hidden = v !== vista;
+  document.body.classList.toggle("inicio", vista !== vistaPaso);
+  document.body.classList.toggle("portada", vista === vistaInicio);
+}
+
+// --- Pantalla de inicio (el Cartel, FDR-003): la lección donde se dejó arriba y las demás en filas. ---
+// «Fred again.. — Jungle» → nombre y artista; una lección sin artista es de la casa.
+function fichaDe(l) {
+  const [artista, nombre] = l.titulo.includes(" — ") ? l.titulo.split(" — ") : ["Re-track", l.titulo];
+  return { ...l, titulo: nombre, artista, pct: l.total ? Math.round((l.hechos / l.total) * 100) : 0, completa: l.hechos >= l.total };
+}
+// Carátula de reserva: la inicial sobre fondo rayado. La foto (#51) entra aquí: quitar `sin` y poner background-image.
+const caratula = (l) => crea("span", "car sin", l.titulo[0]);
+
+async function verInicio() {
+  modulo = null;
+  const { lecciones: crudas, ultima } = await invoke("inicio");
+  const lecciones = crudas.map(fichaDe);
+  // En curso: la última en la que se superó un paso; si ya está completa, la primera a medias, y si no, la primera sin empezar.
+  const enCurso = [
+    lecciones.find((l) => l.nombre === ultima && !l.completa),
+    lecciones.find((l) => l.hechos && !l.completa),
+    lecciones.find((l) => !l.completa),
+    lecciones.find((l) => l.nombre === ultima),
+    lecciones[0],
+  ].find(Boolean);
+
+  const cartel = $("cartel");
+  cartel.hidden = !enCurso;
+  if (enCurso) {
+    const modulos = await invoke("modulos", { leccion: enCurso.nombre });
+    const actual = modulos.find((m) => m.hechos < m.total);
+    const boton = crea("button", "cta");
+    const texto = crea("span", "gr");
+    let donde = `${enCurso.hechos}/${enCurso.total} pasos`;
+    if (actual) {
+      const { indice: i } = await invoke("progreso", { leccion: enCurso.nombre, modulo: actual.id });
+      donde = `${actual.titulo.split(":")[0]} · paso ${i + 1} de ${actual.total}`;
+      boton.textContent = `${enCurso.hechos ? "Continuar" : "Empezar"} ▸`;
+      boton.addEventListener("click", () => {
+        leccion = enCurso.nombre;
+        abrirModulo(actual.id, actual.titulo);
+      });
+    } else {
+      boton.textContent = "Repasar ▸";
+      boton.addEventListener("click", () => verModulos(enCurso.nombre));
+    }
+    texto.append(
+      actual ? crea("span", "et ro", enCurso.hechos ? "▸ Donde se dejó" : "▸ Por empezar") : crea("span", "et am", "■ Completada"),
+      crea("b", enCurso.titulo.length > 12 ? "largo" : "", enCurso.titulo),
+      crea("span", "donde", `${enCurso.pct} % · ${donde}`),
+    );
+    const capa = crea("div", "");
+    capa.append(texto, boton);
+    cartel.replaceChildren(caratula(enCurso), capa);
+  }
+
+  const filas = lecciones.filter((l) => l !== enCurso).map((l) => {
+    const fila = crea("button", "lec");
+    const texto = crea("span", "gr", l.titulo);
+    texto.append(crea("small", "", l.artista));
+    fila.append(caratula(l), texto, l.completa ? crea("span", "pct am", "■ OK") : crea("span", `pct ${l.hechos ? "" : "te"}`, `${l.pct} %`));
+    fila.addEventListener("click", () => verModulos(l.nombre));
+    return fila;
+  });
+  // La pantalla de nueva lección (#52) aún no existe: la fila está, apagada, y lo dice.
+  const nueva = crea("button", "lec");
+  nueva.disabled = true;
+  const rotulo = crea("span", "gr", "Nueva lección");
+  rotulo.append(crea("small", "", "Próximamente"));
+  nueva.append(crea("span", "mas", "+"), rotulo);
+  $("filas").replaceChildren(...filas, nueva);
+
+  ruta.textContent = "";
+  progresoModulo.textContent = "";
+  mostrar(vistaInicio);
+  sondearLive();
+}
+
 // Pantalla de lecciones: la lección como un camino de módulos (FDR-001). Todo sale del JSON de la lección.
 const X_PARADA = [40, 100, 160, 100]; // el zigzag se repite cada cuatro módulos
 const paradaEn = (i) => [X_PARADA[i % 4], 24 + 43 * i];
@@ -527,16 +609,14 @@ async function verModulos(nombre) {
       crea("strong", "", `${leccion[0].toUpperCase()}${leccion.slice(1)} está reconstruida entera.`),
     );
     boton.textContent = "Otra lección ▸";
-    boton.addEventListener("click", () => selector.showPicker());
+    boton.addEventListener("click", verInicio);
   }
   siguiente.className = actual ? "sig-caja" : "sig-caja ok";
   siguiente.replaceChildren(texto, boton);
 
   ruta.textContent = "";
   progresoModulo.textContent = `${suma}/${total} pasos`;
-  vistaPaso.hidden = true;
-  vistaModulos.hidden = false;
-  document.body.classList.add("inicio");
+  mostrar(vistaModulos);
   sondearLive();
 }
 
@@ -560,9 +640,7 @@ async function abrirModulo(id, titulo) {
   tituloModulo = titulo;
   pasos = await invoke("pasos", { leccion, modulo });
   indice = (await invoke("progreso", { leccion, modulo })).indice;
-  vistaModulos.hidden = true;
-  vistaPaso.hidden = false;
-  document.body.classList.remove("inicio");
+  mostrar(vistaPaso);
   pintar();
 }
 
@@ -573,6 +651,7 @@ async function empezar() {
   for (const nombre of nombres) selector.add(new Option(nombre, nombre));
   selector.addEventListener("change", () => verModulos(selector.value));
   $("volver").addEventListener("click", () => verModulos(leccion));
+  $("a-inicio").addEventListener("click", verInicio);
   $("reiniciar").addEventListener("click", () => {
     barraNav.classList.add("confirmando");
     $("no-reiniciar").focus();
@@ -585,7 +664,7 @@ async function empezar() {
     await invoke("reiniciar", { leccion, modulo });
     await abrirModulo(modulo, tituloModulo);
   });
-  await verModulos(nombres[0]);
+  await verInicio();
 }
 
 // Cada segundo se comprueba el paso actual contra Live.
@@ -618,5 +697,5 @@ async function comprobar() {
 
 setInterval(() => (modulo === null ? sondearLive() : comprobar()), 1000);
 empezar().catch((error) => {
-  mapa.textContent = String(error); // la pantalla de lecciones es la única visible al arrancar
+  $("filas").textContent = String(error); // la pantalla de inicio es la única visible al arrancar
 });

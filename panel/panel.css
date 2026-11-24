@@ -66,6 +66,39 @@ body.inicio .elegir { display: block; }
   font-size: 12px; line-height: 16px; letter-spacing: .18em; }
 #leccion option { background: var(--panel); color: var(--texto); }
 
+/* Pantalla de inicio (el Cartel, FDR-003). Copia de docs/design/inicio/objetivo.html; body.portada = se está viendo. */
+body.portada .elegir { display: none; }
+#vista-inicio { position: fixed; inset: 56px 20px 32px; display: flex; flex-direction: column; }
+#vista-inicio[hidden], .cartel[hidden] { display: none; }
+.cartel { position: relative; flex: none; height: 196px; margin: -6px -20px 6px; }
+.cartel > .car { position: absolute; inset: 0; width: auto; aspect-ratio: auto; place-items: start end; padding: 10px 28px; font-size: 110px; }
+.cartel > div { position: absolute; inset: 0; padding: 0 20px 14px; display: flex; align-items: flex-end; gap: 14px;
+  background: linear-gradient(transparent 20%, rgba(8,8,10,.95)); }
+.cartel b { display: block; font: 700 46px/1 Rajdhani, sans-serif; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cartel b.largo { font-size: 30px; margin: 4px 0; }
+.donde { font-size: 17px; color: #fff; font-variant-numeric: tabular-nums; }
+.gr { flex: 1; min-width: 0; }
+/* Más lecciones de las que caben: las filas se desplazan y el cartel se queda. */
+#filas { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.lec { display: flex; align-items: center; gap: 14px; width: 100%; height: 56px; padding: 0; border: 0; background: none;
+  text-align: left; text-transform: none; letter-spacing: 0; font: 700 20px Rajdhani, sans-serif; color: #fff; }
+.lec:focus-visible { outline-offset: -2px; }
+.lec:hover:enabled .gr { color: var(--amarillo); }
+.lec:disabled { cursor: default; }
+.lec small { display: block; font: 500 14px Rajdhani, sans-serif; color: var(--tenue); }
+.lec .pct { font: 600 22px/1 Rajdhani, sans-serif; font-variant-numeric: tabular-nums; }
+.pct.te { color: var(--tenue); }
+.mas { display: grid; place-items: center; width: 40px; height: 40px; border: 2px dashed #3a3a44; box-sizing: border-box; font: 700 16px Rajdhani, sans-serif; }
+/* Carátula «digitalizada»: la foto con líneas de VHS, una franja corrida y un filo rojo/cian. Sin foto (.sin): la inicial. */
+.car { position: relative; flex: none; width: 40px; aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
+  background: var(--hueco) center/cover; filter: saturate(.7) contrast(1.15); font: 700 20px/1 Rajdhani, sans-serif; color: var(--amarillo); }
+.car.sin { background: repeating-linear-gradient(135deg, #1a1a20 0 6px, #141418 6px 12px); filter: none; }
+.car::before { content: ""; position: absolute; inset: 0; background: inherit; clip-path: inset(61% 0 31% 0); transform: translateX(7px); }
+.car::after { content: ""; position: absolute; inset: 0; background:
+  repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px),
+  linear-gradient(90deg, rgba(255,42,61,.22), transparent 25%, transparent 75%, rgba(0,229,255,.22)); }
+
+#a-inicio { grid-column: 3; justify-self: end; align-self: start; padding: 3px 10px; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: 4px; }
 .stats div { border-left: 1px solid var(--linea); padding-left: 9px; }
 .stats div:first-child { border: 0; padding: 0; }

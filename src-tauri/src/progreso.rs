@@ -43,41 +43,17 @@ pub fn marcar(ruta: &Path, modulo: &str, paso: &str) -> Result<(), String> {
     Ok(())
 }
 
-// `hace` = cuántos días hace de cada día con algún paso superado, de menor a mayor.
-// La racha sigue viva si el último día fue hoy o ayer.
-fn racha(hace: &[i64]) -> usize {
-    match hace.first() {
-        Some(&ultimo) if ultimo <= 1 => hace
-            .iter()
-            .zip(ultimo..)
-            .take_while(|(dia, esperado)| *dia == esperado)
-            .count(),
-        _ => 0,
-    }
-}
-
-// (racha en días, pasos superados hoy), de toda la app.
-pub fn resumen(ruta: &Path) -> Result<(usize, usize), String> {
-    let conexion = conectar(ruta)?;
-    let hoy: i64 = conexion
+// La clave ("leccion/modulo") del último paso superado: de ahí sale la lección «donde se dejó».
+// rowid = orden de inserción; `cuando` solo guarda el día.
+pub fn ultimo(ruta: &Path) -> Result<Option<String>, String> {
+    conectar(ruta)?
         .query_row(
-            "SELECT COUNT(*) FROM hechos WHERE cuando = date('now', 'localtime')",
+            "SELECT modulo FROM hechos ORDER BY rowid DESC LIMIT 1",
             [],
             |fila| fila.get(0),
         )
-        .map_err(|e| e.to_string())?;
-    let mut consulta = conexion
-        .prepare(
-            "SELECT DISTINCT CAST(round(julianday(date('now', 'localtime')) - julianday(cuando)) AS INTEGER)
-             FROM hechos WHERE cuando IS NOT NULL ORDER BY 1",
-        )
-        .map_err(|e| e.to_string())?;
-    let hace: Vec<i64> = consulta
-        .query_map([], |fila| fila.get(0))
-        .map_err(|e| e.to_string())?
-        .collect::<Result<_, _>>()
-        .map_err(|e| e.to_string())?;
-    Ok((racha(&hace), hoy as usize))
+        .optional()
+        .map_err(|e| e.to_string())
 }
 
 // `orden` = ids del módulo en orden: si hay progreso del formato anterior ("voy por el paso N"),
@@ -159,16 +135,7 @@ mod tests {
     }
 
     #[test]
-    fn la_racha_cuenta_dias_seguidos_hasta_hoy_o_ayer() {
-        assert_eq!(racha(&[]), 0);
-        assert_eq!(racha(&[0, 1, 2]), 3);
-        assert_eq!(racha(&[1, 2]), 2); // hoy aún sin pasos: la de ayer sigue viva
-        assert_eq!(racha(&[0, 1, 3, 4]), 2); // un día en blanco la corta
-        assert_eq!(racha(&[2, 3]), 0); // anteayer: perdida
-    }
-
-    #[test]
-    fn una_base_sin_fechas_conserva_lo_hecho_y_empieza_la_racha_de_cero() {
+    fn una_base_sin_fechas_conserva_lo_hecho() {
         let ruta = ruta("sin-fechas");
         let antigua = Connection::open(&ruta).unwrap();
         antigua
@@ -181,18 +148,20 @@ mod tests {
 
         let orden = ids(&["tempo", "pista"]);
         assert_eq!(hechos(&ruta, "jungle/pad", &orden).unwrap().len(), 1);
-        assert_eq!(resumen(&ruta).unwrap(), (0, 0));
         marcar(&ruta, "jungle/pad", "pista").unwrap();
-        assert_eq!(resumen(&ruta).unwrap(), (1, 1));
-        // Un paso de ayer alarga la racha sin contar para «hoy».
-        conectar(&ruta)
-            .unwrap()
-            .execute(
-                "INSERT INTO hechos VALUES ('jungle/bass', 'tempo', date('now', 'localtime', '-1 day'))",
-                [],
-            )
-            .unwrap();
-        assert_eq!(resumen(&ruta).unwrap(), (2, 1));
+        assert_eq!(hechos(&ruta, "jungle/pad", &orden).unwrap().len(), 2);
+        std::fs::remove_file(&ruta).unwrap();
+    }
+
+    #[test]
+    fn el_ultimo_es_el_modulo_del_paso_mas_reciente() {
+        let ruta = ruta("ultimo");
+        assert_eq!(ultimo(&ruta).unwrap(), None); // nada empezado
+        marcar(&ruta, "jungle/pad", "tempo").unwrap();
+        marcar(&ruta, "primera/base", "pista-bass").unwrap();
+        assert_eq!(ultimo(&ruta).unwrap().as_deref(), Some("primera/base"));
+        marcar(&ruta, "jungle/pad", "pista").unwrap();
+        assert_eq!(ultimo(&ruta).unwrap().as_deref(), Some("jungle/pad"));
         std::fs::remove_file(&ruta).unwrap();
     }
 

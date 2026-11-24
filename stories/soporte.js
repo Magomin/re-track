@@ -17,6 +17,7 @@ function falsoTauri(h) {
       invoke: async (comando, args) => {
         if (comando === "comprobar" && h.error) throw h.error;
         if (comando === "lecciones") return ["jungle", "primera"];
+        if (comando === "inicio") return h.inicio;
         if (comando === "modulos") return h.modulos;
         if (comando === "conectado") return !h.sinLive;
         if (comando === "pasos") return h.pasos[args.modulo];
@@ -29,6 +30,7 @@ function falsoTauri(h) {
   // Entra en el módulo y lanza una comprobación, sin esperar al segundo del setInterval.
   window.addEventListener("load", async () => {
     while (!document.querySelector(".cta")) await new Promise((r) => setTimeout(r, 10));
+    if (h.pantalla !== "inicio") await verModulos("jungle"); // la app arranca en la pantalla de inicio
     if (h.abrir) {
       await abrirModulo(h.abrir, h.titulo);
       await comprobar();
@@ -39,11 +41,15 @@ function falsoTauri(h) {
 }
 
 // hechos, sinLive: lo que enseña la pantalla de lecciones.
+// pantalla: "inicio" se queda en la pantalla de inicio; titulo: el de Jungle; otras: las demás lecciones; ultima: dónde se superó el último paso.
 // pulsar: selector de un botón que se pulsa al final.
 // abrir: id del módulo en el que entra; indice: paso que enseña; comprobar: lo que contesta Live; error: lo que falla.
-export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar } = {}) {
+const PRIMERA = { nombre: "primera", titulo: "Primera lección", total: 3, hechos: 3 };
+export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, pantalla, titulo = jungle.titulo, otras = [PRIMERA], ultima = "jungle" } = {}) {
   const pasos = Object.fromEntries(jungle.modulos.map((m) => [m.id, m.pasos]));
-  const h = { modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar };
+  const suma = (campo) => resumen(hechos).reduce((s, m) => s + m[campo], 0);
+  const inicio = { lecciones: [{ nombre: "jungle", titulo, total: suma("total"), hechos: suma("hechos") }, ...otras], ultima };
+  const h = { pantalla, inicio, modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar };
   const marco = document.createElement("iframe");
   marco.title = "Panel de Re-track";
   marco.style.cssText = "width:460px;height:460px;border:0;display:block";
