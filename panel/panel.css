@@ -4,7 +4,7 @@
 @font-face { font-family: Rajdhani; font-weight: 600; src: url(fonts/Rajdhani-SemiBold.ttf); }
 @font-face { font-family: Rajdhani; font-weight: 700; src: url(fonts/Rajdhani-Bold.ttf); }
 :root {
-  --negro: #08080a; --panel: #111114; --linea: #26262c; --hueco: #24242a;
+  --negro: #08080a; --panel: #111114; --linea: #26262c; --hueco: #24242a; --pieza: #2b2b32;
   --amarillo: #fcee0a; --rojo: #ff2a3d; --magenta: #ff2fb0; --cian: #00e5ff;
   --texto: #c9c9cf; --tenue: #6c6c78;
   --pulsar: 120ms;
@@ -100,11 +100,16 @@ body.inicio .elegir { display: block; }
 .cta:focus-visible { background: #fff; } /* el recorte se come el contorno de foco */
 .cta:active { transform: scale(.97); }
 
-.barra-nav { display: flex; gap: 8px; margin: 0 0 6px; }
+.barra-nav { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
 .barra-nav button { padding: 3px 10px; }
-.barra-nav span { flex: 1; }
+.barra-nav .pregunta { flex: 1; }
+/* Tramos del módulo: hechos en amarillo, el paso actual en rojo y más alto. */
+.tramos { flex: 1; display: flex; gap: 3px; align-items: center; }
+.tramos i { flex: 1; height: 6px; background: var(--hueco); }
+.tramos i.on { background: var(--amarillo); }
+.tramos i.sig { background: var(--rojo); height: 10px; }
 .barra-nav .pregunta { text-align: right; align-self: center; font: 600 12px Rajdhani, sans-serif; letter-spacing: .1em; text-transform: uppercase; }
-.barra-nav:not(.confirmando) :is(.pregunta, #si-reiniciar, #no-reiniciar), .barra-nav.confirmando :is(#volver, #reiniciar, span:not(.pregunta)) { display: none; }
+.barra-nav:not(.confirmando) :is(.pregunta, #si-reiniciar, #no-reiniciar), .barra-nav.confirmando :is(#volver, #reiniciar, .tramos) { display: none; }
 #si-reiniciar { border-color: var(--rojo); color: var(--rojo); }
 
 .etiqueta { margin: 10px 0 0; font: 600 12px Rajdhani, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--tenue); }
@@ -131,6 +136,49 @@ body.inicio .elegir { display: block; }
 .escala[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) { .logo, .logo::after, #numero.glitch-on { animation: none; } #aguja, .cta { transition: none; } }
 .escala { display: flex; justify-content: space-between; font-size: 11px; color: #44444d; margin-top: 3px; }
+
+#haz[hidden] { display: none; }
+#titulo { display: block; margin: 1px 0 10px; font: 600 24px/1.1 Rajdhani, sans-serif; color: #fff; }
+#titulo b { font-weight: 600; color: var(--amarillo); }
+
+/* El espejo: un trozo de Live con la marca encima. Esquina cortada y pestaña amarilla con el nombre de la zona. */
+.espejo { position: relative; padding: 30px 10px 10px; background: #131317; border-left: 2px solid var(--amarillo);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+.espejo[hidden] { display: none; }
+.zona { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px;
+  font: 600 11px Rajdhani, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--tenue); }
+.zona b { padding: 2px 8px 2px 6px; background: var(--amarillo); color: var(--negro); font-weight: 700; letter-spacing: .1em;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.pieza { padding: 4px 8px; background: var(--pieza); font: 600 14px Rajdhani, sans-serif; color: #9a9aa6; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Dónde tocar: marco rojo. Lo que falta por crear: discontinuo, con el nombre en amarillo. */
+.aqui { background: var(--negro); color: #fff; outline: 2px solid var(--rojo); outline-offset: 1px; }
+.falta { background: none; color: var(--amarillo); outline: 2px dashed var(--rojo); outline-offset: 1px; }
+.globo { margin-top: 10px; font: 700 14px/1.2 Rajdhani, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: var(--rojo); }
+.globo b { color: var(--amarillo); }
+.fila { display: flex; gap: 5px; align-items: center; }
+.fila .hueco { flex: 1; }
+.fila .lectura { padding: 2px 10px; font-size: 20px; font-variant-numeric: tabular-nums; }
+.sesion { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.sesion .pieza { display: block; padding: 4px 2px; font-size: 12px; }
+.sesion i { display: block; height: 13px; margin-top: 3px; background: #1d1d22; }
+.sesion i.lleno { background: #3a3a44; }
+.sesion i.falta { height: 11px; margin: 4px 1px 1px; font: 700 10px/11px Rajdhani, sans-serif; font-style: normal; text-align: center; letter-spacing: .1em; }
+.sesion .nueva i { background: none; border: 1px dashed #3a3a44; height: 11px; }
+.dos { display: grid; grid-template-columns: 150px 26px 1fr; align-items: center; }
+.lista span { display: block; padding: 2px 8px; font: 600 13px Rajdhani, sans-serif; color: #8a8a96; }
+.lista .et { padding: 0 8px 2px; font-size: 10px; color: var(--tenue); }
+.lista .aqui { margin: 3px 0; color: var(--amarillo); }
+.soltar { min-height: 96px; display: grid; place-items: center; align-content: center; gap: 4px; padding: 0 8px; text-align: center;
+  font: 700 13px Rajdhani, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.soltar small { font: 500 12px Rajdhani, sans-serif; letter-spacing: 0; text-transform: none; color: var(--tenue); }
+.arreglo { display: grid; grid-template-columns: 48px 1fr; row-gap: 3px; align-items: center; font: 600 12px Rajdhani, sans-serif; color: var(--amarillo); }
+.regla { position: relative; height: 14px; font-size: 10px; color: var(--tenue); }
+.regla span { position: absolute; top: 0; border-left: 1px solid #3a3a44; padding-left: 3px; }
+.carril { position: relative; height: 26px; background: #1a1a1f; }
+.carril b { position: absolute; top: 1px; bottom: 1px; box-sizing: border-box; }
+.carril .hay { background: #3a3a44; }
+.carril .falta { outline-offset: -2px; font: 700 10px/24px Rajdhani, sans-serif; text-align: center; letter-spacing: .1em; white-space: nowrap; overflow: hidden; }
 
 #instruccion { margin: 10px 0 12px; color: #fff; font-size: 17px; line-height: 1.35; }
 #instruccion.porque { font-size: 15px; color: #9a9aa6; border-left: 2px solid var(--magenta); padding-left: 10px; margin-top: 14px; }

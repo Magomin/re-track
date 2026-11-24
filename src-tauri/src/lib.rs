@@ -112,7 +112,8 @@ async fn comprobar(leccion: String, modulo: String, indice: usize) -> Result<Val
     if hecho {
         progreso::marcar(&base_de_datos(), &clave(&leccion, &modulo), &paso.id)?;
     }
-    let mut respuesta = json!({"hecho": hecho, "indice": m.siguiente(&hechos(&leccion, m)?)});
+    let mut respuesta = json!({"hecho": hecho, "indice": m.siguiente(&hechos(&leccion, m)?),
+        "live": verify::ahora(&paso.check, &snapshot)});
     if !hecho {
         match &paso.check {
             Check::NotasEnClip { pista, notas } => {

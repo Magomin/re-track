@@ -179,16 +179,142 @@ function dibujarMedida(actual = null) {
   medida.hidden = false;
 }
 
+
+// --- El espejo de Live (FDR-002): una plantilla por tipo de paso; la lección solo trae los datos. ---
+// Trozos de texto: una cadena va en blanco, un array de un elemento va en amarillo (el objetivo).
+function trozos(destino, partes) {
+  destino.replaceChildren(...partes.map((p) => (Array.isArray(p) ? crea("b", "", String(p[0])) : String(p))));
+}
+// Live llama a algunos devices por su nombre de clase.
+const NOMBRE_DEVICE = { DrumGroupDevice: "Drum Rack", GlueCompressor: "Glue Compressor", InstrumentGroupDevice: "Instrument Rack" };
+const nombreDevice = (clase) => NOMBRE_DEVICE[clase] ?? clase;
+const INSTRUMENTOS = ["Analog", "Drift", "Electric", "Operator", "Sampler", "Wavetable"];
+const igual = (a, b) => a.toLowerCase() === b.toLowerCase(); // Rust compara los nombres de pista sin mayúsculas
+
+function tituloDe(paso) {
+  const v = paso.valor;
+  switch (paso.check) {
+    case "tempo_es": return ["Tempo a ", [`${num(v)} BPM`]];
+    case "track_existe": return ["Pista llamada ", [v]];
+    case "device_en_pista": return [[nombreDevice(v.device)], ` en la pista ${v.pista}`];
+    case "clip_en_pista": return ["Clip en la pista ", [v]];
+    case "clip_en_arreglo": return [`${v.pista} del compás `, [v.desde], " al ", [v.hasta]];
+    case "notas_en_clip": return [`Notas en ${v.pista}: `, [[...new Set(v.notas.map((n) => nombreNota(n.pitch)))].join(" · ")]];
+    default: return [`${esVolumen(paso) ? `Fader de ${v.pista}` : v.parametro} → `, [objetivoDe(paso)]];
+  }
+}
+
+const pieza = (texto, clase = "") => crea("span", `pieza ${clase}`, texto);
+// Una columna de la vista Session: cabecera y cuatro huecos. `huecos`: "lleno", "falta" o "".
+function columna(nombre, clase, huecos = ["", "", "", ""]) {
+  const col = crea("div", clase);
+  col.append(pieza(nombre, clase === "nueva" ? "falta" : ""), ...huecos.map((h) => crea("i", h, h === "falta" ? "+ CLIP" : "")));
+  return col;
+}
+
+// Cada plantilla devuelve { zona, dibujo: [nodos], globo: trozos }. `live` = lo que Live tiene ahora, o null si aún no ha contestado.
+const ESPEJOS = {
+  tempo_es(v, live) {
+    const fila = crea("div", "fila");
+    fila.append(pieza("Link"), pieza("Tap"), pieza(live ? live.tempo.toFixed(2) : "—", "aqui lectura"), pieza("4 / 4"), pieza("●"), crea("span", "hueco"), pieza("▶"), pieza("■"));
+    const falta = live ? v - live.tempo : 0;
+    return {
+      zona: "Barra de control · arriba a la izquierda",
+      dibujo: [fila],
+      globo: [live ? `${falta > 0 ? "▲ Súbelo" : "▼ Bájalo"} ${num(Math.abs(falta))}: doble clic y escribe ` : "▸ Doble clic en el tempo y escribe ", [num(v)]],
+    };
+  },
+  track_existe(v, live) {
+    const sesion = crea("div", "sesion");
+    const hay = live?.pistas ?? [];
+    // Caben cuatro pistas de Live y la que falta; si hay más, la cuarta dice cuántas quedan fuera.
+    const visibles = hay.length > 4 ? [...hay.slice(0, 3), `+${hay.length - 3} más`] : hay;
+    sesion.append(...visibles.map((p) => columna(p, "")), columna(v, "nueva"));
+    return { zona: "Vista Session · las pistas", dibujo: [sesion], globo: ["▸ Ctrl+Shift+T crea la pista · Ctrl+R la nombra ", [v]] };
+  },
+  device_en_pista(v, live) {
+    const nombre = nombreDevice(v.device);
+    const lista = crea("div", "lista");
+    const vecinos = INSTRUMENTOS.includes(nombre) ? INSTRUMENTOS : ["···", nombre, "···"];
+    lista.append(crea("span", "et", INSTRUMENTOS.includes(nombre) ? "Instrumentos" : "Navegador"),
+      ...vecinos.map((d) => (d === nombre ? crea("span", "aqui", `▸ ${d}`) : crea("span", "", d))));
+    const soltar = crea("div", "soltar falta", `Suéltalo en ${v.pista}`);
+    if (live?.devices?.length) soltar.append(crea("small", "", `ya tiene: ${live.devices.map(nombreDevice).join(", ")}`));
+    const dos = crea("div", "dos");
+    dos.append(lista, crea("span", "ro", "▸▸"), soltar);
+    return {
+      zona: `Navegador → pista ${v.pista}`,
+      dibujo: [dos],
+      globo: live && !live.devices ? [`▸ Falta la pista ${v.pista}`] : ["▸ Arrastra ", [nombre], ` del navegador a la pista ${v.pista}`],
+    };
+  },
+  clip_en_pista(v, live) {
+    const sesion = crea("div", "sesion");
+    const huecos = (live?.huecos ?? []).slice(0, 4).map((lleno) => (lleno ? "lleno" : ""));
+    while (huecos.length < 4) huecos.push("");
+    huecos[huecos.indexOf("")] = "falta"; // el primer hueco vacío es donde se crea el clip
+    const otras = (live?.pistas ?? []).filter((p) => !igual(p, v)).slice(0, 4);
+    sesion.append(columna(v, "", huecos), ...otras.map((p) => columna(p, "")));
+    return {
+      zona: `Vista Session · los huecos de ${v}`,
+      dibujo: [sesion],
+      globo: live && !live.huecos ? [`▸ Falta la pista ${v}`] : ["▸ Doble clic en un hueco vacío de ", [v]],
+    };
+  },
+  clip_en_arreglo(v, live, detalle) {
+    const clips = live?.arreglo ?? [];
+    // La regla llega al menos al compás 49 y siempre cubre el tramo pedido y lo que ya hay.
+    const fin = Math.max(49, ...clips.map((c) => c[1]), v.hasta) + 1;
+    const x = (compas) => `${((compas - 1) / (fin - 1)) * 100}%`;
+    const tramo = (desde, hasta, clase, texto = "") => {
+      const b = crea("b", clase, texto);
+      b.style.left = x(desde);
+      b.style.width = `calc(${x(hasta)} - ${x(desde)})`;
+      return b;
+    };
+    const regla = crea("div", "regla");
+    const cada = fin > 65 ? 16 : 8;
+    for (let c = 1; c < fin; c += cada) regla.append(Object.assign(crea("span", "", String(c)), { style: `left:${x(c)}` }));
+    const carril = crea("div", "carril");
+    carril.append(...clips.map((c) => tramo(c[0], c[1], "hay")), tramo(v.desde, v.hasta, "falta", `${v.desde} – ${v.hasta}`));
+    const arreglo = crea("div", "arreglo");
+    arreglo.append(crea("span", ""), regla, crea("span", "", v.pista), carril);
+    return {
+      zona: "Vista Arrangement",
+      dibujo: [arreglo],
+      globo: detalle ? [`▸ ${detalle}`] : ["▸ Falta ", [v.pista], ` de ${v.desde} a ${v.hasta} · Ctrl+D duplica el clip`],
+    };
+  },
+};
+
+function dibujarEspejo(live = null, detalle = "") {
+  const paso = pasos[indice];
+  const plantilla = paso && ESPEJOS[paso.check];
+  $("espejo").hidden = !plantilla;
+  if (!plantilla) return;
+  const { zona, dibujo, globo } = plantilla(paso.valor, live, detalle);
+  $("zona-live").textContent = zona;
+  $("dibujo").replaceChildren(...dibujo);
+  trozos($("globo"), globo);
+}
+
 function pintar() {
   barraNav.classList.remove("confirmando"); // otro paso u otro módulo: la pregunta de reinicio ya no vale
   const completo = indice >= pasos.length;
   ruta.textContent = `${leccion} // ${modulo} · ${completo ? "OK" : `${dos(indice + 1)}/${dos(pasos.length)}`}`;
   progresoModulo.textContent = `${tituloModulo.split(":")[0]} ${Math.min(indice, pasos.length)}/${pasos.length}`;
   const paso = pasos[indice];
-  instruccion.className = conMedida(paso) ? "porque" : "";
-  instruccion.textContent = completo ? "Módulo completado." : paso.instruccion;
+  // El progreso va por id: `indice` es el primer paso sin hacer, y los tramos lo pintan como «hasta aquí».
+  $("tramos").replaceChildren(...pasos.map((_, i) => crea("i", i < indice ? "on" : i === indice ? "sig" : "")));
+  $("haz").hidden = completo;
+  trozos($("titulo"), completo ? [["■ Módulo completado"]] : tituloDe(paso));
+  // Con el título diciendo la orden, el texto de la lección es el porqué; en las notas aún lleva el cómo (#35).
+  instruccion.className = completo || paso.check === "notas_en_clip" ? "" : "porque";
+  instruccion.textContent = completo ? "" : paso.instruccion;
+  const conEspejo = !completo && paso.check in ESPEJOS;
   resultado.className = "espera";
-  resultado.textContent = completo ? "" : "Esperando a Live…";
+  resultado.textContent = completo || conEspejo ? "" : "Esperando a Live…";
+  dibujarEspejo();
   dibujarMedida();
   dibujarRoll();
 }
@@ -332,6 +458,9 @@ async function comprobar() {
     if (datos.hecho) {
       indice = datos.indice; // el siguiente sin hacer (Rust ya lo ha guardado en SQLite)
       pintar();
+    } else if (pasos[indice].check in ESPEJOS) {
+      dibujarEspejo(datos.live, datos.detalle); // lo que Live tiene ahora, dentro del dibujo
+      resultado.textContent = "";
     } else if (datos.detalle) {
       dibujarMedida(datos.actual); // parámetro o volumen: aguja sobre el valor actual en Live
       resultado.className = datos.actual ? "espera" : "";

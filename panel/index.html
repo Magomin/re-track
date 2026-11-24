@@ -29,12 +29,21 @@
   <div id="vista-paso" hidden>
     <div class="barra-nav">
       <button id="volver">← Módulos</button>
-      <span></span>
+      <div id="tramos" class="tramos"></div>
       <button id="reiniciar" title="Empezar este módulo desde el paso 1">Reiniciar</button>
       <!-- Confirmación en la propia barra (la clase .confirmando la enseña), no un diálogo del sistema -->
       <span class="pregunta ro">▸ ¿Borrar lo hecho en este módulo?</span>
       <button id="si-reiniciar">Sí, reiniciar</button>
       <button id="no-reiniciar">No</button>
+    </div>
+
+    <span class="et ro" id="haz">▸ Haz esto en Live</span>
+    <span id="titulo"></span>
+    <!-- El espejo: el trozo de Live donde se actúa (FDR-002). Gris = lo que hay, rojo = dónde tocar, amarillo = objetivo. -->
+    <div id="espejo" class="espejo" hidden>
+      <span class="zona"><b>Live</b><span id="zona-live"></span></span>
+      <div id="dibujo"></div>
+      <div id="globo" class="globo"></div>
     </div>
 
     <div id="medida" hidden>
