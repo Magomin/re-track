@@ -294,6 +294,14 @@ body.inicio .elegir { display: block; }
   43% { opacity: .6; transform: translateY(330px) scaleX(.8); } 44% { opacity: .85; transform: translateY(36px); }
   80% { opacity: .85; transform: translateY(260px); } 81% { opacity: .5; transform: translateY(96px) scaleX(.7); } 82% { opacity: .85; transform: translateY(300px); }
 }
+/* Con cada rasgado, el camino entero (nodos, rótulos y trazo) se sacude: mismos instantes que rasgado-ruta. */
+#camino { animation: sacudida 5.5s steps(1) infinite; }
+@keyframes sacudida {
+  0%, 39%, 45%, 79%, 83%, 100% { transform: none; }
+  40% { transform: translate(-9px, 0) skewX(-6deg); } 41% { transform: translate(7px, 2px); } 42% { transform: translate(-4px, -2px) skewX(4deg); }
+  43% { transform: translate(10px, 0); } 44% { transform: translate(-2px, 1px); }
+  80% { transform: translate(8px, -1px) skewX(5deg); } 81% { transform: translate(-7px, 1px); } 82% { transform: translate(3px, 0); }
+}
 .eco { opacity: 0; animation: eco 5.5s steps(1) infinite; }
 .eco-b { animation-name: eco-b; }
 @keyframes eco { 0%, 39%, 45%, 100% { opacity: 0; } 40% { opacity: .9; transform: translate(-7px, 2px); } 42% { opacity: .7; transform: translate(5px, -1px); } 44% { opacity: .9; transform: translate(-3px, 0); } }
@@ -304,7 +312,7 @@ body.inicio .elegir { display: block; }
 .sig-caja { animation: salto 5.5s steps(1) -.55s infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  #vista-modulos::after, .eco, .stats b, .sig-caja, .logo, .logo::after, .glitch-on, .demo *, .demo.espejo::after, .zona b, .tramos i.sig, .parada.sig .nodo { animation: none !important; }
+  #vista-modulos::after, #camino, .eco, .stats b, .sig-caja, .logo, .logo::after, .glitch-on, .demo *, .demo.espejo::after, .zona b, .tramos i.sig, .parada.sig .nodo { animation: none !important; }
   .carro, .cta { transition: none; }
 }
 
