@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <title>Re-track · pantalla de lecciones · aspecto objetivo (Ruta)</title>
 <!-- Aspecto objetivo de la pantalla de inicio: la propuesta B («Ruta») elegida el 2026-11-24, en sus cuatro estados.
-     Se copia fielmente al panel. Ventana real: 460×460. Módulos y pasos: lecciones/jungle.json; progreso, racha y
-     «hoy» son de muestra. Tokens: panel/index.html (ADR-013). -->
+     Se copia fielmente al panel. Ventana real: 460×460. Módulos y pasos: lecciones/jungle.json; el progreso es
+     de muestra. Tokens: panel/index.html (ADR-013). -->
 <style>
   @font-face { font-family: Rajdhani; font-weight: 500; src: url(../../../panel/fonts/Rajdhani-Medium.ttf); }
   @font-face { font-family: Rajdhani; font-weight: 600; src: url(../../../panel/fonts/Rajdhani-SemiBold.ttf); }
@@ -72,7 +72,7 @@ const P = [[40, 24], [100, 67], [160, 110], [100, 153], [40, 196], [100, 239]];
 const dos = (n) => String(n).padStart(2, "0");
 
 // `hechos`: pasos hechos por módulo. `que`: la instrucción corta del paso donde toca seguir.
-function pantalla({ hechos, racha, hoy, que, live = true }) {
+function pantalla({ hechos, que, live = true }) {
   const M = MODULOS.map(([n, t, total], i) => ({ n, t, total, hechos: hechos[i] }));
   const total = M.reduce((s, m) => s + m.total, 0), suma = M.reduce((s, m) => s + m.hechos, 0);
   const act = M.find((m) => m.hechos < m.total);
@@ -84,9 +84,7 @@ function pantalla({ hechos, racha, hoy, que, live = true }) {
         <strong>Jungle está reconstruida entera.</strong></div><span class="cta">Otra lección ▸</span></div>`;
   return `<div class="cab"><span class="logo">RE-TRACK</span><span class="ruta"><b>Jungle</b> ▾</span>
       <span class="vent">―</span><span class="vent">✕</span></div><div class="glitch"></div>
-    <div class="stats"><div><span class="et">Racha</span><b class="num">${racha} <small>${racha === 1 ? "día" : "días"}</small></b></div>
-      <div><span class="et">Hoy</span><b class="num">${hoy} <small>${hoy === 1 ? "paso" : "pasos"}</small></b></div>
-      <div><span class="et">Jungle</span><b class="num ${suma ? "am" : ""}">${Math.round((suma / total) * 100)} %</b></div></div>
+    <div class="stats"><div><span class="et">Jungle</span><b class="num ${suma ? "am" : ""}">${Math.round((suma / total) * 100)} %</b></div></div>
     <div class="mapa"><svg width="428" height="262">
       <polyline points="${P.map((p) => p.join(",")).join(" ")}" fill="none" stroke="#26262c" stroke-width="6"/>
       ${hasta > 1 ? `<polyline points="${P.slice(0, hasta).map((p) => p.join(",")).join(" ")}" fill="none" stroke="#fcee0a" stroke-width="6"/>` : ""}</svg>
@@ -102,10 +100,10 @@ function pantalla({ hechos, racha, hoy, que, live = true }) {
 const celda = (nombre, nota, estado) => `<div class="celda"><h2>${nombre}<small>${nota}</small></h2><div class="app">${pantalla(estado)}</div></div>`;
 
 document.body.innerHTML =
-  celda("Lección empezada", "donde toca seguir, en rojo", { hechos: [10, 7, 6, 0, 0, 0], racha: 4, hoy: 6, que: "Osc-B Level → 0.80–0.92" }) +
-  celda("Lección sin empezar", "el primer módulo espera", { hechos: [0, 0, 0, 0, 0, 0], racha: 0, hoy: 0, que: "Tempo a 134 BPM" }) +
-  celda("Lección completada", "todo el camino en amarillo", { hechos: [10, 7, 8, 8, 13, 6], racha: 9, hoy: 4, que: "" }) +
-  celda("Sin Live", "se puede mirar, no comprobar", { hechos: [10, 7, 6, 0, 0, 0], racha: 4, hoy: 0, que: "Osc-B Level → 0.80–0.92", live: false });
+  celda("Lección empezada", "donde toca seguir, en rojo", { hechos: [10, 7, 6, 0, 0, 0], que: "Osc-B Level → 0.80–0.92" }) +
+  celda("Lección sin empezar", "el primer módulo espera", { hechos: [0, 0, 0, 0, 0, 0], que: "Tempo a 134 BPM" }) +
+  celda("Lección completada", "todo el camino en amarillo", { hechos: [10, 7, 8, 8, 13, 6], que: "" }) +
+  celda("Sin Live", "se puede mirar, no comprobar", { hechos: [10, 7, 6, 0, 0, 0], que: "Osc-B Level → 0.80–0.92", live: false });
 </script>
 </body>
 </html>

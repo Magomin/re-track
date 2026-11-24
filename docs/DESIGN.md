@@ -56,8 +56,6 @@ Cada pantalla nueva pasa por cuatro propuestas antes de construirse (`CLAUDE.md`
 Decididas con la pantalla de lecciones (FDR-001):
 
 - **Progreso**: pasos superados sobre el total, por módulo y por lección. Un paso solo se supera cuando Live lo confirma.
-- **Racha**: días seguidos con al menos un paso superado, de toda la app.
-- **Hoy**: pasos superados hoy.
 - **Orden libre**: el camino sugiere un orden; ningún módulo se bloquea.
 
 Por decidir, cada una con sus propuestas a la vista:

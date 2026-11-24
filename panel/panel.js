@@ -462,22 +462,17 @@ function pintar() {
 // Pantalla de lecciones: la lección como un camino de módulos (FDR-001). Todo sale del JSON de la lección.
 const X_PARADA = [40, 100, 160, 100]; // el zigzag se repite cada cuatro módulos
 const paradaEn = (i) => [X_PARADA[i % 4], 24 + 43 * i];
-function lectura(id, numero, unidad) {
-  $(id).replaceChildren(String(numero), " ", crea("small", "", unidad));
-}
 
 async function verModulos(nombre) {
   leccion = nombre;
   modulo = null;
   selector.value = leccion;
-  const [modulos, { racha, hoy }] = await Promise.all([invoke("modulos", { leccion }), invoke("resumen")]);
+  const modulos = await invoke("modulos", { leccion });
   const total = modulos.reduce((s, m) => s + m.total, 0);
   const suma = modulos.reduce((s, m) => s + m.hechos, 0);
   const actual = modulos.find((m) => m.hechos < m.total);
   const nombreDe = (m) => m.titulo.split(":")[0];
 
-  lectura("racha", racha, racha === 1 ? "día" : "días");
-  lectura("hoy", hoy, hoy === 1 ? "paso" : "pasos");
   $("avance-de").textContent = leccion;
   $("avance").textContent = `${total ? Math.round((suma / total) * 100) : 0} %`;
   $("avance").className = suma ? "am" : "";
