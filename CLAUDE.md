@@ -59,3 +59,9 @@ Un PR que toca uno de estos lo nombra y dice en una frase qué sigue funcionando
 - Decisiones: `docs/adr/` (`INDEX.md`).
 - Un FDR por funcionalidad visible para el usuario, en `docs/fdr/`, escrito cuando se diseña.
 - Este fichero lleva solo reglas; la historia va en los ADR.
+
+## Catálogo (Storybook)
+
+- `npm run storybook` → http://localhost:6006. Las stories (`stories/*.stories.js`) montan el panel real con un `window.__TAURI__` de mentira (`stories/soporte.js`); los datos salen de `lecciones/jungle.json`.
+- Un elemento o estado nuevo trae su story en el mismo PR. El job `stories` del CI las abre todas y falla si alguna no arranca o escribe un error en consola.
+- Al terminar, parar el servidor: un proceso vivo bloquea `node_modules`.

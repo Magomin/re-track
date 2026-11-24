@@ -21,3 +21,19 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
+
+  # Catálogo del panel: construye Storybook y abre cada story; falla si alguna no arranca o escribe un error.
+  stories:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      # npm install y no npm ci: el lock hecho en Windows no trae los paquetes wasm opcionales
+      # (@emnapi/*) que npm exige en Linux, y npm ci falla con "Missing: @emnapi/core from lock file".
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build-storybook
+      - run: npm run test-storybook
