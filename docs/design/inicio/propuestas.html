@@ -2,131 +2,84 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Re-track · pantalla de inicio · cuatro propuestas</title>
-<!-- Cuatro propuestas de la pantalla de inicio (2026-11-24): qué canciones hay, cómo va cada una y por dónde se sigue.
-     Ventana real: 460×460. Jungle y Primera lección salen de lecciones/*.json (módulos, pasos, tempo, tonalidad);
-     su progreso, «Around the World» y «Glue» son de muestra. -->
+<title>Re-track · pantalla de inicio · cuatro propuestas (segunda ronda, con aire)</title>
+<!-- Segunda ronda (2026-11-24): la primera se descartó por apretada («no podemos respirar»). Regla de esta ronda: tres cosas
+     por pantalla como mucho, letra grande, separar con espacio y no con líneas. Ventana real: 460×460.
+     Jungle y Primera lección salen de lecciones/*.json; su progreso y «Around the World» son de muestra. -->
 <link rel="stylesheet" href="../propuestas.css">
 <style>
-  .titulo { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .aire { position: absolute; inset: 58px 28px 36px; display: flex; flex-direction: column; }
+  .fila { display: flex; align-items: center; gap: 14px; }
+  .gr { flex: 1; min-width: 0; }
+  .suave { font-size: 17px; color: var(--tenue); }
+  .cta.gr2 { padding: 11px 20px; font-size: 16px; }
+  .bloques { height: 8px; }
+  .abajo { margin-top: auto; margin-bottom: 8px; }
 
-  /* A · Lista */
-  .a-fila { display: grid; grid-template-columns: 30px 1fr auto; gap: 4px 10px; align-items: center; padding: 8px 0 9px; border-top: 1px solid var(--linea); }
-  .a-fila b { font: 700 17px/1 Rajdhani; color: #fff; letter-spacing: .02em; }
-  .a-fila small { font-size: 14px; color: var(--tenue); margin-left: 6px; }
-  .a-fila .pct { font: 600 20px/1 Rajdhani; }
-  .a-fila .bloques { grid-column: 2 / 4; }
-  .nueva { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); margin-bottom: 8px; }
+  .a-nombre { font: 700 60px/1 Rajdhani; color: #fff; margin: 6px 0 4px; }
+  .a-pct { font: 600 34px/1 Rajdhani; color: var(--amarillo); }
 
-  /* B · Portada */
-  .b-hero { padding: 10px 12px 12px; }
-  .b-hero .nombre { font: 700 38px/1 Rajdhani; color: #fff; letter-spacing: .01em; }
-  .b-hero .pct { font: 600 38px/1 Rajdhani; color: var(--amarillo); }
-  .b-hero p { margin: 9px 0 0; display: flex; align-items: center; gap: 10px; }
-  .b-hero p > span:first-child { flex: 1; min-width: 0; }
-  .b-hero strong { display: block; font: 600 16px/1.15 Rajdhani; color: #fff; }
-  .b-rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-  .b-rejilla > div { padding: 8px 10px 10px; height: 92px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; }
-  .b-rejilla b { display: block; font: 700 16px/1.1 Rajdhani; color: #fff; }
-  .b-rejilla .mas { border: 1px dashed #3a3a44; background: none; clip-path: none; }
+  .b-fila { height: 92px; }
+  .b-fila .hex, .mas { width: 44px; height: 44px; font-size: 15px; }
+  .b-fila b { display: block; font: 700 26px/1.1 Rajdhani; color: #fff; }
+  .b-fila .pct { font: 600 26px/1 Rajdhani; }
 
-  /* C · Piezas */
-  .c-fila { padding: 6px 0 7px; border-top: 1px solid var(--linea); }
-  .c-fila .piezas { display: flex; gap: 4px; margin-top: 6px; }
-  .c-fila .pieza { width: 58px; text-align: center; font: 600 11px/1 Rajdhani; letter-spacing: .08em; color: var(--tenue); }
-  .c-fila .pieza .hex { margin: 0 auto 3px; }
-  .c-fila .pieza.viva { color: #fff; }
+  .c-hexes { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 34px; }
+  .c-hexes > div { width: 92px; text-align: center; line-height: 1.2; }
+  .c-hexes .hex { width: 68px; height: 68px; margin: 0 auto 12px; font-size: 20px; }
+  .c-hexes b { display: block; font: 700 17px/1.1 Rajdhani; color: #fff; }
 
-  /* D · Dos puertas */
-  .d-puerta { padding: 9px 12px 11px; }
-  .d-puerta + .d-puerta { margin-top: 8px; }
-  .d-otras > :nth-child(even) { text-align: right; }
-  .d-otras { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; margin-top: 9px; padding-top: 7px; border-top: 1px solid var(--linea); font-size: 15px; }
-  .d-suelta { display: flex; align-items: center; gap: 10px; margin-top: 7px; padding: 9px 10px; border: 1px dashed #3a3a44; }
-  .d-suelta > span:first-child { flex: 1; }
-  .d-suelta strong { display: block; font: 600 16px/1.15 Rajdhani; color: #fff; }
+  .d-grande { margin-top: 14px; padding: 22px 24px 24px; background: var(--amarillo); color: #08080a;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
+  .d-grande b { display: block; font: 700 44px/1 Rajdhani; margin: 2px 0 6px; }
+  .d-grande span { font: 600 17px Rajdhani; }
+  .d-otra { padding: 18px 24px; background: var(--panel); margin-top: 12px; font: 700 22px Rajdhani; color: #fff; }
 </style>
 </head>
 <body>
 <script>
-// [módulo, pasos, hechos]. Jungle y Primera lección: lecciones/*.json. Las otras dos son de muestra.
+// [pasos, hechos] por módulo.
 const L = [
-  { t: "Jungle", a: "Fred again..", bpm: 134, k: "G#m", m: [["PAD", 10, 10], ["LEAD", 7, 7], ["BASS", 8, 6], ["DRUMS", 8, 0], ["ARREGLO", 13, 0], ["MEZCLA", 6, 0]] },
-  { t: "Around the World", a: "Daft Punk", bpm: 121, k: "Em", m: [["BASS", 9, 0], ["DRUMS", 6, 0], ["GUITARRA", 7, 0], ["VOCODER", 8, 0], ["ARREGLO", 12, 0]] },
-  { t: "Primera lección", a: "Re-track", bpm: 124, k: "C", m: [["BASE", 3, 3]] },
-  { t: "Glue", a: "Bicep", bpm: 130, k: "F#m", m: [], gen: "Recreando en Live · 3/5" },
+  { t: "Jungle", a: "Fred again..", m: [[10, 10], [7, 7], [8, 6], [8, 0], [13, 0], [6, 0]] },
+  { t: "Around the World", a: "Daft Punk", m: [[9, 0], [6, 0], [7, 0], [8, 0], [12, 0]] },
+  { t: "Primera lección", a: "Re-track", m: [[3, 3]] },
 ];
-const total = (l) => l.m.reduce((s, m) => s + m[1], 0), hechos = (l) => l.m.reduce((s, m) => s + m[2], 0);
+const total = (l) => l.m.reduce((s, m) => s + m[0], 0), hechos = (l) => l.m.reduce((s, m) => s + m[1], 0);
 const pct = (l) => Math.round((hechos(l) / total(l)) * 100);
-const actual = (l) => l.m.find((m) => m[2] < m[1]);
-// Estado de una lección: gen (se está generando), on (completa), sig (empezada), "" (sin empezar).
-const estado = (l) => (l.gen ? "gen" : hechos(l) === total(l) ? "on" : hechos(l) ? "sig" : "");
-const SIMBOLO = { gen: "…", on: "■", sig: "▸", "": "" };
-const cifra = (l) => l.gen ? `<span class="te">…</span>` : estado(l) === "on" ? `<span class="am">■ OK</span>`
-  : `<span class="num ${hechos(l) ? "bl" : "te"}">${pct(l)} %</span>`;
-const meta = (l) => `${l.bpm} BPM · ${l.k}`;
-const bloques = (l) => l.gen ? `<div class="bloques"><i class="hex gen" style="flex:1;clip-path:none;width:auto;height:auto"></i></div>`
-  : `<div class="bloques">${l.m.map((m) => `<i style="flex:${m[1]}"><b style="width:${(m[2] / m[1]) * 100}%"></b>${
-      m === actual(l) && hechos(l) ? `<u style="left:${(m[2] / m[1]) * 100}%"></u>` : ""}</i>`).join("")}</div>`;
-const dos = (n) => String(n).padStart(2, "0");
-const J = L[0], act = actual(J);
-const SIG = { donde: `${J.t} · ${act[0]} ${dos(act[2] + 1)}/${dos(act[1])}`, que: "Osc-B Level → 0.80–0.92" };
+const estado = (l) => (hechos(l) === total(l) ? "on" : hechos(l) ? "sig" : "");
+const SIMBOLO = { on: "■", sig: "▸", "": "" };
+const cifra = (l) => estado(l) === "on" ? `<span class="am">■ OK</span>` : `<span class="num ${hechos(l) ? "bl" : "te"}">${pct(l)} %</span>`;
+const bloques = (l) => `<div class="bloques">${l.m.map((m) => `<i style="flex:${m[0]}"><b style="width:${(m[1] / m[0]) * 100}%"></b></i>`).join("")}</div>`;
+const J = L[0];
 const cab = (ruta) => `<div class="cab"><span class="logo">RE-TRACK</span><span class="ruta">${ruta}</span>
   <span class="vent">―</span><span class="vent">✕</span></div><div class="glitch"></div>`;
-const pie = (der) => `<div class="pie"><span class="am">■ Live conectado</span><span>${der}</span></div>`;
-const sigCaja = `<div class="sig-caja"><div><span class="et ro">▸ Seguir · ${SIG.donde}</span><strong>${SIG.que}</strong></div><span class="cta">Continuar ▸</span></div>`;
-const celda = (letra, nombre, idea, html) =>
-  `<div class="celda"><h2>${letra} · ${nombre}<small>${idea}</small></h2><div class="app">${html}</div></div>`;
-const hechas = L.filter((l) => !l.gen);
+const pie = `<div class="pie"><span class="am">■ Live conectado</span></div>`;
+const celda = (letra, nombre, idea, ruta, html) =>
+  `<div class="celda"><h2>${letra} · ${nombre}<small>${idea}</small></h2><div class="app">${cab(ruta)}<div class="aire">${html}</div>${pie}</div></div>`;
 
-// A · Lista: una fila por canción, la barra dice cuánto y de qué módulo.
-const A = `${cab("<b>Lecciones</b>")}
-  ${L.map((l) => `<div class="a-fila"><span class="hex ${estado(l)}">${SIMBOLO[estado(l)]}</span>
-    <span><b>${l.t}</b><small>${l.a} · ${l.gen ? `<span class="bl">${l.gen}</span>` : meta(l)}</small></span>
-    <span class="pct">${cifra(l)}</span>${bloques(l)}</div>`).join("")}
-  <div class="nueva"><span class="et">+ Nueva lección · sube una canción o combina piezas</span><span class="et bl">▸</span></div>
-  ${sigCaja}${pie(`${hechas.length} lecciones · 1 en marcha`)}`;
+// A · Una a la vez: una sola canción en pantalla; las flechas pasan a la siguiente.
+const A = `<div style="margin-top:22px"><span class="et ro">▸ Donde se dejó</span><div class="a-nombre">${J.t}</div><span class="suave">${J.a}</span></div>
+  <div style="margin-top:34px">${bloques(J)}<div class="fila" style="margin-top:12px"><span class="a-pct num gr">${pct(J)} %</span><span class="suave">Bass · paso 7 de 8</span></div></div>
+  <div class="fila abajo"><span class="suave gr">◂ &nbsp;1 de ${L.length}&nbsp; ▸</span><span class="cta gr2">Continuar ▸</span></div>`;
 
-// B · Portada: donde se dejó, en grande; el resto, en fichas.
-const B = `${cab("<b>Lecciones</b>")}
-  <div class="corte b-hero"><span class="et ro">▸ Donde se dejó</span>
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin:2px 0 8px">
-      <div><div class="nombre">${J.t}</div><span class="te">${J.a} · ${meta(J)} · ${J.m.length} módulos</span></div>
-      <div class="pct num">${pct(J)} %</div></div>
-    ${bloques(J)}
-    <p><span><span class="et">${act[0]} · paso ${dos(act[2] + 1)}/${dos(act[1])}</span><strong>${SIG.que}</strong></span><span class="cta">Continuar ▸</span></p></div>
-  <div class="b-rejilla">${L.slice(1).map((l) => `<div class="corte"><span><b>${l.t}</b><span class="te">${l.a} · ${l.gen ? "generando" : meta(l)}</span></span>
-      <span>${l.gen ? `<span class="et bl">… ${l.gen}</span>` : `<span style="display:flex;align-items:center;gap:8px"><span style="flex:1">${bloques(l)}</span>${cifra(l)}</span>`}</span></div>`).join("")}
-    <div class="mas"><b>+ Nueva lección</b><span class="te">una canción o piezas sueltas</span></div></div>
-  ${pie(`${hechas.length} lecciones · 1 en marcha`)}`;
+// B · Tres filas: solo el nombre y el porcentaje; tocar una fila entra en ella.
+const B = `${L.map((l) => `<div class="fila b-fila"><span class="hex ${estado(l)}">${SIMBOLO[estado(l)]}</span>
+    <span class="gr"><b>${l.t}</b><span class="suave">${l.a}</span></span><span class="pct">${cifra(l)}</span></div>`).join("")}
+  <div class="fila abajo"><span class="hex mas bl" style="font-size:18px">+</span><span style="font:700 20px Rajdhani" class="bl">Nueva lección</span></div>`;
 
-// C · Piezas: cada canción enseña sus módulos; se entra directo en cualquiera.
-const pieza = (l, m) => { const e = m[2] >= m[1] ? "on" : m === actual(l) && hechos(l) ? "sig" : "";
-  return `<div class="pieza ${e ? "viva" : ""}"><span class="hex ${e}">${e === "on" ? "■" : e === "sig" ? "▸" : m[1]}</span>${m[0]}</div>`; };
-const C = `${cab("<b>Lecciones</b>")}
-  ${hechas.map((l) => `<div class="c-fila"><div class="titulo" style="margin:0"><span><h1 style="display:inline">${l.t}</h1> <span class="te">${l.a} · ${meta(l)}</span></span>
-      <span style="font:600 17px/1 Rajdhani">${cifra(l)}</span></div><div class="piezas">${l.m.map((m) => pieza(l, m)).join("")}</div></div>`).join("")}
-  <div class="nueva"><span class="et"><span class="bl">… Glue</span> · ${L[3].gen}</span><span class="et bl">+ Nueva ▸</span></div>
-  ${sigCaja}${pie("12 piezas · 3 canciones")}`;
+// C · Camino: las canciones son hexágonos, como los módulos dentro de una lección.
+const C = `<div class="c-hexes">${L.map((l) => `<div><span class="hex ${estado(l)}">${SIMBOLO[estado(l)]}</span><b>${l.t}</b><span class="te">${estado(l) === "on" ? "OK" : pct(l) + " %"}</span></div>`).join("")}
+    <div><span class="hex bl">+</span><b>Nueva</b></div></div>
+  <div class="fila abajo"><span class="gr"><span class="et ro">▸ Jungle</span><br><span style="font:600 20px Rajdhani" class="bl">Bass · paso 7 de 8</span></span><span class="cta gr2">Continuar ▸</span></div>`;
 
-// D · Dos puertas: aprender arriba, crear abajo.
-const D = `${cab("<b>Inicio</b>")}
-  <div class="corte d-puerta"><span class="et ro">▸ Aprender · donde se dejó</span>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:3px"><div style="flex:1;min-width:0">
-      <h1 style="font-size:24px">${J.t} <span class="am num" style="font-weight:600">${pct(J)} %</span></h1>
-      <span class="te">${act[0]} · paso ${dos(act[2] + 1)}/${dos(act[1])}</span><br><b class="bl" style="font-weight:600">${SIG.que}</b></div><span class="cta">Continuar ▸</span></div>
-    <div style="margin-top:8px">${bloques(J)}</div>
-    <div class="d-otras">${L.slice(1, 3).map((l) => `<span><b class="bl">${l.t}</b> <span class="te">${l.a} · ${meta(l)}</span></span>${cifra(l)}`).join("")}
-      <span class="et" style="grid-column:1/3;margin-top:2px">Todas las lecciones (${hechas.length}) ▸</span></div></div>
-  <div class="corte d-puerta"><span class="et">+ Crear · una lección nueva con IA</span>
-    <div class="d-suelta"><span><strong>Suelta aquí una canción</strong><span class="te">mp3 o wav · sale una lección</span></span><span class="sec">Elegir ▸</span></div>
-    <div class="titulo" style="margin:8px 0 0"><span class="et"><span class="bl">… Glue</span> · ${L[3].gen}</span><span class="et bl">A la carta ▸</span></div></div>
-  ${pie("")}`;
+// D · Dos botones: seguir o elegir; nada más.
+const D = `<div class="d-grande"><span>CONTINUAR ▸</span><b>${J.t}</b><span class="num">${pct(J)} % · Bass, paso 7 de 8</span></div>
+  <div class="d-otra fila"><span class="gr">Otra lección</span><span class="suave">${L.length} canciones ▸</span></div>
+  <div class="d-otra fila"><span class="gr">+ Nueva lección</span><span class="suave">con IA ▸</span></div>`;
 
-document.body.innerHTML = celda("A", "LISTA", "una fila por canción", A) + celda("B", "PORTADA", "donde se dejó, en grande", B) +
-  celda("C", "PIEZAS", "cada canción enseña sus módulos", C) + celda("D", "DOS PUERTAS", "aprender arriba, crear abajo", D);
+document.body.innerHTML = celda("A", "UNA A LA VEZ", "una canción en pantalla, flechas para cambiar", "<b>+ Nueva</b>", A) + celda("B", "TRES FILAS", "nombre y porcentaje, nada más", "", B) +
+  celda("C", "CAMINO", "las canciones como hexágonos", "", C) + celda("D", "DOS BOTONES", "seguir o elegir", "", D);
 console.assert(hechos(J) === 23 && total(J) === 52 && pct(J) === 44, "Jungle: 23/52");
-console.assert(hechas.reduce((s, l) => s + l.m.length, 0) === 12, "piezas");
 </script>
 </body>
 </html>
