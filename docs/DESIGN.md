@@ -44,7 +44,7 @@ Ventana: 460×460, siempre encima, sin marco. Toda pantalla cabe ahí sin despla
 |---|---|---|
 | Lecciones (Ruta) | ¿Qué toca ahora y cuánto llevo? | Diseñada: `docs/design/lecciones/objetivo.html`, FDR-001. Construida (#29) |
 | Lista de lecciones | ¿Qué canciones hay y cómo voy en cada una? | Sin diseñar |
-| Paso | ¿Qué hago en Live y me falta mucho? | Construida: lectura con aguja, piano roll, instrucción. Falta el momento «paso superado» |
+| Paso | ¿Qué hago en Live y me falta mucho? | Rediseñada: `docs/design/paso/objetivo.html`, FDR-002 (Espejo de Live, una plantilla por tipo de paso). Sin construir. Falta el momento «paso superado» |
 | Módulo completado | ¿Qué he construido y qué viene? | Sin diseñar (hoy: una línea de texto) |
 | Ajustes | Splice sí/no (ADR-011) | Sin diseñar; llega con el remake runner |
 | A la carta | Elegir piezas de varias canciones, back to back o mix | Sin diseñar; v3 |
