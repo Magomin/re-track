@@ -89,14 +89,8 @@ body.portada .elegir { display: none; }
 .lec .pct { font: 600 22px/1 Rajdhani, sans-serif; font-variant-numeric: tabular-nums; }
 .pct.te { color: var(--tenue); }
 .mas { display: grid; place-items: center; width: 40px; height: 40px; border: 2px dashed #3a3a44; box-sizing: border-box; font: 700 16px Rajdhani, sans-serif; }
-/* Carátula «digitalizada»: la foto con líneas de VHS, una franja corrida y un filo rojo/cian. Sin foto (.sin): la inicial. */
-.car { position: relative; flex: none; width: 40px; aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
-  background: var(--hueco) center/cover; filter: saturate(.7) contrast(1.15); font: 700 20px/1 Rajdhani, sans-serif; color: var(--amarillo); }
-.car.sin { background: repeating-linear-gradient(135deg, #1a1a20 0 6px, #141418 6px 12px); filter: none; }
-.car::before { content: ""; position: absolute; inset: 0; background: inherit; clip-path: inset(61% 0 31% 0); transform: translateX(7px); }
-.car::after { content: ""; position: absolute; inset: 0; background:
-  repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px),
-  linear-gradient(90deg, rgba(255,42,61,.22), transparent 25%, transparent 75%, rgba(0,229,255,.22)); }
+/* La carátula es la pieza de caratula.css; aquí solo su tamaño en cada sitio. */
+.lec > .car { --lado: 40px; }
 
 #a-inicio { grid-column: 3; justify-self: end; align-self: start; padding: 3px 10px; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: 4px; }

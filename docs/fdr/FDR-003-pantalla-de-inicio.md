@@ -16,7 +16,7 @@ Es lo primero que se ve al abrir Re-track: la lección donde se dejó, con su ca
 - Sin ninguna lección empezada, el cartel enseña la primera con «▸ Por empezar», «0 % · Pad · paso 1 de 10» y el botón «Empezar».
 - Con todas completadas, el cartel enseña la última tocada con «■ Completada» y el botón «Repasar», que abre su pantalla de lecciones.
 - Desde la pantalla de lecciones se vuelve con «← Inicio».
-- Carátula: la app busca la foto de la canción por su cuenta. Toda carátula se «digitaliza»: líneas de VHS, una franja corrida y un filo rojo y cian. Si no se encuentra foto, sale la inicial de la lección en amarillo sobre un fondo rayado.
+- Carátula: la app busca la foto de la canción por su cuenta y la guarda; la primera vez hace falta conexión. Toda carátula se «digitaliza»: líneas de VHS, una franja corrida y un filo rojo y cian. Si no se encuentra foto, sale la inicial de la lección en amarillo sobre un fondo rayado.
 - Lección mezclada (piezas de varias canciones): su carátula junta las de sus canciones cortadas como una pizza, una porción por canción. Con dos, el corte es la diagonal. Bajo el nombre van las canciones de las que sale.
 - Con más lecciones de las que caben, las filas se desplazan en vertical; el cartel se queda.
 
@@ -40,7 +40,13 @@ Es lo primero que se ve al abrir Re-track: la lección donde se dejó, con su ca
 **Why:** Idea de Matthieu, 2026-11-24: partir por la diagonal con dos y seguir cortando con más.
 **Tradeoff:** A partir de cinco o seis porciones, en la fila pequeña (40 px) cada carátula deja de reconocerse.
 
-### 4. «Donde se dejó» es el último paso superado
+### 4. Fotos del buscador de iTunes, con copia en el equipo
+
+**Decision:** La carátula se pide al buscador de iTunes por «artista canción» (primer resultado, a 600×600) y la foto se guarda en el almacén del panel (Cache API del WebView); la búsqueda y la copia las hace el panel (`panel/caratula.js`).
+**Why:** Es la fuente de las hojas de diseño, no pide cuenta ni clave, y sus imágenes se dejan leer desde el panel. Con la copia, la foto sigue saliendo sin conexión; una canción que no aparece o un fallo de red no se guardan, y se reintenta al abrir la app. Hacerlo en Rust pedía dos dependencias nuevas para el mismo resultado (#51).
+**Tradeoff:** Se coge el primer resultado, que puede ser otra versión de la canción, y no hay forma de corregirlo a mano. La copia vive en los datos del WebView: se pierde si se borran.
+
+### 5. «Donde se dejó» es el último paso superado
 
 **Decision:** El cartel enseña la lección del último paso superado, no la primera de la lista ni la más avanzada.
 **Why:** Es lo que dice el rótulo «Donde se dejó». Decidido al construir (#50), con Matthieu fuera; sustituye a la racha y a los pasos de hoy, que nadie leía desde #48.
@@ -53,5 +59,5 @@ Es lo primero que se ve al abrir Re-track: la lección donde se dejó, con su ca
 
 ## Open Questions
 
-- De dónde salen las carátulas (en las hojas, el buscador de iTunes) y si se guarda una copia en el equipo.
+- Cómo corregir a mano una carátula cuando el buscador da con otra versión de la canción.
 - Cuántas porciones como máximo antes de resumir («+3»).

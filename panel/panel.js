@@ -473,8 +473,6 @@ function fichaDe(l) {
   const [artista, nombre] = l.titulo.includes(" — ") ? l.titulo.split(" — ") : ["Re-track", l.titulo];
   return { ...l, titulo: nombre, artista, pct: l.total ? Math.round((l.hechos / l.total) * 100) : 0, completa: l.hechos >= l.total };
 }
-// Carátula de reserva: la inicial sobre fondo rayado. La foto (#51) entra aquí: quitar `sin` y poner background-image.
-const caratula = (l) => crea("span", "car sin", l.titulo[0]);
 
 async function verInicio() {
   modulo = null;
