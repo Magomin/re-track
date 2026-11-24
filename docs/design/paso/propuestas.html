@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Re-track · pantalla de paso · cuatro propuestas</title>
+<!-- Cuatro propuestas del marco de la pantalla de paso (2026-11-24), enseñadas con los dos pasos que hoy son solo texto:
+     tempo_es (PAD 01/10) y track_existe (PAD 02/10). Ventana real: 460×460. Textos de lecciones/jungle.json;
+     lo que «dice Live» (120 BPM, las cuatro pistas de un set nuevo) es de muestra. Tokens: panel/panel.css (ADR-013). -->
+<style>
+  @font-face { font-family: Rajdhani; font-weight: 500; src: url(../../../panel/fonts/Rajdhani-Medium.ttf); }
+  @font-face { font-family: Rajdhani; font-weight: 600; src: url(../../../panel/fonts/Rajdhani-SemiBold.ttf); }
+  @font-face { font-family: Rajdhani; font-weight: 700; src: url(../../../panel/fonts/Rajdhani-Bold.ttf); }
+  :root { --negro: #08080a; --panel: #111114; --linea: #26262c; --hueco: #24242a;
+    --amarillo: #fcee0a; --rojo: #ff2a3d; --magenta: #ff2fb0; --cian: #00e5ff; --texto: #c9c9cf; --tenue: #6c6c78; }
+  body { margin: 0; padding: 24px; background: #1d1d23; font: 500 15px Rajdhani, sans-serif; color: var(--texto);
+    display: grid; grid-template-columns: repeat(4, 460px); gap: 22px 32px; width: max-content; }
+  h2 { margin: 0; font: 700 26px Rajdhani; color: var(--amarillo); letter-spacing: .04em; }
+  h2 small { display: block; font: 500 16px/1.2 Rajdhani; color: #b4b4c0; letter-spacing: 0; height: 40px; }
+  .app { position: relative; width: 460px; height: 460px; box-sizing: border-box; padding: 14px 16px 0; overflow: hidden;
+    background: var(--negro); border-top: 2px solid var(--amarillo); }
+  .app::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
+  .cab { display: flex; align-items: center; gap: 4px; }
+  .logo { position: relative; font: 700 26px/1 Rajdhani; letter-spacing: .04em; color: var(--amarillo);
+    transform: skewX(-12deg); text-shadow: -2px 0 var(--rojo), 2px 0 var(--cian); }
+  .logo::after { content: "RE-TRACK"; position: absolute; left: 0; top: 0; clip-path: inset(52% 0 30% 0);
+    transform: translateX(5px); text-shadow: -2px 0 var(--magenta); }
+  .ruta { flex: 1; text-align: right; margin-right: 10px; }
+  .et, .ruta { font: 600 12px Rajdhani; letter-spacing: .18em; text-transform: uppercase; color: var(--tenue); }
+  .vent { color: var(--tenue); font-size: 12px; width: 26px; text-align: center; }
+  .glitch { height: 2px; margin: 10px 0 12px;
+    background: linear-gradient(90deg, var(--magenta) 0 12%, transparent 12% 14%, var(--magenta) 14% 17%, transparent 17%); }
+  .pie { position: absolute; left: 16px; right: 16px; bottom: 10px; display: flex; justify-content: space-between;
+    font: 600 12px Rajdhani; letter-spacing: .1em; text-transform: uppercase; color: var(--tenue); }
+  .am { color: var(--amarillo); } .ro { color: var(--rojo); } .bl { color: #fff; } .te { color: var(--tenue); }
+  .bot { display: inline-block; padding: 3px 10px; background: var(--panel); border: 1px solid var(--linea);
+    font: 600 13px Rajdhani; letter-spacing: .08em; text-transform: uppercase; }
+  .nav { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .porque { margin: 14px 0 0; font-size: 15px; line-height: 1.35; color: #9a9aa6; border-left: 2px solid var(--magenta); padding-left: 10px; }
+  /* Tramos del módulo: ■ hechos en amarillo, el paso actual en rojo. */
+  .tramos { display: flex; gap: 3px; align-items: center; }
+  .tramos i { flex: 1; height: 6px; background: var(--hueco); }
+  .tramos i.on { background: var(--amarillo); } .tramos i.sig { background: var(--rojo); height: 10px; }
+  .tramos span { margin-left: 8px; }
+
+  /* A · Instrumento */
+  .a .valor { font: 600 46px/1 Rajdhani; color: #fff; text-shadow: 0 0 12px rgba(252,238,10,.25); margin-top: 2px; }
+  .a .valor small { font-size: 18px; color: var(--amarillo); text-shadow: none; }
+  .a .accion { margin: 2px 0 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--rojo); }
+  .a .medidor { position: relative; height: 14px; background: var(--panel); border: 1px solid var(--linea); }
+  .a .zona { position: absolute; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: var(--amarillo); }
+  .a .aguja { position: absolute; top: -5px; bottom: -5px; width: 2px; background: var(--rojo); box-shadow: 0 0 8px var(--rojo); }
+  .a .escala { display: flex; justify-content: space-between; font-size: 11px; color: #44444d; margin-top: 3px; }
+  .a .pistas { display: flex; gap: 4px; }
+  .a .pistas span { flex: 1; padding: 9px 0; text-align: center; background: var(--panel); border: 1px solid var(--linea);
+    font: 600 12px Rajdhani; letter-spacing: .06em; color: var(--tenue); }
+  .a .pistas .falta { border: 1px dashed var(--rojo); color: var(--rojo); background: none; }
+
+  /* B · Misión */
+  .b .mision { margin: 16px 0 6px; font: 700 40px/1 Rajdhani; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
+  .b .mision b { color: var(--amarillo); }
+  .b .sub { font-size: 16px; line-height: 1.35; color: #9a9aa6; }
+  .b .live { position: absolute; left: 16px; right: 16px; bottom: 40px; display: flex; align-items: center; gap: 12px;
+    padding: 9px 10px; background: var(--panel); border-left: 2px solid var(--rojo); }
+  .b .live strong { flex: 1; font: 600 20px/1.1 Rajdhani; color: #fff; }
+  .b .live .falta { font: 700 14px Rajdhani; letter-spacing: .08em; text-transform: uppercase; color: var(--rojo); }
+
+  /* C · Espejo de Live */
+  .c .titulo { display: block; margin: 2px 0 12px; font: 600 24px/1.1 Rajdhani; color: #fff; }
+  .c .live { position: relative; padding: 8px; background: #17171b; border: 1px solid var(--linea); }
+  .c .live .et { display: block; margin-bottom: 7px; font-size: 10px; }
+  .c .barra { display: flex; gap: 5px; align-items: center; }
+  .c .caja { padding: 4px 8px; background: #2b2b32; font: 600 14px Rajdhani; color: #9a9aa6; font-variant-numeric: tabular-nums; }
+  .c .caja.aqui { background: var(--negro); color: #fff; outline: 2px solid var(--rojo); outline-offset: 1px; }
+  .c .globo { margin-top: 10px; font: 700 14px Rajdhani; letter-spacing: .06em; text-transform: uppercase; color: var(--rojo); }
+  .c .globo b { color: var(--amarillo); }
+  .c .sesion { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .c .col b { display: block; padding: 4px 0; text-align: center; background: #2b2b32; font: 600 12px Rajdhani; color: #9a9aa6; }
+  .c .col i { display: block; height: 11px; margin-top: 3px; background: #202026; }
+  .c .col.aqui b { background: var(--negro); color: var(--amarillo); outline: 2px dashed var(--rojo); outline-offset: 1px; }
+  .c .col.aqui i { background: none; border: 1px dashed #3a3a44; height: 9px; }
+  .c .tramos { position: absolute; left: 16px; right: 16px; bottom: 38px; }
+
+  /* D · Dos lecturas */
+  .d .dos { display: grid; grid-template-columns: 1fr 26px 1fr; align-items: stretch; margin-top: 4px; }
+  .d .lado { padding: 10px 12px 12px; background: var(--panel); border-top: 2px solid var(--rojo); min-height: 104px; }
+  .d .lado.obj { border-color: var(--amarillo); }
+  .d .lado strong { display: block; margin-top: 6px; font: 600 44px/1 Rajdhani; color: #fff; font-variant-numeric: tabular-nums; }
+  .d .lado.obj strong { color: var(--amarillo); }
+  .d .lado small { font-size: 14px; color: var(--tenue); }
+  .d .lado ul { margin: 6px 0 0; padding: 0; list-style: none; font: 600 15px/1.3 Rajdhani; color: #9a9aa6; }
+  .d .flecha { display: grid; place-items: center; color: var(--rojo); font-size: 15px; }
+  .d .dif { margin: 10px 0 0; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--rojo); }
+  .d .tramos { position: absolute; left: 16px; right: 16px; bottom: 38px; }
+</style>
+</head>
+<body>
+<script>
+const tramos = (hechos, total = 10) => `<div class="tramos">${Array.from({ length: total }, (_, i) =>
+  `<i class="${i < hechos ? "on" : i === hechos ? "sig" : ""}"></i>`).join("")}<span class="et">${String(hechos + 1).padStart(2, "0")}/${total}</span></div>`;
+const marco = (clase, n, cuerpo, conNav = true) => `<div class="app ${clase}">
+  <div class="cab"><span class="logo">RE-TRACK</span><span class="ruta">Jungle // Pad · 0${n}/10</span><span class="vent">―</span><span class="vent">✕</span></div>
+  <div class="glitch"></div>${conNav ? `<div class="nav"><span class="bot">← Módulos</span><span class="bot">Reiniciar</span></div>` : ""}
+  ${cuerpo}<div class="pie"><span class="am">■ Live conectado</span><span>Pad ${n - 1}/10</span></div></div>`;
+const PORQUE = ["Medido sobre el grid del kick del original.", "Suena en los compases 2–9 y 26–41, y una octava arriba en el drop 2."];
+
+const A = [
+  `<div class="et">Tempo · BPM</div><div class="valor">120.00 <small>→ 134</small></div><div class="accion">▲ Súbelo 14 BPM</div>
+   <div class="medidor"><div class="zona" style="left:52.9%"></div><div class="aguja" style="left:42.9%"></div></div>
+   <div class="escala"><span>60</span><span>130</span><span>200</span></div><p class="porque">${PORQUE[0]}</p>`,
+  `<div class="et">Pista MIDI</div><div class="valor">PAD <small>→ falta</small></div><div class="accion">▸ Crea una pista MIDI o renombra una</div>
+   <div class="pistas"><span>1-MIDI</span><span>2-MIDI</span><span>3-AUDIO</span><span>4-AUDIO</span><span class="falta">+ PAD</span></div>
+   <div class="escala"><span>pistas en Live ahora</span><span>la que falta</span></div><p class="porque">${PORQUE[1]}</p>`,
+];
+const B = [
+  `${tramos(0)}<div class="mision">Tempo a<br><b>134 BPM</b></div><div class="sub">${PORQUE[0]}</div>
+   <div class="live"><div><span class="et">Live ahora</span><br><strong>120.00 BPM</strong></div><span style="flex:1"></span><span class="falta">▲ Faltan 14</span></div>`,
+  `${tramos(1)}<div class="mision">Pista MIDI<br><b>PAD</b></div><div class="sub">${PORQUE[1]}</div>
+   <div class="live"><div><span class="et">Live ahora</span><br><strong>4 pistas</strong></div><span style="flex:1"></span><span class="falta">▸ Ninguna se llama PAD</span></div>`,
+];
+const C = [
+  `<span class="et ro">▸ Haz esto en Live</span><span class="titulo">Tempo a <span class="am">134 BPM</span></span>
+   <div class="live"><span class="et">Barra de control de Live · arriba a la izquierda</span>
+     <div class="barra"><span class="caja">Link</span><span class="caja">Tap</span><span class="caja aqui">120.00</span><span class="caja">4 / 4</span><span class="caja">●</span><span style="flex:1"></span><span class="caja">▶</span><span class="caja">■</span></div>
+     <div class="globo">▲ Aquí: doble clic y escribe <b>134</b></div></div>
+   <p class="porque">${PORQUE[0]}</p>${tramos(0)}`,
+  `<span class="et ro">▸ Haz esto en Live</span><span class="titulo">Pista MIDI llamada <span class="am">PAD</span></span>
+   <div class="live"><span class="et">Vista Session de Live · las pistas</span>
+     <div class="sesion">${["1-MIDI", "2-MIDI", "3-Audio", "4-Audio"].map((p) => `<div class="col"><b>${p}</b><i></i><i></i><i></i></div>`).join("")}
+       <div class="col aqui"><b>PAD</b><i></i><i></i><i></i></div></div>
+     <div class="globo">▸ Ctrl+Shift+T crea la pista · Ctrl+R la nombra <b>PAD</b></div></div>
+   <p class="porque">${PORQUE[1]}</p>${tramos(1)}`,
+];
+const D = [
+  `<div class="dos"><div class="lado"><span class="et ro">▸ Live ahora</span><strong>120.00</strong><small>BPM</small></div><div class="flecha">▸</div>
+     <div class="lado obj"><span class="et am">■ Objetivo</span><strong>134.00</strong><small>BPM</small></div></div>
+   <div class="dif">▲ Sube el tempo 14 BPM</div><p class="porque">${PORQUE[0]}</p>${tramos(0)}`,
+  `<div class="dos"><div class="lado"><span class="et ro">▸ Live ahora</span><ul><li>1-MIDI</li><li>2-MIDI</li><li>3-Audio</li><li>4-Audio</li></ul></div><div class="flecha">▸</div>
+     <div class="lado obj"><span class="et am">■ Objetivo</span><strong>PAD</strong><small>pista MIDI</small></div></div>
+   <div class="dif">▸ Falta la pista PAD</div><p class="porque">${PORQUE[1]}</p>${tramos(1)}`,
+];
+const cab = (letra, nombre, idea) => `<h2>${letra} · ${nombre}<small>${idea}</small></h2>`;
+document.body.innerHTML =
+  cab("A", "Instrumento", "Todo paso se lee como hoy el de un parámetro: lectura grande de Live, qué hacer, barra.") +
+  cab("B", "Misión", "La orden en gigante y el módulo en tramos; lo que dice Live, en una caja abajo.") +
+  cab("C", "Espejo de Live", "Dibuja el trozo de Live donde hay que tocar y señala el sitio exacto.") +
+  cab("D", "Dos lecturas", "Live ahora frente al objetivo, lado a lado; el paso se supera cuando coinciden.") +
+  [A, B, C, D].map((p, i) => marco("abcd"[i], 1, p[0], i !== 1)).join("") +
+  [A, B, C, D].map((p, i) => marco("abcd"[i], 2, p[1], i !== 1)).join("");
+</script>
+</body>
+</html>
