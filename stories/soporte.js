@@ -76,7 +76,7 @@ function falsoTauri(h) {
       }
       for (const key of h.revision.teclas ?? []) campo.dispatchEvent(new KeyboardEvent("keydown", { key }));
       await new Promise((r) => setTimeout(r, 0)); // el envío contesta en otro turno
-      }
+    }
     if (h.receta) {
       await abrirReceta();
       for (const foco of h.receta) document.querySelector(`[data-foco="${foco}"]`).click();
