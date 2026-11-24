@@ -1,0 +1,57 @@
+// Monta el panel real (panel/index.html + panel.css + panel.js) en un iframe de 460×460, el tamaño de la ventana,
+// con un window.__TAURI__ de mentira que contesta lo que diga la story. Un iframe por story: panel.js arranca
+// un setInterval y guarda estado en globales.
+import jungle from "../lecciones/jungle.json";
+
+export const modulo = (id) => jungle.modulos.find((m) => m.id === id);
+
+// hechos: { idDeMódulo: pasos hechos }. Lo que no se nombra va a 0.
+export const resumen = (hechos = {}) =>
+  jungle.modulos.map((m) => ({ id: m.id, titulo: m.titulo, total: m.pasos.length, hechos: hechos[m.id] ?? 0 }));
+
+// Dentro del iframe, antes de panel.js. `h` = los datos de la story.
+function falsoTauri(h) {
+  window.__TAURI__ = {
+    window: { getCurrentWindow: () => ({ minimize() {}, close() {} }) },
+    core: {
+      invoke: async (comando, args) => {
+        if (comando === "comprobar" && h.error) throw h.error;
+        if (comando === "lecciones") return ["jungle", "primera"];
+        if (comando === "modulos") return h.modulos;
+        if (comando === "pasos") return h.pasos;
+        if (comando === "progreso") return { indice: h.indice };
+        if (comando === "comprobar") return { hecho: false, indice: h.indice, ...h.comprobar };
+        throw `La story no contesta a ${comando}`;
+      },
+    },
+  };
+  // Entra en el módulo y lanza una comprobación, sin esperar al segundo del setInterval.
+  window.addEventListener("load", async () => {
+    while (!document.querySelector(".modulo")) await new Promise((r) => setTimeout(r, 10));
+    if (h.abrir) {
+      await abrirModulo(h.abrir, h.titulo);
+      await comprobar();
+    }
+    document.body.dataset.lista = "si"; // el test de stories espera a esto
+  });
+}
+
+// abrir: id del módulo en el que entra; indice: paso que enseña; comprobar: lo que contesta Live; error: lo que falla.
+export function panel({ hechos, abrir, indice = 0, comprobar = {}, error } = {}) {
+  const m = abrir ? modulo(abrir) : null;
+  const h = { modulos: resumen(hechos), abrir, titulo: m?.titulo, pasos: m?.pasos ?? [], indice, comprobar, error };
+  const marco = document.createElement("iframe");
+  marco.title = "Panel de Re-track";
+  marco.style.cssText = "width:460px;height:460px;border:0;display:block";
+  const base = new URL("panel/", document.baseURI);
+  fetch(new URL("index.html", base))
+    .then((r) => r.text())
+    .then((html) => {
+      marco.srcdoc = html
+        .replace("<head>", `<head><base href="${base}">`)
+        .replace('<script src="panel.js">', `<script>(${falsoTauri})(${JSON.stringify(h)})</script><script src="panel.js">`);
+    });
+  return marco;
+}
+
+export const indiceDe = (idModulo, idPaso) => modulo(idModulo).pasos.findIndex((p) => p.id === idPaso);

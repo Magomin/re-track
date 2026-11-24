@@ -47,7 +47,7 @@ function dibujarRoll(faltan = null) {
   roll.replaceChildren();
   const paso = pasos[indice];
   if (!paso || paso.check !== "notas_en_clip") {
-    roll.hidden = true;
+    roll.toggleAttribute("hidden", true); // un <svg> no tiene la propiedad .hidden de HTML
     return;
   }
   const anteriores = pasos
@@ -80,7 +80,7 @@ function dibujarRoll(faltan = null) {
     const falta = faltan === null || faltan.some((f) => f.pitch === n.pitch && f.inicio === n.inicio);
     pintarNota(n, falta ? { fill: "#ff2a3d", opacity: 0.85 } : { fill: "rgba(252,238,10,.2)", stroke: "#fcee0a" });
   }
-  roll.hidden = false;
+  roll.toggleAttribute("hidden", false);
 }
 
 // Cambio de valor = efecto glitch: los dígitos se barajan ~0.3 s hasta el número real.

@@ -31,3 +31,5 @@ node_modules/
 
 # Planes y handoffs de sesión
 .context/
+
+storybook-static/
