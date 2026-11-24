@@ -9,7 +9,7 @@ con estas palabras; las decisiones están en `docs/adr/`.
 ### Lección
 
 **Lección**:
-Una canción convertida en curso: un título y sus módulos. Un fichero JSON en `lecciones/` (`jungle.json`), con el schema de `src-tauri/src/leccion.rs`; su nombre de fichero es su id (`jungle`).
+Una canción convertida en curso: un título y sus módulos. Un fichero JSON en `lecciones/` (`jungle.json`), con el schema de `src-tauri/src/leccion.rs`; su nombre de fichero es su id (`jungle`). Una lección creada en la app (`receta-1`) vive aparte, en `data/lecciones/` ([ADR-015](docs/adr/ADR-015-lecciones-creadas-en-carpeta-propia.md)).
 _Evitar_: curso, tutorial (eso es lo que se compone con piezas en la visión), lesson
 
 **Módulo**:
@@ -88,13 +88,13 @@ Corregir o explorar un módulo crea `bass v2` sin borrar `v1`: nunca se pierde u
 _Evitar_: revisión, variante, copia
 
 **Pieza** (Lego):
-Un módulo verificado visto como parte reutilizable, con su id fijo (`jungle/bass`), que el usuario combina con piezas de otras canciones.
+Un módulo verificado visto como parte reutilizable, con su id fijo (`jungle/bass`), que el usuario combina con piezas de otras canciones. Ya tiene código: se cogen en la pantalla de nueva lección (FDR-004) y la lección creada lleva una copia de cada una ([ADR-015](docs/adr/ADR-015-lecciones-creadas-en-carpeta-propia.md)).
 _Evitar_: bloque, componente, preset
 
 **Back to back**:
-Extremo del slider que encadena las lecciones de las piezas elegidas sin inventar nada, adaptadas a un tempo y una tonalidad comunes (Live tiene un solo tempo); por eso cada módulo lleva los suyos.
+En el panel, «Una detrás de otra» (hoy encadena las piezas tal cual, sin adaptar tempo ni tonalidad). Extremo del slider que encadena las lecciones de las piezas elegidas sin inventar nada, adaptadas a un tempo y una tonalidad comunes (Live tiene un solo tempo); por eso cada módulo lleva los suyos.
 _Evitar_: playlist, cola, secuencia
 
 **Mix**:
-El otro extremo del slider: un agente compone una pista nueva con las piezas, el usuario la escucha y la valida, y solo entonces el agente genera el tutorial de cómo la hizo.
+En el panel, «Mezcladas» (sin construir). El otro extremo del slider: un agente compone una pista nueva con las piezas, el usuario la escucha y la valida, y solo entonces el agente genera el tutorial de cómo la hizo.
 _Evitar_: mezcla (es el módulo de niveles y master de una lección), mashup, remix
