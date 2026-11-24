@@ -48,7 +48,7 @@ Ventana: 460×460, siempre encima, sin marco. Toda pantalla cabe ahí sin despla
 | Módulo completado | ¿Qué he construido y qué viene? | Sin diseñar (hoy: una línea de texto) |
 | Ajustes | Splice sí/no (ADR-011) | Sin diseñar; llega con el remake runner |
 | Nueva lección (IA) | Generar una lección: subir una canción (v2) o elegir piezas de varias, back to back o mix (v3) | Elegida la D (Receta), 2026-11-24: `docs/design/ia/objetivo.html`, FDR-004; sin construir |
-| Revisión (comentar lo generado) | ¿Está bien lo que ha generado la IA? Comentario pegado a una pieza → versión nueva | Cuatro propuestas: `docs/design/revision/propuestas.html`; falta elegir |
+| Revisión (comentar lo generado) | ¿Está bien lo que ha generado la IA? Comentario pegado a una pieza → versión nueva | Dibujada según lo pedido el 2026-11-24 (elementos detectados y barra con #): `docs/design/revision/objetivo.html`; falta el sí de Matthieu y su FDR |
 
 Cada pantalla nueva pasa por cuatro propuestas antes de construirse (`CLAUDE.md`, «Diseño»).
 
