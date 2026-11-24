@@ -14,7 +14,8 @@ const $ = (id) => document.getElementById(id);
 const selector = $("leccion");
 const vistaModulos = $("vista-modulos");
 const vistaPaso = $("vista-paso");
-const listaModulos = $("modulos");
+const mapa = $("mapa");
+const siguiente = $("siguiente");
 const ruta = $("ruta");
 const instruccion = $("instruccion");
 const resultado = $("resultado");
@@ -36,9 +37,25 @@ function svg(etiqueta, atributos, texto) {
   return el;
 }
 
+function crea(etiqueta, clase, texto = "") {
+  return Object.assign(document.createElement(etiqueta), { className: clase, textContent: texto });
+}
+
+// En la pantalla de lecciones el aviso dice además qué hacer: ahí no hay otro mensaje que lo explique.
 function estadoLive(conectado) {
   live.className = conectado ? "si" : "no";
-  live.textContent = conectado ? "Live conectado" : "Sin Live";
+  live.textContent = conectado ? "Live conectado" : modulo === null ? "Sin Live · abre Ableton para comprobar los pasos" : "Sin Live";
+}
+
+const esVolumen = (paso) => paso.check === "volumen_en_rango";
+function objetivoDe(paso) {
+  const { min, max } = paso.valor;
+  return min === max ? num(min) : esVolumen(paso) ? `${num(min)} … ${num(max)} dB` : `${num(min)}–${num(max)}`;
+}
+// El paso en una línea, para la caja «Siguiente»: lo que se mide, o la primera frase de la instrucción.
+function enCorto(paso) {
+  if (!conMedida(paso)) return paso.instruccion.split(/[.:,]\s/)[0].replace(/\.$/, "");
+  return `${esVolumen(paso) ? `Volumen ${paso.valor.pista}` : paso.valor.parametro} → ${objetivoDe(paso)}`;
 }
 
 // Mini piano roll: notas que faltan en rojo, las ya puestas en amarillo apagado,
@@ -124,14 +141,14 @@ function dibujarMedida(actual = null) {
     return;
   }
   const { min, max } = paso.valor;
-  const volumen = paso.check === "volumen_en_rango";
+  const volumen = esVolumen(paso);
   const parametro = volumen ? `Volumen ${paso.valor.pista} (dB)` : paso.valor.parametro;
   const escalaMin = actual && actual.max > actual.min ? actual.min : 0;
   const escalaMax = actual && actual.max > actual.min ? actual.max : 1;
   const pos = (v) => `${((v - escalaMin) / (escalaMax - escalaMin)) * 100}%`;
 
   $("parametro").textContent = parametro;
-  const objetivo = min === max ? num(min) : volumen ? `${num(min)} … ${num(max)} dB` : `${num(min)}–${num(max)}`;
+  const objetivo = objetivoDe(paso);
   const texto = actual ? (volumen ? actual.value.toFixed(1) : num(actual.value)) : "—";
   const numero = Object.assign(document.createElement("span"), { id: "numero", textContent: ultimoValor ?? texto });
   $("valor").replaceChildren(numero, " ", Object.assign(document.createElement("small"), { textContent: `→ ${objetivo}` }));
@@ -174,27 +191,96 @@ function pintar() {
   dibujarRoll();
 }
 
-// Lista de módulos de la lección: salen del JSON, el panel no conoce ninguno de antemano.
+// Pantalla de lecciones: la lección como un camino de módulos (FDR-001). Todo sale del JSON de la lección.
+const X_PARADA = [40, 100, 160, 100]; // el zigzag se repite cada cuatro módulos
+const paradaEn = (i) => [X_PARADA[i % 4], 24 + 43 * i];
+function lectura(id, numero, unidad) {
+  $(id).replaceChildren(String(numero), " ", crea("small", "", unidad));
+}
+
 async function verModulos(nombre) {
   leccion = nombre;
   modulo = null;
-  ruta.textContent = leccion;
-  progresoModulo.textContent = "";
+  selector.value = leccion;
+  const [modulos, { racha, hoy }] = await Promise.all([invoke("modulos", { leccion }), invoke("resumen")]);
+  const total = modulos.reduce((s, m) => s + m.total, 0);
+  const suma = modulos.reduce((s, m) => s + m.hechos, 0);
+  const actual = modulos.find((m) => m.hechos < m.total);
+  const nombreDe = (m) => m.titulo.split(":")[0];
+
+  lectura("racha", racha, racha === 1 ? "día" : "días");
+  lectura("hoy", hoy, hoy === 1 ? "paso" : "pasos");
+  $("avance-de").textContent = leccion;
+  $("avance").textContent = `${total ? Math.round((suma / total) * 100) : 0} %`;
+  $("avance").className = suma ? "am" : "";
+
+  const alto = 43 * modulos.length + 4;
+  const camino = crea("div", "");
+  camino.id = "camino";
+  camino.style.height = `${alto}px`;
+  const trazo = svg("svg", { width: 428, height: alto });
+  const linea = (hasta, color) =>
+    svg("polyline", { points: modulos.slice(0, hasta).map((_, i) => paradaEn(i).join(",")).join(" "), fill: "none", stroke: color, "stroke-width": 6 });
+  trazo.append(linea(modulos.length, "#26262c"));
+  // El tramo amarillo llega hasta el módulo en curso.
+  trazo.append(linea(actual ? modulos.indexOf(actual) + 1 : modulos.length, "#fcee0a"));
+  camino.append(trazo);
+  modulos.forEach((m, i) => {
+    const hecho = m.hechos >= m.total;
+    const [x, y] = paradaEn(i);
+    const parada = crea("button", `parada ${hecho ? "on" : m === actual ? "sig" : ""}`);
+    parada.style.left = `${x}px`;
+    parada.style.top = `${y}px`;
+    const rotulo = crea("span", "rot");
+    const titulo = crea("b", "", `${nombreDe(m)} `);
+    titulo.append(crea("span", "", hecho ? "OK" : `${m.hechos}/${m.total}`));
+    rotulo.append(titulo, m.titulo.split(": ")[1] ?? "");
+    parada.append(crea("span", "nodo", hecho ? "■" : m === actual ? "▸" : String(i + 1)), rotulo);
+    parada.addEventListener("click", () => abrirModulo(m.id, m.titulo));
+    camino.append(parada);
+  });
+  mapa.replaceChildren(camino);
+
+  const texto = crea("div", "");
+  const boton = crea("button", "cta");
+  if (actual) {
+    const [susPasos, { indice: i }] = await Promise.all([
+      invoke("pasos", { leccion, modulo: actual.id }),
+      invoke("progreso", { leccion, modulo: actual.id }),
+    ]);
+    texto.append(crea("span", "et ro", `▸ Siguiente · ${nombreDe(actual)} · paso ${dos(i + 1)}/${dos(actual.total)}`), crea("strong", "", enCorto(susPasos[i])));
+    boton.textContent = `${suma ? "Continuar" : "Empezar"} ▸`;
+    boton.addEventListener("click", () => abrirModulo(actual.id, actual.titulo));
+  } else {
+    texto.append(
+      crea("span", "et am", `■ Lección completada · ${suma}/${total}`),
+      crea("strong", "", `${leccion[0].toUpperCase()}${leccion.slice(1)} está reconstruida entera.`),
+    );
+    boton.textContent = "Otra lección ▸";
+    boton.addEventListener("click", () => selector.showPicker());
+  }
+  siguiente.className = actual ? "sig-caja" : "sig-caja ok";
+  siguiente.replaceChildren(texto, boton);
+
+  ruta.textContent = "";
+  progresoModulo.textContent = `${suma}/${total} pasos`;
   vistaPaso.hidden = true;
   vistaModulos.hidden = false;
-  listaModulos.replaceChildren();
-  for (const m of await invoke("modulos", { leccion })) {
-    const hecho = m.hechos >= m.total;
-    const boton = document.createElement("button");
-    boton.className = hecho ? "modulo hecho" : "modulo";
-    const titulo = document.createElement("span");
-    titulo.textContent = m.titulo;
-    const estado = document.createElement("span");
-    estado.className = "estado";
-    estado.textContent = hecho ? "■ OK" : `${m.hechos}/${m.total}`;
-    boton.append(titulo, estado);
-    boton.addEventListener("click", () => abrirModulo(m.id, m.titulo));
-    listaModulos.append(boton);
+  document.body.classList.add("inicio");
+  sondearLive();
+}
+
+// En la pantalla de lecciones no se comprueba ningún paso: se pregunta solo si Live contesta.
+async function sondearLive() {
+  if (ocupado || modulo !== null) return;
+  ocupado = true;
+  try {
+    const conectado = await invoke("conectado");
+    if (modulo === null) estadoLive(conectado);
+  } catch {
+    estadoLive(false);
+  } finally {
+    ocupado = false;
   }
 }
 
@@ -206,6 +292,7 @@ async function abrirModulo(id, titulo) {
   indice = (await invoke("progreso", { leccion, modulo })).indice;
   vistaModulos.hidden = true;
   vistaPaso.hidden = false;
+  document.body.classList.remove("inicio");
   pintar();
 }
 
@@ -258,7 +345,7 @@ async function comprobar() {
   }
 }
 
-setInterval(comprobar, 1000);
+setInterval(() => (modulo === null ? sondearLive() : comprobar()), 1000);
 empezar().catch((error) => {
-  listaModulos.textContent = String(error); // la vista de módulos es la única visible al arrancar
+  mapa.textContent = String(error); // la pantalla de lecciones es la única visible al arrancar
 });

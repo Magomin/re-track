@@ -11,22 +11,73 @@ fn conectar(ruta: &Path) -> Result<Connection, String> {
     let conexion = Connection::open(ruta).map_err(|e| e.to_string())?;
     conexion
         .execute_batch(
-            "CREATE TABLE IF NOT EXISTS hechos (modulo TEXT, paso TEXT, PRIMARY KEY (modulo, paso));
+            "CREATE TABLE IF NOT EXISTS hechos (modulo TEXT, paso TEXT, cuando TEXT, PRIMARY KEY (modulo, paso));
              -- Formato anterior (índice por posición). Se lee una vez para migrar y se borra.
              CREATE TABLE IF NOT EXISTS progreso (leccion TEXT PRIMARY KEY, indice INTEGER);",
         )
         .map_err(|e| e.to_string())?;
+    // Bases de antes de la racha: se les añade `cuando` (día local en que se superó el paso).
+    // Lo ya hecho se queda con NULL: sigue hecho, pero no cuenta para la racha.
+    let tiene_cuando: i64 = conexion
+        .query_row(
+            "SELECT COUNT(*) FROM pragma_table_info('hechos') WHERE name = 'cuando'",
+            [],
+            |fila| fila.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    if tiene_cuando == 0 {
+        conexion
+            .execute("ALTER TABLE hechos ADD COLUMN cuando TEXT", [])
+            .map_err(|e| e.to_string())?;
+    }
     Ok(conexion)
 }
 
 pub fn marcar(ruta: &Path, modulo: &str, paso: &str) -> Result<(), String> {
     conectar(ruta)?
         .execute(
-            "INSERT OR IGNORE INTO hechos VALUES (?1, ?2)",
+            "INSERT OR IGNORE INTO hechos VALUES (?1, ?2, date('now', 'localtime'))",
             params![modulo, paso],
         )
         .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+// `hace` = cuántos días hace de cada día con algún paso superado, de menor a mayor.
+// La racha sigue viva si el último día fue hoy o ayer.
+fn racha(hace: &[i64]) -> usize {
+    match hace.first() {
+        Some(&ultimo) if ultimo <= 1 => hace
+            .iter()
+            .zip(ultimo..)
+            .take_while(|(dia, esperado)| *dia == esperado)
+            .count(),
+        _ => 0,
+    }
+}
+
+// (racha en días, pasos superados hoy), de toda la app.
+pub fn resumen(ruta: &Path) -> Result<(usize, usize), String> {
+    let conexion = conectar(ruta)?;
+    let hoy: i64 = conexion
+        .query_row(
+            "SELECT COUNT(*) FROM hechos WHERE cuando = date('now', 'localtime')",
+            [],
+            |fila| fila.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    let mut consulta = conexion
+        .prepare(
+            "SELECT DISTINCT CAST(round(julianday(date('now', 'localtime')) - julianday(cuando)) AS INTEGER)
+             FROM hechos WHERE cuando IS NOT NULL ORDER BY 1",
+        )
+        .map_err(|e| e.to_string())?;
+    let hace: Vec<i64> = consulta
+        .query_map([], |fila| fila.get(0))
+        .map_err(|e| e.to_string())?
+        .collect::<Result<_, _>>()
+        .map_err(|e| e.to_string())?;
+    Ok((racha(&hace), hoy as usize))
 }
 
 // `orden` = ids del módulo en orden: si hay progreso del formato anterior ("voy por el paso N"),
@@ -45,7 +96,7 @@ pub fn hechos(ruta: &Path, modulo: &str, orden: &[String]) -> Result<HashSet<Str
         let tx = conexion.transaction().map_err(|e| e.to_string())?;
         for paso in orden.iter().take(indice.max(0) as usize) {
             tx.execute(
-                "INSERT OR IGNORE INTO hechos VALUES (?1, ?2)",
+                "INSERT OR IGNORE INTO hechos (modulo, paso) VALUES (?1, ?2)",
                 params![modulo, paso],
             )
             .map_err(|e| e.to_string())?;
@@ -104,6 +155,44 @@ mod tests {
         borrar(&ruta, "jungle/pad").unwrap();
         assert!(hechos(&ruta, "jungle/pad", &orden).unwrap().is_empty());
         assert_eq!(hechos(&ruta, "jungle/bass", &orden).unwrap().len(), 1);
+        std::fs::remove_file(&ruta).unwrap();
+    }
+
+    #[test]
+    fn la_racha_cuenta_dias_seguidos_hasta_hoy_o_ayer() {
+        assert_eq!(racha(&[]), 0);
+        assert_eq!(racha(&[0, 1, 2]), 3);
+        assert_eq!(racha(&[1, 2]), 2); // hoy aún sin pasos: la de ayer sigue viva
+        assert_eq!(racha(&[0, 1, 3, 4]), 2); // un día en blanco la corta
+        assert_eq!(racha(&[2, 3]), 0); // anteayer: perdida
+    }
+
+    #[test]
+    fn una_base_sin_fechas_conserva_lo_hecho_y_empieza_la_racha_de_cero() {
+        let ruta = ruta("sin-fechas");
+        let antigua = Connection::open(&ruta).unwrap();
+        antigua
+            .execute_batch(
+                "CREATE TABLE hechos (modulo TEXT, paso TEXT, PRIMARY KEY (modulo, paso));
+                 INSERT INTO hechos VALUES ('jungle/pad', 'tempo');",
+            )
+            .unwrap();
+        drop(antigua);
+
+        let orden = ids(&["tempo", "pista"]);
+        assert_eq!(hechos(&ruta, "jungle/pad", &orden).unwrap().len(), 1);
+        assert_eq!(resumen(&ruta).unwrap(), (0, 0));
+        marcar(&ruta, "jungle/pad", "pista").unwrap();
+        assert_eq!(resumen(&ruta).unwrap(), (1, 1));
+        // Un paso de ayer alarga la racha sin contar para «hoy».
+        conectar(&ruta)
+            .unwrap()
+            .execute(
+                "INSERT INTO hechos VALUES ('jungle/bass', 'tempo', date('now', 'localtime', '-1 day'))",
+                [],
+            )
+            .unwrap();
+        assert_eq!(resumen(&ruta).unwrap(), (2, 1));
         std::fs::remove_file(&ruta).unwrap();
     }
 

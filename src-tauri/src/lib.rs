@@ -162,6 +162,19 @@ fn reiniciar(leccion: String, modulo: String) -> Result<Value, String> {
     Ok(json!({"indice": 0}))
 }
 
+// Racha y pasos de hoy: de toda la app, no de una lección (FDR-001).
+#[tauri::command]
+fn resumen() -> Result<Value, String> {
+    let (racha, hoy) = progreso::resumen(&base_de_datos())?;
+    Ok(json!({"racha": racha, "hoy": hoy}))
+}
+
+// Para la pantalla de lecciones, que no comprueba ningún paso: ¿contesta Live?
+#[tauri::command]
+async fn conectado() -> bool {
+    live::send("get_session_snapshot", json!({})).is_ok()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -170,7 +183,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            lecciones, modulos, pasos, comprobar, progreso, reiniciar
+            lecciones, modulos, pasos, comprobar, progreso, reiniciar, resumen, conectado
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
