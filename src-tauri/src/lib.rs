@@ -131,6 +131,14 @@ async fn comprobar(leccion: String, modulo: String, indice: usize) -> Result<Val
                 respuesta["actual"] =
                     json!(verify::leer_parametro(&snapshot, pista, device, parametro));
             }
+            Check::ClipEnArreglo {
+                pista,
+                desde,
+                hasta,
+            } => {
+                respuesta["detalle"] =
+                    json!(verify::detalle_arreglo(&snapshot, pista, *desde, *hasta));
+            }
             Check::VolumenEnRango { pista, min, max } => {
                 respuesta["detalle"] = json!(verify::detalle_volumen(&snapshot, pista, *min, *max));
                 respuesta["actual"] = json!(verify::volumen_como_parametro(&snapshot, pista));
