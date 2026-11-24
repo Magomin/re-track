@@ -1,6 +1,6 @@
 # FDR-001: Pantalla de lecciones (Ruta)
 
-**Status:** Planned
+**Status:** Active
 **Last reviewed:** 2026-11-24
 
 ## Overview
@@ -16,7 +16,9 @@ Es lo primero que se ve al abrir Re-track: la lección en curso dibujada como un
 - Pulsar cualquier nodo abre ese módulo en su primer paso sin hacer. Ningún módulo está bloqueado.
 - Lección completada: todo el camino en amarillo y la caja pasa a «Lección completada» con el botón «Otra lección».
 - Sin Live: la pantalla se ve igual y se puede navegar; el pie avisa en rojo de que hay que abrir Ableton para comprobar los pasos.
-- El nombre de la lección en la cabecera abre la lista de lecciones.
+- El nombre de la lección en la cabecera abre el desplegable de lecciones (la lista de lecciones está sin diseñar).
+- Con más de seis módulos el camino sigue hacia abajo y se desplaza en vertical.
+- Reiniciar un módulo borra también cuándo se superaron sus pasos: puede bajar «hoy» y la racha.
 
 ## Design Decisions
 
@@ -52,4 +54,3 @@ Es lo primero que se ve al abrir Re-track: la lección en curso dibujada como un
 
 - Lista de lecciones (lo que abre el nombre de la cabecera): sin diseñar.
 - Qué se ve al superar un paso y al completar un módulo: sin diseñar.
-- Lecciones de más de seis módulos: desplazamiento vertical o camino más apretado.

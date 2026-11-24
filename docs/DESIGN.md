@@ -42,7 +42,7 @@ Ventana: 460×460, siempre encima, sin marco. Toda pantalla cabe ahí sin despla
 
 | Pantalla | Qué responde | Estado |
 |---|---|---|
-| Lecciones (Ruta) | ¿Qué toca ahora y cuánto llevo? | Diseñada: `docs/design/lecciones/objetivo.html`, FDR-001. Sin construir (hoy: desplegable + lista) |
+| Lecciones (Ruta) | ¿Qué toca ahora y cuánto llevo? | Diseñada: `docs/design/lecciones/objetivo.html`, FDR-001. Construida (#29) |
 | Lista de lecciones | ¿Qué canciones hay y cómo voy en cada una? | Sin diseñar |
 | Paso | ¿Qué hago en Live y me falta mucho? | Construida: lectura con aguja, piano roll, instrucción. Falta el momento «paso superado» |
 | Módulo completado | ¿Qué he construido y qué viene? | Sin diseñar (hoy: una línea de texto) |
