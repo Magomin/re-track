@@ -86,6 +86,7 @@ function falsoTauri(h) {
 }
 
 // hechos, sinLive: lo que enseña la pantalla de lecciones.
+// alto: alto de la ventana en px (460 por defecto).
 // pantalla: "inicio" se queda en la pantalla de inicio; titulo: el de Jungle; otras: las demás lecciones; ultima: dónde se superó el último paso.
 // pulsar: selector de un botón que se pulsa al final.
 // revision: { datos, escribir, teclas, fallo } = entra en la pantalla de revisión con esos datos, escribe ese texto en
@@ -94,14 +95,14 @@ function falsoTauri(h) {
 // receta: abre la pantalla de nueva lección y pulsa, en orden, los botones con esos data-foco; errorCrear: lo que falla al generar.
 // monta: código (texto) que se ejecuta dentro del panel ya arrancado, para enseñar una pieza que aún no sale en ninguna pantalla.
 const PRIMERA = { nombre: "primera", titulo: "Primera lección", total: 3, hechos: 3 };
-export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, monta, pantalla, titulo = jungle.titulo, otras = [PRIMERA], ultima = "jungle", revision, receta, errorCrear } = {}) {
+export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, monta, pantalla, titulo = jungle.titulo, otras = [PRIMERA], ultima = "jungle", revision, receta, errorCrear, alto = 460 } = {}) {
   const pasos = Object.fromEntries(jungle.modulos.map((m) => [m.id, m.pasos]));
   const suma = (campo) => resumen(hechos).reduce((s, m) => s + m[campo], 0);
   const inicio = { lecciones: [{ nombre: "jungle", titulo, total: suma("total"), hechos: suma("hechos") }, ...otras], ultima };
   const h = { pantalla, inicio, modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar, monta, revision, receta, errorCrear, canciones: CANCIONES };
   const marco = document.createElement("iframe");
   marco.title = "Panel de Re-track";
-  marco.style.cssText = "width:460px;height:460px;border:0;display:block";
+  marco.style.cssText = `width:460px;height:${alto}px;border:0;display:block`;
   const base = new URL("panel/", document.baseURI);
   fetch(new URL("index.html", base))
     .then((r) => r.text())

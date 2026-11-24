@@ -11,3 +11,5 @@ export const Completada = {
   render: () => panel({ hechos: { pad: 10, lead: 7, bass: 8, drums: 8, arreglo: 13, mezcla: 6 } }),
 };
 export const SinLive = { name: "sin Live", render: () => panel({ hechos: aMedias, sinLive: true }) };
+// La ventana agrandada: el mapa ocupa el alto que gana (#61).
+export const VentanaGrande = { name: "ventana agrandada", render: () => panel({ hechos: aMedias, alto: 700 }) };

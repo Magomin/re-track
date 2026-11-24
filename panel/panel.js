@@ -558,7 +558,7 @@ async function verModulos(nombre) {
   const camino = crea("div", "");
   camino.id = "camino";
   camino.style.height = `${alto}px`;
-  const trazo = svg("svg", { width: 428, height: alto });
+  const trazo = svg("svg", { width: "100%", height: alto });
   const linea = (hasta, color) =>
     svg("polyline", { points: modulos.slice(0, hasta).map((_, i) => paradaEn(i).join(",")).join(" "), fill: "none", stroke: color, "stroke-width": 6 });
   trazo.append(linea(modulos.length, "#26262c"));

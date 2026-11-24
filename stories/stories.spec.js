@@ -43,3 +43,15 @@ test("Espejo · el device viaja hasta su hueco y desaparece sin pausa", async ({
   expect(alSoltar.lejos, "el device no llega a su hueco: ¿`--dx`/`--dy` se ponen antes de la clase `demo`? (dibujarEspejo, panel.js)").toBeLessThan(12);
   expect((await en(5100)).opacidad, "300 ms después de soltarlo el device sigue a la vista: la pausa ha vuelto (demo-x, panel.css)").toBe(0);
 });
+
+// #61: el mapa sigue el alto de la ventana (262 px a 460, el diseño; más a 700).
+test("el mapa crece con la ventana", async ({ page }) => {
+  const alto = async (id) => {
+    await page.goto(`/iframe.html?id=${id}&viewMode=story`);
+    const panel = page.frameLocator('iframe[title="Panel de Re-track"]');
+    await expect(panel.locator('body[data-lista="si"]')).toBeAttached();
+    return (await panel.locator("#mapa").boundingBox()).height;
+  };
+  expect(await alto("pantalla-de-lecciones--empezada"), "a 460 de alto el mapa debe medir 262 px, como en docs/design").toBe(262);
+  expect(await alto("pantalla-de-lecciones--ventana-grande"), "el mapa no crece con la ventana: mira #mapa en panel/panel.css").toBe(502);
+});

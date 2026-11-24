@@ -100,7 +100,8 @@ body.portada .elegir { display: none; }
 .stats b.am { color: var(--amarillo); }
 .stats small { font-size: 14px; color: var(--tenue); }
 /* Más de seis módulos: el camino sigue hacia abajo y el mapa se desplaza. */
-#mapa { height: 262px; overflow-y: auto; scrollbar-width: thin; }
+/* 198 px = lo que no es mapa en la ventana: a 460 de alto el mapa mide 262, como en el diseño, y crece o encoge con ella. */
+#mapa { height: max(120px, calc(100vh - 198px)); overflow-y: auto; scrollbar-width: thin; }
 #camino { position: relative; }
 #camino svg { position: absolute; inset: 0; }
 /* Parada = nodo + rótulo, un solo botón. ■ hecho (amarillo), ▸ donde toca seguir (rojo, más grande), número = pendiente. */
