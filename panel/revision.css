@@ -1,0 +1,56 @@
+/* Pantalla de revisión (FDR-005). Copia de docs/design/revision/objetivo.html; todo cuelga de #vista-revision o lleva
+   el prefijo rev- para no chocar con el resto del panel. --c = el color del elemento (ADR-014). Sin movimiento. */
+#vista-revision { position: fixed; inset: 54px 20px 32px; display: flex; flex-direction: column; }
+#vista-revision[hidden], #salir-revision, body.revisando .elegir { display: none; }
+body.revisando #salir-revision { display: block; margin-right: 8px; padding: 0 4px; border-color: transparent; background: none;
+  font-size: 12px; line-height: 16px; letter-spacing: .18em; color: var(--tenue); }
+body.revisando #salir-revision:hover { color: #fff; }
+
+.rev-suave { font-size: 15px; font-weight: 500; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.rev-cabeza { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.rev-cabeza > span:last-child { flex: 1; min-width: 0; }
+#rev-titulo { display: block; font: 700 24px/1 Rajdhani, sans-serif; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Carátula «digitalizada» (FDR-003): la foto con líneas de VHS, una franja corrida y un filo rojo/cian. Sin foto: la inicial. */
+.rev-car { position: relative; flex: none; width: 52px; aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
+  background: var(--hueco) center/cover; filter: saturate(.7) contrast(1.15); font: 700 26px/1 Rajdhani, sans-serif; color: var(--amarillo); }
+.rev-car.sin { background: repeating-linear-gradient(135deg, #1a1a20 0 6px, #141418 6px 12px); filter: none; }
+.rev-car::before { content: ""; position: absolute; inset: 0; background: inherit; clip-path: inset(61% 0 31% 0); transform: translateX(7px); }
+.rev-car::after { content: ""; position: absolute; inset: 0; background:
+  repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px),
+  linear-gradient(90deg, rgba(255,42,61,.22), transparent 25%, transparent 75%, rgba(0,229,255,.22)); }
+
+/* Más elementos de los que caben: la lista se desplaza; la barra se queda abajo. */
+#rev-elementos { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.rev-el { display: flex; align-items: center; gap: 12px; height: 40px; font: 700 18px Rajdhani, sans-serif; color: #fff; }
+.rev-el.no { opacity: .3; }
+.rev-nombre { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rev-hex { display: grid; place-items: center; flex: none; width: 34px; height: 34px; background: var(--c); color: var(--negro);
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+#vista-revision svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: square; }
+#vista-revision i { font-style: normal; color: var(--c); }
+.rev-est { font: 700 14px Rajdhani, sans-serif; }
+.rev-chip { margin-left: 4px; padding: 2px 8px; border: 0; background: var(--hueco); color: #fff;
+  font: 600 13px Rajdhani, sans-serif; letter-spacing: 0; text-transform: none; }
+.rev-chip.on, .rev-chip.on:hover { background: var(--amarillo); color: var(--negro); }
+.rev-nota { margin: 0 0 4px 46px; padding: 4px 10px; border-left: 2px solid var(--rojo); background: var(--panel);
+  font: 600 15px Rajdhani, sans-serif; color: #fff; }
+
+#rev-aviso { margin: 4px 0; font: 600 14px/1.2 Rajdhani, sans-serif; color: var(--rojo); }
+#rev-aviso:empty { display: none; }
+#rev-barra { position: relative; flex: none; display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 12px;
+  background: var(--panel); border-bottom: 2px solid var(--amarillo); font: 600 17px Rajdhani, sans-serif; color: #fff; }
+#rev-barra:focus-within { background: #17171c; }
+.rev-campo { position: relative; flex: 1; min-width: 0; height: 100%; overflow: hidden; }
+/* El calco y el input llevan la misma letra en el mismo sitio: el color de la mención sale del calco. */
+#rev-calco, #rev-comentario { position: absolute; inset: 0; font: inherit; line-height: 46px; white-space: pre; }
+#rev-calco { pointer-events: none; }
+#rev-comentario { width: 100%; padding: 0; border: 0; outline: 0; background: none; color: transparent; caret-color: var(--rojo); }
+#rev-comentario::placeholder { color: var(--tenue); font-weight: 500; }
+#rev-enviar { padding: 4px 6px; border-color: transparent; background: none; color: var(--amarillo); font-size: 14px; letter-spacing: 0; }
+#rev-menu { position: absolute; left: 0; bottom: 52px; width: 190px; margin: 0; padding: 4px 0; list-style: none;
+  background: #1a1a20; border: 1px solid var(--linea); }
+#rev-menu[hidden] { display: none; }
+#rev-menu li { display: flex; align-items: center; gap: 10px; padding: 5px 12px; font: 600 16px Rajdhani, sans-serif; color: #fff; cursor: pointer; }
+#rev-menu svg { color: var(--c); }
+#rev-menu li:hover { background: var(--panel); }
+#rev-menu li.on { background: var(--hueco); box-shadow: inset 2px 0 var(--amarillo); }

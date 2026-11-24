@@ -23,6 +23,19 @@ function falsoTauri(h) {
         if (comando === "pasos") return h.pasos[args.modulo];
         if (comando === "progreso") return { indice: args.modulo === h.abrir ? h.indice : (h.hechos[args.modulo] ?? 0) };
         if (comando === "comprobar") return { hecho: false, indice: h.indice, ...h.comprobar };
+        // Pantalla de revisión: comentar hace lo que hará el backend, una versión nueva del elemento que se regenera.
+        const elemento = () => h.revision.datos.elementos.find((e) => e.nombre === args.elemento);
+        if (comando === "revision") return h.revision.datos;
+        if (comando === "comentar" && h.revision.fallo) throw h.revision.fallo;
+        if (comando === "comentar") {
+          const versiones = (elemento().versiones ?? 1) + 1;
+          Object.assign(elemento(), { estado: "gen", versiones, version: versiones, comentario: args.texto });
+          return h.revision.datos;
+        }
+        if (comando === "elegir_version") {
+          elemento().version = args.version;
+          return h.revision.datos;
+        }
         throw `La story no contesta a ${comando}`;
       },
     },
@@ -37,6 +50,16 @@ function falsoTauri(h) {
       if (h.pulsar) document.querySelector(h.pulsar).click();
     }
     if (h.monta) await (0, eval)(h.monta);
+    if (h.revision) {
+      await verRevision("jungle");
+      const campo = document.querySelector("#rev-comentario");
+      if (h.revision.escribir) {
+        campo.value = h.revision.escribir;
+        campo.dispatchEvent(new Event("input"));
+      }
+      for (const key of h.revision.teclas ?? []) campo.dispatchEvent(new KeyboardEvent("keydown", { key }));
+      await new Promise((r) => setTimeout(r, 0)); // el envío contesta en otro turno
+    }
     document.body.dataset.lista = "si"; // el test de stories espera a esto
   });
 }
@@ -44,14 +67,16 @@ function falsoTauri(h) {
 // hechos, sinLive: lo que enseña la pantalla de lecciones.
 // pantalla: "inicio" se queda en la pantalla de inicio; titulo: el de Jungle; otras: las demás lecciones; ultima: dónde se superó el último paso.
 // pulsar: selector de un botón que se pulsa al final.
+// revision: { datos, escribir, teclas, fallo } = entra en la pantalla de revisión con esos datos, escribe ese texto en
+// la barra y pulsa esas teclas; fallo: lo que contesta el backend al enviar el comentario.
 // abrir: id del módulo en el que entra; indice: paso que enseña; comprobar: lo que contesta Live; error: lo que falla.
 // monta: código (texto) que se ejecuta dentro del panel ya arrancado, para enseñar una pieza que aún no sale en ninguna pantalla.
 const PRIMERA = { nombre: "primera", titulo: "Primera lección", total: 3, hechos: 3 };
-export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, monta, pantalla, titulo = jungle.titulo, otras = [PRIMERA], ultima = "jungle" } = {}) {
+export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, monta, pantalla, titulo = jungle.titulo, otras = [PRIMERA], ultima = "jungle", revision } = {}) {
   const pasos = Object.fromEntries(jungle.modulos.map((m) => [m.id, m.pasos]));
   const suma = (campo) => resumen(hechos).reduce((s, m) => s + m[campo], 0);
   const inicio = { lecciones: [{ nombre: "jungle", titulo, total: suma("total"), hechos: suma("hechos") }, ...otras], ultima };
-  const h = { pantalla, inicio, modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar, monta };
+  const h = { pantalla, inicio, modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar, monta, revision };
   const marco = document.createElement("iframe");
   marco.title = "Panel de Re-track";
   marco.style.cssText = "width:460px;height:460px;border:0;display:block";
