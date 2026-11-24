@@ -18,6 +18,7 @@ export const MuchasPistas = {
   render: () => paso("bass", "pista", live({ pistas: ["PAD", "LEAD", "3-Audio", "4-Audio", "5-MIDI", "6-MIDI"] })),
 };
 export const Device = { name: "falta el device", render: () => paso("pad", "operator", enPad()) };
+export const DeviceConEfecto = { name: "falta el instrumento y la pista ya tiene un efecto", render: () => paso("pad", "operator", enPad({ devices: ["StereoGain"] })) };
 export const DeviceSinPista = { name: "falta el device y también la pista", render: () => paso("pad", "operator", live()) };
 export const DeviceDeEfecto = {
   name: "falta un efecto en el master",
