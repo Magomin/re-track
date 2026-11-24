@@ -34,6 +34,7 @@ export const FaltaLaPista = {
   name: "falta la pista",
   render: () => panel({ abrir: "bass", indice: indiceDe("bass", "osc-b"), comprobar: { detalle: "No se encuentra la pista BASS" } }),
 };
+export const ConfirmarReinicio = { name: "confirmar reinicio", render: () => panel({ ...oscB(0.52), pulsar: "#reiniciar" }) };
 export const ModuloCompletado = { name: "módulo completado", render: () => panel({ abrir: "lead", indice: modulo("lead").pasos.length }) };
 export const SinLive = {
   name: "sin Live",
