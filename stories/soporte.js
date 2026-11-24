@@ -33,16 +33,18 @@ function falsoTauri(h) {
     if (h.abrir) {
       await abrirModulo(h.abrir, h.titulo);
       await comprobar();
+      if (h.pulsar) document.querySelector(h.pulsar).click();
     }
     document.body.dataset.lista = "si"; // el test de stories espera a esto
   });
 }
 
 // hechos, racha, hoy, sinLive: lo que enseña la pantalla de lecciones.
+// pulsar: selector de un botón que se pulsa al final.
 // abrir: id del módulo en el que entra; indice: paso que enseña; comprobar: lo que contesta Live; error: lo que falla.
-export function panel({ hechos = {}, racha = 0, hoy = 0, sinLive = false, abrir, indice = 0, comprobar = {}, error } = {}) {
+export function panel({ hechos = {}, racha = 0, hoy = 0, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar } = {}) {
   const pasos = Object.fromEntries(jungle.modulos.map((m) => [m.id, m.pasos]));
-  const h = { modulos: resumen(hechos), hechos, racha, hoy, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error };
+  const h = { modulos: resumen(hechos), hechos, racha, hoy, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar };
   const marco = document.createElement("iframe");
   marco.title = "Panel de Re-track";
   marco.style.cssText = "width:460px;height:460px;border:0;display:block";

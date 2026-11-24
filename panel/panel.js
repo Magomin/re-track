@@ -15,6 +15,7 @@ const selector = $("leccion");
 const vistaModulos = $("vista-modulos");
 const vistaPaso = $("vista-paso");
 const mapa = $("mapa");
+const barraNav = document.querySelector(".barra-nav");
 const siguiente = $("siguiente");
 const ruta = $("ruta");
 const instruccion = $("instruccion");
@@ -179,6 +180,7 @@ function dibujarMedida(actual = null) {
 }
 
 function pintar() {
+  barraNav.classList.remove("confirmando"); // otro paso u otro módulo: la pregunta de reinicio ya no vale
   const completo = indice >= pasos.length;
   ruta.textContent = `${leccion} // ${modulo} · ${completo ? "OK" : `${dos(indice + 1)}/${dos(pasos.length)}`}`;
   progresoModulo.textContent = `${tituloModulo.split(":")[0]} ${Math.min(indice, pasos.length)}/${pasos.length}`;
@@ -303,8 +305,15 @@ async function empezar() {
   for (const nombre of nombres) selector.add(new Option(nombre, nombre));
   selector.addEventListener("change", () => verModulos(selector.value));
   $("volver").addEventListener("click", () => verModulos(leccion));
-  $("reiniciar").addEventListener("click", async () => {
-    if (!confirm(`¿Empezar "${tituloModulo}" desde el paso 1?`)) return;
+  $("reiniciar").addEventListener("click", () => {
+    barraNav.classList.add("confirmando");
+    $("no-reiniciar").focus();
+  });
+  $("no-reiniciar").addEventListener("click", () => {
+    barraNav.classList.remove("confirmando");
+    $("reiniciar").focus();
+  });
+  $("si-reiniciar").addEventListener("click", async () => {
     await invoke("reiniciar", { leccion, modulo });
     await abrirModulo(modulo, tituloModulo);
   });
