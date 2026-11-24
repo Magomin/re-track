@@ -5,7 +5,7 @@
 
 ## Overview
 
-Es lo primero que se ve al abrir Re-track: la lección en curso dibujada como un camino de módulos, con lo que toca hacer ahora a un clic. Sustituye al desplegable de lecciones y la columna de botones. Aspecto objetivo: `docs/design/lecciones/objetivo.html` (y su captura `objetivo.png`); se copia fielmente.
+Hoy es lo primero que se ve al abrir Re-track (lo será la pantalla de inicio, FDR-003, cuando se construya): la lección en curso dibujada como un camino de módulos, con lo que toca hacer ahora a un clic. Sustituye al desplegable de lecciones y la columna de botones. Aspecto objetivo: `docs/design/lecciones/objetivo.html` (y su captura `objetivo.png`); se copia fielmente.
 
 ## Behavior
 
@@ -51,5 +51,5 @@ Es lo primero que se ve al abrir Re-track: la lección en curso dibujada como un
 
 ## Open Questions
 
-- Lista de lecciones (lo que abre el nombre de la cabecera): sin diseñar.
+- Lista de lecciones: diseñada como pantalla de inicio (FDR-003), sin construir.
 - Qué se ve al superar un paso y al completar un módulo: sin diseñar.

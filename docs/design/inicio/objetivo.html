@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Re-track · pantalla de inicio · aspecto objetivo (Cartel)</title>
+<!-- Elegida por Matthieu el 2026-11-24: propuesta D (Cartel) de propuestas.html, con carátula «VHS» y, en una lección mezclada,
+     las carátulas cortadas como una pizza. Ventana real: 460×460. Ficha: docs/fdr/FDR-003-pantalla-de-inicio.md.
+     Jungle y Primera lección salen de lecciones/*.json; el progreso, «Around the World», «One More Time» y las mezclas son de muestra. -->
+<link rel="stylesheet" href="../propuestas.css">
+<style>
+  .aire { position: absolute; inset: 54px 20px 32px; display: flex; flex-direction: column; }
+  .fila { display: flex; align-items: center; gap: 14px; }
+  .gr { flex: 1; min-width: 0; }
+  .pct { font: 600 22px/1 Rajdhani; }
+  .mas { display: grid; place-items: center; width: 40px; height: 40px; border: 2px dashed #3a3a44; font: 700 16px Rajdhani; color: #fff; box-sizing: border-box; }
+  .cartel { position: relative; height: 196px; margin: -6px -20px 6px; }
+  .cartel > .car, .cartel > .pizza { position: absolute; inset: 0; width: auto; aspect-ratio: auto; }
+  .cartel > div { position: absolute; inset: 0; padding: 0 20px 14px; display: flex; align-items: flex-end; gap: 14px; background: linear-gradient(transparent 20%, rgba(8,8,10,.95)); }
+  .cartel b { display: block; font: 700 46px/1 Rajdhani; color: #fff; white-space: nowrap; }
+  .cartel b.largo { font-size: 30px; margin: 4px 0; }
+  .fila.l { height: 56px; font: 700 20px Rajdhani; color: #fff; }
+  .fila.l small { display: block; font: 500 14px Rajdhani; color: var(--tenue); }
+</style>
+</head>
+<body>
+<script src="../propuestas.js"></script>
+<script>
+const total = (l) => l.m.reduce((s, m) => s + m[0], 0), hechos = (l) => l.m.reduce((s, m) => s + m[1], 0);
+const pct = (l) => Math.round((hechos(l) / total(l)) * 100);
+const cifra = (l) => hechos(l) === total(l) ? `<span class="am">■ OK</span>` : `<span class="num ${hechos(l) ? "bl" : "te"}">${pct(l)} %</span>`;
+const [J, W, P] = L;
+const O = { t: "One More Time", a: "Daft Punk", c: ART + "Music221/v4/fd/4a/77/fd4a77db-0ebc-d043-41a2-f32fa1bb0fb4/dj.qrikkdwj.jpg/600x600bb.jpg" };
+// Lecciones mezcladas (de = las canciones de las que salen sus piezas).
+const DOS = { t: "Bass + Drums", de: [J, W], m: [[8, 0], [6, 0]] };
+const TRES = { t: "Bass + Drums + Pad", de: [J, W, O], m: [[8, 8], [6, 2], [5, 0]] };
+const foto = (l, px) => (l.de ? pizza(l.de, px, px ? 45 : 67) : car(l, px));
+const sub = (l) => (l.de ? l.de.map((x) => x.t).join(" · ") : l.a);
+
+const pantalla = (enCurso, donde, demas) =>
+  `<div class="cartel">${foto(enCurso, 0)}<div><span class="gr"><span class="et ro">▸ Donde se dejó</span><b class="${enCurso.t.length > 12 ? "largo" : ""}">${enCurso.t}</b><span class="bl num" style="font-size:17px">${pct(enCurso)} % · ${donde}</span></span><span class="cta">Continuar ▸</span></div></div>
+  ${demas.map((l) => `<div class="fila l">${foto(l, 40)}<span class="gr">${l.t}<small>${sub(l)}</small></span><span class="pct">${cifra(l)}</span></div>`).join("")}
+  <div class="fila l"><span class="mas">+</span><span class="gr">Nueva lección</span></div>`;
+
+document.body.innerHTML =
+  celda("1", "UNA CANCIÓN EN CURSO", "con una mezcla de dos canciones en la lista", pantalla(J, "Bass · paso 7 de 8", [W, DOS])) +
+  celda("2", "UNA MEZCLA EN CURSO", "tres canciones, tres porciones", pantalla(TRES, "Drums · paso 3 de 6", [J, P]));
+console.assert(pct(J) === 44, "Jungle: 23/52");
+</script>
+</body>
+</html>

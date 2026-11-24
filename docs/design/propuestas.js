@@ -6,7 +6,11 @@ const L = [
   { t: "Primera lección", a: "Re-track", m: [[3, 3]] }, // sin carátula: sale la inicial
 ];
 const car = (l, px, extra = "") => `<span class="car ${l.c ? "" : "sin"}" style="${px ? `width:${px}px;font-size:${px / 2}px;` : ""}${l.c ? `background-image:url(${l.c});` : ""}${extra}">${l.c ? "" : l.t[0]}</span>`;
-const cab = (ruta = "") => `<div class="cab"><span class="logo">RE-TRACK</span><span class="ruta">${ruta}</span>
+// Lección mezclada: una porción de carátula por canción, cortadas como una pizza (dos = por la diagonal).
+const porcion = (i, n, desde) => { const g = `conic-gradient(from ${desde + (i * 360) / n}deg, #000 ${360 / n}deg, #0000 0)`; return `-webkit-mask:${g};mask:${g};`; };
+// desde = ángulo del primer corte: 45 en un cuadrado; en el cartel (460×196), 67 para que salga de la esquina.
+const pizza = (ls, px, desde = 45) => `<span class="pizza" style="${px ? `width:${px}px` : ""}">${ls.map((l, i) => car(l, 0, porcion(i, ls.length, desde) + (px ? `font-size:${px / 3}px` : ""))).join("")}</span>`;
+const cab =(ruta = "") => `<div class="cab"><span class="logo">RE-TRACK</span><span class="ruta">${ruta}</span>
   <span class="vent">―</span><span class="vent">✕</span></div><div class="glitch"></div>`;
 const pie = `<div class="pie"><span class="am">■ Live conectado</span></div>`;
 const celda = (letra, nombre, idea, html, ruta) =>

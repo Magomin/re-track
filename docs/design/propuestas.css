@@ -56,6 +56,8 @@ h1 { margin: 0; font: 700 17px/1.1 Rajdhani; color: #fff; letter-spacing: .02em;
 .car { position: relative; flex: none; width: 64px; aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
   background: var(--hueco) center/cover; filter: saturate(.7) contrast(1.15); font: 700 30px/1 Rajdhani; color: var(--amarillo); }
 .car.sin { background: repeating-linear-gradient(135deg, #1a1a20 0 6px, #141418 6px 12px); filter: none; }
+.pizza { position: relative; display: block; flex: none; aspect-ratio: 1; }
+.pizza > .car { position: absolute; inset: 0; width: auto; aspect-ratio: auto; }
 .car::before { content: ""; position: absolute; inset: 0; background: inherit; clip-path: inset(61% 0 31% 0); transform: translateX(7px); }
 .car::after { content: ""; position: absolute; inset: 0; background:
   repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px),
