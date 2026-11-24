@@ -100,7 +100,7 @@ body.inicio .elegir { display: block; }
 .cta:focus-visible { background: #fff; } /* el recorte se come el contorno de foco */
 .cta:active { transform: scale(.97); }
 
-.barra-nav { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
+.barra-nav { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
 .barra-nav button { padding: 3px 10px; }
 .barra-nav .pregunta { flex: 1; }
 /* Tramos del módulo: hechos en amarillo, el paso actual en rojo y más alto. */
@@ -112,12 +112,10 @@ body.inicio .elegir { display: block; }
 .barra-nav:not(.confirmando) :is(.pregunta, #si-reiniciar, #no-reiniciar), .barra-nav.confirmando :is(#volver, #reiniciar, .tramos) { display: none; }
 #si-reiniciar { border-color: var(--rojo); color: var(--rojo); }
 
-.etiqueta { margin: 10px 0 0; font: 600 12px Rajdhani, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--tenue); }
-#valor { font: 600 46px/1 Rajdhani, sans-serif; color: #fff; text-shadow: 0 0 12px rgba(252,238,10,.25); }
-#valor small { font-size: 18px; color: var(--amarillo); text-shadow: none; }
 #numero { display: inline-block; font-variant-numeric: tabular-nums; }
-/* Al cambiar el valor: temblor con desplazamiento rojo/cian y cortes (panel.js glitchNumero). */
-#numero.glitch-on { animation: glitch-num .3s steps(1) 1; }
+/* Glitch de entrada: temblor con desplazamiento rojo/cian y cortes. Lo usan el número al cambiar (panel.js glitchNumero)
+   y el título al llegar a un paso nuevo. */
+:is(#numero, #titulo).glitch-on { animation: glitch-num .3s steps(1) 1; }
 @keyframes glitch-num {
   0%   { transform: translate(3px, 0) skewX(-10deg); text-shadow: -4px 0 var(--rojo), 4px 0 var(--cian); clip-path: inset(8% 0 45% 0); }
   20%  { transform: translate(-4px, 1px); text-shadow: 4px 0 var(--rojo), -3px 0 var(--cian); clip-path: inset(50% 0 4% 0); }
@@ -126,23 +124,13 @@ body.inicio .elegir { display: block; }
   80%  { transform: translate(1px, 0); text-shadow: -1px 0 var(--rojo), 1px 0 var(--cian); clip-path: none; }
   100% { transform: none; }
 }
-#accion { margin: 2px 0 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--rojo); }
-#accion.ok { color: var(--amarillo); }
-.medidor { position: relative; height: 14px; background: var(--panel); border: 1px solid var(--linea); }
-#zona { position: absolute; top: 0; bottom: 0;
-  background: repeating-linear-gradient(90deg, rgba(252,238,10,.55) 0 2px, rgba(252,238,10,.18) 2px 4px); }
-#aguja { transition: left .25s cubic-bezier(.2, .8, .2, 1); position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--rojo); box-shadow: 0 0 8px var(--rojo); }
-#aguja.ok { background: var(--amarillo); box-shadow: 0 0 8px var(--amarillo); }
-.escala[hidden] { display: none; }
-@media (prefers-reduced-motion: reduce) { .logo, .logo::after, #numero.glitch-on { animation: none; } #aguja, .cta { transition: none; } }
-.escala { display: flex; justify-content: space-between; font-size: 11px; color: #44444d; margin-top: 3px; }
 
 #haz[hidden] { display: none; }
-#titulo { display: block; margin: 0 0 8px; font: 600 24px/1.1 Rajdhani, sans-serif; color: #fff; }
+#titulo { display: block; margin: 0 0 6px; font: 600 24px/1.1 Rajdhani, sans-serif; color: #fff; }
 #titulo b { font-weight: 600; color: var(--amarillo); }
 
 /* El espejo: un trozo de Live con la marca encima. Esquina cortada y pestaña amarilla con el nombre de la zona. */
-.espejo { position: relative; padding: 26px 10px 8px; background: #131317; border-left: 2px solid var(--amarillo);
+.espejo { position: relative; padding: 24px 10px 7px; background: #131317; border-left: 2px solid var(--amarillo);
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
 .espejo[hidden] { display: none; }
 .zona { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px;
@@ -157,77 +145,139 @@ body.inicio .elegir { display: block; }
 .globo { margin-top: 7px; font: 700 14px/1.2 Rajdhani, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: var(--rojo); }
 .globo b { color: var(--amarillo); }
 .fila { display: flex; gap: 5px; align-items: center; }
-.fila .hueco { flex: 1; }
-.fila .lectura { padding: 2px 10px; font-size: 20px; font-variant-numeric: tabular-nums; }
-.sesion { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
-.sesion .pieza { display: block; padding: 4px 2px; font-size: 12px; }
-.sesion i { display: block; height: 13px; margin-top: 3px; background: #1d1d22; }
-.sesion i.lleno { background: #3a3a44; }
-.sesion i.falta { height: 11px; margin: 4px 1px 1px; font: 700 10px/11px Rajdhani, sans-serif; font-style: normal; text-align: center; letter-spacing: .1em; }
-.sesion .nueva i { background: none; border: 1px dashed #3a3a44; height: 11px; }
 /* El número de un gesto: en el dibujo marca el sitio, en la lista marca el orden. */
 .n { display: inline-block; width: 15px; margin-right: 5px; background: var(--rojo); color: #fff; font: 700 12px/15px Rajdhani, sans-serif;
   font-style: normal; text-align: center; letter-spacing: 0; }
-.gesto { margin-top: 3px; }
-/* Mapa de Live: la ventana de Ableton en miniatura. Barra de control arriba, navegador a la izquierda, pistas, y abajo los devices. */
-.mapa-live { position: relative; display: grid; grid-template-columns: 104px 1fr; grid-template-rows: 8px auto auto; gap: 4px; }
-.mapa-live > div { background: #1a1a1f; padding: 4px 5px 5px; }
-.mapa-live .control { grid-column: 1 / 3; padding: 0; background: var(--linea); }
+.gesto { margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Mapa de Live: la ventana de Ableton en miniatura. Barra de control arriba, navegador a la izquierda, la vista, y abajo el detalle. */
+.mapa-live { position: relative; display: grid; grid-template-columns: 104px 1fr; grid-template-rows: auto auto auto; gap: 4px; }
+.mapa-live > div { min-width: 0; background: #1a1a1f; padding: 4px 5px 5px; }
+.mapa-live .control { grid-column: 1 / 3; height: 8px; padding: 0; background: var(--linea); }
+.mapa-live .control.grande { display: flex; gap: 5px; align-items: center; height: auto; padding: 5px; background: #1a1a1f; }
+.control .hueco { flex: 1; }
+.control .pieza { padding: 3px 7px; font-size: 12px; }
+.control .lectura { display: flex; align-items: center; padding: 2px 8px 2px 4px; font-size: 18px; font-variant-numeric: tabular-nums; overflow: visible; position: relative; }
 .mapa-live .nave { grid-row: 2 / 4; }
-.mapa-live .et { display: block; margin-bottom: 4px; font-size: 9px; letter-spacing: .14em; color: var(--tenue); }
+.mapa-live .et { display: block; margin-bottom: 3px; font-size: 9px; letter-spacing: .14em; color: var(--tenue); }
 .nave span { display: block; padding: 1px 4px; font: 600 12px Rajdhani, sans-serif; color: #8a8a96; }
 .nave .et { padding: 0; }
 .nave .aqui { margin: 4px 1px; color: var(--amarillo); }
-.mapa-live .pieza { flex: 1; padding: 3px 4px; font-size: 12px; }
+/* Fondo de una zona en la que este paso no actúa. */
+.barra { display: block; height: 7px; margin-top: 4px; background: #222228; }
+.barra:nth-child(odd) { width: 70%; }
+.fila .pieza, .cadena .pieza { flex: 1; padding: 3px 4px; font-size: 12px; }
 .cadena { display: flex; gap: 6px; }
 .cadena .pieza { position: relative; padding: 8px 4px; white-space: normal; }
-.destello { position: absolute; inset: 0; background: var(--amarillo); opacity: 0; }
+/* Dos textos en el mismo sitio (el de ahora y el objetivo): se apilan en la misma celda. */
+.cambia { display: inline-grid; }
+.cambia > * { grid-area: 1 / 1; }
+.cambia .meta { color: var(--amarillo); }
+.sesion { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.sesion .pieza { display: block; padding: 3px 2px; font-size: 12px; }
+.sesion i { position: relative; display: block; height: 15px; margin-top: 3px; background: #222228; font-style: normal; }
+.sesion i.lleno { background: #3a3a44; }
+.sesion i.falta { background: none; margin: 4px 1px 1px; height: 13px; }
+.sesion i.falta .n { position: absolute; left: 0; top: -1px; }
+.sesion .clip { position: absolute; inset: 0 0 0 16px; background: var(--amarillo); color: var(--negro); font: 700 10px/13px Rajdhani, sans-serif; text-align: center; letter-spacing: .1em; text-transform: uppercase; }
+.sesion .nueva i { background: none; border: 1px dashed #3a3a44; height: 13px; }
+.arreglo { display: grid; grid-template-columns: 40px 1fr; row-gap: 3px; align-items: center; font: 600 12px Rajdhani, sans-serif; color: var(--amarillo); }
+.regla { position: relative; height: 13px; font-size: 10px; color: var(--tenue); }
+.regla span { position: absolute; top: 0; border-left: 1px solid #3a3a44; padding-left: 3px; }
+.carril { position: relative; height: 24px; background: #222228; }
+.carril b { position: absolute; top: 1px; bottom: 1px; box-sizing: border-box; }
+.carril .hay { background: #4a4a56; }
+.carril .falta { outline-offset: -2px; }
+.carril u { position: absolute; inset: 2px; background: var(--amarillo); color: var(--negro); font: 700 10px/18px Rajdhani, sans-serif; text-align: center;
+  text-decoration: none; white-space: nowrap; overflow: hidden; }
+/* Lectura con aguja (parámetro y fader): el valor de Live, la zona objetivo rayada y la aguja. El carro mide lo que la
+   barra y se mueve con transform; la aguja va en su borde izquierdo. */
+.lectura-grande { display: flex; align-items: baseline; gap: 6px; font: 600 24px/1 Rajdhani, sans-serif; color: #fff; }
+.lectura-grande small { font-size: 14px; color: var(--amarillo); }
+.control-nombre { flex: 1; font: 600 12px Rajdhani, sans-serif; color: #fff; }
+.pistas .medida { margin-top: 5px; }
+.medidor { position: relative; height: 12px; margin: 6px 0 4px; background: var(--panel); border: 1px solid var(--linea); }
+.medidor[hidden], .carro[hidden] { display: none; }
+.medidor .obj { position: absolute; top: 0; bottom: 0;
+  background: repeating-linear-gradient(90deg, rgba(252,238,10,.55) 0 2px, rgba(252,238,10,.18) 2px 4px); }
+.carro { position: absolute; inset: 0; transition: transform var(--aguja) cubic-bezier(.2, .8, .2, 1); }
+.aguja { position: absolute; left: -1px; top: -5px; bottom: -5px; width: 2px; background: var(--rojo); box-shadow: 0 0 8px var(--rojo); }
+.aguja.ok { background: var(--amarillo); box-shadow: 0 0 8px var(--amarillo); }
+.roll { display: block; width: 100%; }
+.roll text { fill: var(--tenue); font: 600 9px Rajdhani, sans-serif; }
+.destello, .flash-3 { position: absolute; inset: 0; background: var(--amarillo); opacity: 0; pointer-events: none; }
 /* El device que se arrastra. Solo se ve durante la demo. */
 .mapa-live .fantasma { position: absolute; z-index: 1; padding: 0; background: none; opacity: 0; pointer-events: none; }
 .fantasma span { display: block; padding: 2px 8px; background: var(--amarillo); color: var(--negro); font: 700 12px Rajdhani, sans-serif;
   white-space: nowrap; box-shadow: -3px 3px 0 var(--magenta); }
+/* Sin demo (falta algo previo, o movimiento reducido) se ve el estado final: el objetivo en su sitio. */
+[class^="sale-"] { opacity: 0; }
 
-/* Demo del gesto, en bucle: se enciende 1 (la pista), luego 2 (el device), y en 3 el device viaja hasta su sitio y cae.
-   Solo transform y opacity. X e Y van en dos elementos con curvas distintas: el recorrido sale en arco. */
-:root { --demo: 5.2s; }
-.demo :is(.pistas .aqui, .gesto:nth-child(1)) { animation: demo-1 var(--demo) infinite; }
-.demo :is(.nave .aqui, .gesto:nth-child(2)) { animation: demo-2 var(--demo) infinite; }
-.demo :is(.cadena .falta, .gesto:nth-child(3)) { animation: demo-3 var(--demo) infinite; }
+/* Demo del gesto, en bucle de tres tiempos: se enciende el 1, luego el 2, luego el 3; lo que no toca queda atenuado.
+   Lo que aparece entra con glitch (.entra-N) y lo que sustituye se va (.sale-N). Solo transform y opacity. */
+:root { --demo: 6s; --aguja: 250ms; }
+.demo .g1 { animation: demo-1 var(--demo) infinite; }
+.demo .g2 { animation: demo-2 var(--demo) infinite; }
+.demo .g3 { animation: demo-3 var(--demo) infinite; }
+.demo .entra-1 { animation: entra-1 var(--demo) steps(1) infinite; }
+.demo .entra-2 { animation: entra-2 var(--demo) steps(1) infinite; }
+.demo .entra-3 { animation: entra-3 var(--demo) steps(1) infinite; }
+.demo .sale-2 { animation: sale-2 var(--demo) steps(1) infinite; }
+.demo .sale-3 { animation: sale-3 var(--demo) steps(1) infinite; }
+.demo .flash-3 { animation: flash-3 var(--demo) infinite; }
 .demo .fantasma { animation: demo-x var(--demo) infinite; }
 .demo .fantasma span { animation: demo-y var(--demo) infinite; }
 .demo .destello { animation: demo-destello var(--demo) infinite; }
-@keyframes demo-1 { 0%, 17% { opacity: 1; } 21%, 96% { opacity: .4; } 100% { opacity: 1; } }
-@keyframes demo-2 { 0%, 17% { opacity: .4; } 21%, 36% { opacity: 1; } 40%, 100% { opacity: .4; } }
-@keyframes demo-3 { 0%, 36% { opacity: .4; } 40%, 92% { opacity: 1; } 96%, 100% { opacity: .4; } }
+@keyframes demo-1 { 0% { opacity: 1; transform: translateX(4px); } 2% { transform: translateX(-3px); } 4%, 28% { opacity: 1; transform: none; } 31%, 100% { opacity: .4; } }
+@keyframes demo-2 { 0%, 28% { opacity: .4; } 31% { opacity: 1; transform: translateX(4px); } 33% { transform: translateX(-3px); } 35%, 58% { opacity: 1; transform: none; } 61%, 100% { opacity: .4; } }
+@keyframes demo-3 { 0%, 58% { opacity: .4; } 61% { opacity: 1; transform: translateX(4px); } 63% { transform: translateX(-3px); } 65%, 94% { opacity: 1; transform: none; } 97%, 100% { opacity: .4; } }
+@keyframes entra-1 { 0% { opacity: 1; transform: translate(5px, 0) skewX(-14deg); } 2% { opacity: .5; transform: translate(-4px, 1px); } 4% { opacity: 1; transform: translate(2px, -1px); } 6%, 96% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; } }
+@keyframes entra-2 { 0%, 30% { opacity: 0; } 31% { opacity: 1; transform: translate(5px, 0) skewX(-14deg); } 33% { opacity: .5; transform: translate(-4px, 1px); } 35% { opacity: 1; transform: translate(2px, -1px); } 37%, 96% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; } }
+@keyframes entra-3 { 0%, 60% { opacity: 0; } 61% { opacity: 1; transform: translate(5px, 0) skewX(-14deg); } 63% { opacity: .5; transform: translate(-4px, 1px); } 65% { opacity: 1; transform: translate(2px, -1px); } 67%, 96% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; } }
+@keyframes sale-2 { 0%, 30% { opacity: 1; } 31%, 96% { opacity: 0; } 97%, 100% { opacity: 1; } }
+@keyframes sale-3 { 0%, 60% { opacity: 1; } 61%, 96% { opacity: 0; } 97%, 100% { opacity: 1; } }
+@keyframes flash-3 { 0%, 60% { opacity: 0; } 63% { opacity: .5; } 74%, 100% { opacity: 0; } }
+/* El device viaja en el tercer tiempo. X e Y van en dos elementos con curvas distintas: el recorrido sale en arco. */
 @keyframes demo-x {
-  0%, 34% { opacity: 0; transform: none; }
-  38% { opacity: 1; }
-  44% { opacity: 1; transform: none; animation-timing-function: cubic-bezier(.77, 0, .175, 1); }
-  70%, 86% { opacity: 1; transform: translateX(var(--dx)); }
-  92%, 100% { opacity: 0; transform: translateX(var(--dx)); }
+  0%, 60% { opacity: 0; transform: none; }
+  62% { opacity: 1; }
+  66% { opacity: 1; transform: none; animation-timing-function: cubic-bezier(.77, 0, .175, 1); }
+  82%, 94% { opacity: 1; transform: translateX(var(--dx)); }
+  97%, 100% { opacity: 0; transform: translateX(var(--dx)); }
 }
 @keyframes demo-y {
-  0%, 38% { transform: scale(1); }
-  44% { transform: scale(1.08) rotate(-5deg); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
-  70% { transform: translateY(var(--dy)) scale(1.08) rotate(-5deg); }
-  74% { transform: translateY(var(--dy)) scale(.94); }
-  78%, 100% { transform: translateY(var(--dy)) scale(1); }
+  0%, 62% { transform: scale(1); }
+  66% { transform: scale(1.08) rotate(-5deg); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
+  82% { transform: translateY(var(--dy)) scale(1.08) rotate(-5deg); }
+  85% { transform: translateY(var(--dy)) scale(.94); }
+  88%, 100% { transform: translateY(var(--dy)) scale(1); }
 }
-@keyframes demo-destello { 0%, 70% { opacity: 0; } 73% { opacity: .45; } 86%, 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .demo * { animation: none !important; } }
-.arreglo { display: grid; grid-template-columns: 48px 1fr; row-gap: 3px; align-items: center; font: 600 12px Rajdhani, sans-serif; color: var(--amarillo); }
-.regla { position: relative; height: 14px; font-size: 10px; color: var(--tenue); }
-.regla span { position: absolute; top: 0; border-left: 1px solid #3a3a44; padding-left: 3px; }
-.carril { position: relative; height: 26px; background: #1a1a1f; }
-.carril b { position: absolute; top: 1px; bottom: 1px; box-sizing: border-box; }
-.carril .hay { background: #3a3a44; }
-.carril .falta { outline-offset: -2px; font: 700 10px/24px Rajdhani, sans-serif; text-align: center; letter-spacing: .1em; white-space: nowrap; overflow: hidden; }
+@keyframes demo-destello { 0%, 82% { opacity: 0; } 85% { opacity: .45; } 94%, 100% { opacity: 0; } }
 
-#instruccion { margin: 10px 0 12px; color: #fff; font-size: 17px; line-height: 1.35; }
-#instruccion.porque { font-size: 15px; color: #9a9aa6; border-left: 2px solid var(--magenta); padding-left: 10px; margin-top: 14px; }
-#roll { width: 100%; margin: 0 0 8px; }
-#roll[hidden] { display: none; }
-#roll text { fill: var(--tenue); font: 600 11px Rajdhani, sans-serif; }
+/* Más glitch, siempre en saltos secos (steps): un rasgado cian/magenta que cruza el espejo, la pestaña LIVE que salta,
+   el tramo del paso actual que parpadea y, en la Ruta, el nodo donde toca seguir. */
+.espejo::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, var(--cian) 0 30%, transparent 30% 34%, var(--magenta) 34% 70%, transparent 70% 78%, var(--cian) 78%); }
+.demo.espejo::after { animation: rasgado var(--demo) steps(1) infinite; }
+@keyframes rasgado {
+  0%, 29%, 34%, 59%, 64%, 100% { opacity: 0; }
+  30% { opacity: .9; transform: translateY(40px); } 31% { opacity: .6; transform: translateY(96px) scaleX(.6); } 32% { opacity: .9; transform: translateY(66px); }
+  60% { opacity: .9; transform: translateY(110px); } 61% { opacity: .6; transform: translateY(52px) scaleX(.7); } 62% { opacity: .9; transform: translateY(140px); }
+}
+.zona b { animation: salto 7s steps(1) infinite; }
+@keyframes salto { 0%, 91%, 100% { transform: none; } 92% { transform: translateX(-3px) skewX(-14deg); } 94% { transform: translateX(4px); } 96% { transform: translateX(-1px) skewX(8deg); } }
+.tramos i.sig { animation: parpadeo 1.6s steps(1) infinite; }
+@keyframes parpadeo { 0%, 78%, 100% { opacity: 1; } 80% { opacity: .25; } 86% { opacity: 1; } 90% { opacity: .5; } }
+.parada.sig .nodo { animation: salto 4s steps(1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .logo, .logo::after, .glitch-on, .demo *, .demo.espejo::after, .zona b, .tramos i.sig, .parada.sig .nodo { animation: none !important; }
+  .carro, .cta { transition: none; }
+}
+
+#instruccion { margin: 8px 0 6px; font-size: 15px; line-height: 1.3; color: #9a9aa6; border-left: 2px solid var(--magenta); padding-left: 10px; }
+#instruccion { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+#instruccion:empty, #instruccion[hidden] { display: none; }
 #resultado { min-height: 1.2em; color: var(--rojo); }
 #resultado.espera { color: var(--tenue); }
 
