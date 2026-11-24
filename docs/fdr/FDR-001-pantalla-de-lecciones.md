@@ -5,7 +5,7 @@
 
 ## Overview
 
-Hoy es lo primero que se ve al abrir Re-track (lo será la pantalla de inicio, FDR-003, cuando se construya): la lección en curso dibujada como un camino de módulos, con lo que toca hacer ahora a un clic. Sustituye al desplegable de lecciones y la columna de botones. Aspecto objetivo: `docs/design/lecciones/objetivo.html` (y su captura `objetivo.png`); se copia fielmente.
+Se llega desde la pantalla de inicio (FDR-003), y «← Inicio» vuelve a ella: la lección dibujada como un camino de módulos, con lo que toca hacer ahora a un clic. Sustituye al desplegable de lecciones y la columna de botones. Aspecto objetivo: `docs/design/lecciones/objetivo.html` (y su captura `objetivo.png`); se copia fielmente.
 
 ## Behavior
 
@@ -14,7 +14,7 @@ Hoy es lo primero que se ve al abrir Re-track (lo será la pantalla de inicio, F
 - Arriba, una lectura: el porcentaje de la lección.
 - Abajo, una caja dice el siguiente paso (módulo, número de paso e instrucción corta) con el botón «Continuar», que abre ese paso. En una lección sin empezar el botón dice «Empezar».
 - Pulsar cualquier nodo abre ese módulo en su primer paso sin hacer. Ningún módulo está bloqueado.
-- Lección completada: todo el camino en amarillo y la caja pasa a «Lección completada» con el botón «Otra lección».
+- Lección completada: todo el camino en amarillo y la caja pasa a «Lección completada» con el botón «Otra lección», que lleva a la pantalla de inicio.
 - Sin Live: la pantalla se ve igual y se puede navegar; el pie avisa en rojo de que hay que abrir Ableton para comprobar los pasos.
 - El nombre de la lección en la cabecera abre el desplegable de lecciones (la lista de lecciones está sin diseñar).
 - Con más de seis módulos el camino sigue hacia abajo y se desplaza en vertical.

@@ -200,8 +200,7 @@
     pintarRevision(await invoke("revision", { cancion: nombre }));
     cancion = nombre;
     modulo = null; // panel.js sigue preguntando solo si Live contesta
-    vistaModulos.hidden = true;
-    vistaPaso.hidden = true;
+    mostrar(null); // oculta inicio, lecciones y paso (panel.js)
     vista.hidden = false;
     document.body.classList.add("inicio", "revisando");
     ruta.textContent = "";
@@ -212,7 +211,7 @@
     cancion = null;
     vista.hidden = true;
     document.body.classList.remove("revisando");
-    verModulos(leccion);
+    verInicio(); // el botón dice «← Inicio» y ya hay pantalla de inicio (#50)
   });
 
   // Mientras quede algo por detectar o generar, se pregunta cada segundo cómo va.

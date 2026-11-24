@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Re-track</title>
   <link rel="stylesheet" href="panel.css">
+  <link rel="stylesheet" href="caratula.css">
   <link rel="stylesheet" href="revision.css">
 </head>
 <body>
@@ -18,9 +19,16 @@
   </div>
   <div class="glitch"></div>
 
-  <div id="vista-modulos">
+  <!-- Pantalla de inicio (el Cartel, FDR-003): lo primero que se ve -->
+  <div id="vista-inicio">
+    <div id="cartel" class="cartel" hidden></div>
+    <div id="filas"></div>
+  </div>
+
+  <div id="vista-modulos" hidden>
     <div class="stats">
       <div><span class="et" id="avance-de"></span><b id="avance"></b></div>
+      <button id="a-inicio">← Inicio</button>
     </div>
     <div id="mapa"></div>
     <div id="siguiente" class="sig-caja"></div>
@@ -68,6 +76,7 @@
 
   <div class="pie"><span id="live">Live</span><span id="progreso-modulo"></span></div>
 
+  <script src="caratula.js"></script>
   <script src="panel.js"></script>
   <script src="revision.js"></script>
 </body>
