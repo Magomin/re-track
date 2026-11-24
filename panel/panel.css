@@ -307,8 +307,6 @@ body.inicio .elegir { display: block; }
 @keyframes eco { 0%, 39%, 45%, 100% { opacity: 0; } 40% { opacity: .9; transform: translate(-7px, 2px); } 42% { opacity: .7; transform: translate(5px, -1px); } 44% { opacity: .9; transform: translate(-3px, 0); } }
 @keyframes eco-b { 0%, 39%, 45%, 79%, 84%, 100% { opacity: 0; } 40% { opacity: .9; transform: translate(7px, -2px); } 42% { opacity: .7; transform: translate(-6px, 2px); } 80% { opacity: .9; transform: translate(6px, 1px); } 82% { opacity: .8; transform: translate(-5px, -1px); } }
 .stats b { animation: salto 5.5s steps(1) infinite; }
-.stats div:nth-child(2) b { animation-delay: -1.9s; }
-.stats div:nth-child(3) b { animation-delay: -3.7s; }
 .sig-caja { animation: salto 5.5s steps(1) -.55s infinite; }
 
 @media (prefers-reduced-motion: reduce) {

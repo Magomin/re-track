@@ -11,14 +11,13 @@ Es lo primero que se ve al abrir Re-track: la lección en curso dibujada como un
 
 - Cada módulo de la lección es un nodo del camino, en el orden del fichero de la lección. Un nodo hecho es amarillo con ■ y dice «OK»; el nodo donde toca seguir es rojo, más grande, con ▸; los pendientes llevan su número y van apagados. Junto a cada nodo: nombre, pasos hechos/total y la frase del módulo.
 - El tramo de camino ya recorrido se pinta en amarillo, hasta el módulo en curso.
-- Arriba, tres lecturas: racha (días seguidos con al menos un paso superado), pasos superados hoy y porcentaje de la lección.
+- Arriba, una lectura: el porcentaje de la lección.
 - Abajo, una caja dice el siguiente paso (módulo, número de paso e instrucción corta) con el botón «Continuar», que abre ese paso. En una lección sin empezar el botón dice «Empezar».
 - Pulsar cualquier nodo abre ese módulo en su primer paso sin hacer. Ningún módulo está bloqueado.
 - Lección completada: todo el camino en amarillo y la caja pasa a «Lección completada» con el botón «Otra lección».
 - Sin Live: la pantalla se ve igual y se puede navegar; el pie avisa en rojo de que hay que abrir Ableton para comprobar los pasos.
 - El nombre de la lección en la cabecera abre el desplegable de lecciones (la lista de lecciones está sin diseñar).
 - Con más de seis módulos el camino sigue hacia abajo y se desplaza en vertical.
-- Reiniciar un módulo borra también cuándo se superaron sus pasos: puede bajar «hoy» y la racha.
 
 ## Design Decisions
 
@@ -34,11 +33,11 @@ Es lo primero que se ve al abrir Re-track: la lección en curso dibujada como un
 **Why:** Los módulos son piezas independientes que se podrán combinar entre canciones (visión de `docs/DESIGN.md`); bloquearlos lo contradice.
 **Tradeoff:** Se pierde la sensación de «desbloquear» del modelo Duolingo.
 
-### 3. La racha cuenta días, no lecciones
+### 3. Sin racha ni «hoy»
 
-**Decision:** La racha y «hoy» son de toda la app, no de cada lección.
-**Why:** Miden el hábito de sentarse a producir; cambiar de canción no debe ponerlos a cero.
-**Tradeoff:** Hace falta guardar cuándo se superó cada paso; los pasos hechos antes de este cambio no cuentan para la racha.
+**Decision:** La pantalla no enseña la racha ni los pasos de hoy (#48); solo el porcentaje de la lección.
+**Why:** Matthieu, 2026-11-24: no se entendían y sobraban.
+**Tradeoff:** El día en que se superó cada paso se sigue guardando, pero ninguna pantalla lo usa.
 
 ### 4. Señal con símbolo
 
