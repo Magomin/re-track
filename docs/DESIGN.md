@@ -43,11 +43,11 @@ Ventana: 460×460, siempre encima, sin marco. Toda pantalla cabe ahí sin despla
 | Pantalla | Qué responde | Estado |
 |---|---|---|
 | Lecciones (Ruta) | ¿Qué toca ahora y cuánto llevo? | Diseñada: `docs/design/lecciones/objetivo.html`, FDR-001. Construida (#29) |
-| Lista de lecciones | ¿Qué canciones hay y cómo voy en cada una? | Sin diseñar |
+| Inicio (lista de lecciones) | ¿Qué canciones hay y cómo voy en cada una? | Cuatro propuestas: `docs/design/inicio/propuestas.html`; falta elegir |
 | Paso | ¿Qué hago en Live y me falta mucho? | Rediseñada: `docs/design/paso/objetivo.html`, FDR-002 (Espejo de Live, una plantilla por tipo de paso). Construida (#34, #35, #40). Falta el momento «paso superado» |
 | Módulo completado | ¿Qué he construido y qué viene? | Sin diseñar (hoy: una línea de texto) |
 | Ajustes | Splice sí/no (ADR-011) | Sin diseñar; llega con el remake runner |
-| A la carta | Elegir piezas de varias canciones, back to back o mix | Sin diseñar; v3 |
+| Nueva lección (IA) | Generar una lección: subir una canción (v2) o elegir piezas de varias, back to back o mix (v3) | Cuatro propuestas: `docs/design/ia/propuestas.html`; falta elegir |
 
 Cada pantalla nueva pasa por cuatro propuestas antes de construirse (`CLAUDE.md`, «Diseño»).
 

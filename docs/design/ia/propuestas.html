@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Re-track · pantalla de nueva lección (IA) · cuatro propuestas</title>
+<!-- Cuatro propuestas de la pantalla que genera lecciones con IA (2026-11-24), a partir del esquema de Matthieu del
+     2026-11-03 (docs/DESIGN.md, «Visión ampliada»): subir una canción, piezas de varias canciones, back to back | mix,
+     comentarios pegados a un módulo y versiones. Ventana real: 460×460. Los pasos de Jungle salen de
+     lecciones/jungle.json; «Around the World», «Glue», las fases y los comentarios son de muestra. -->
+<link rel="stylesheet" href="../propuestas.css">
+<style>
+  .fila { display: flex; align-items: center; gap: 10px; }
+  .fila > .gr { flex: 1; min-width: 0; }
+  .nombre { font: 700 16px/1.1 Rajdhani; color: #fff; letter-spacing: .02em; }
+  .caja { padding: 8px 11px 10px; }
+  .abajo { position: absolute; left: 16px; right: 16px; bottom: 32px; }
+  .sig-caja.ok { border-color: var(--amarillo); }
+
+  /* A · Canción */
+  .a-fase { height: 37px; border-top: 1px solid var(--linea); }
+  .a-fase.off .nombre { color: var(--tenue); }
+  .a-fase .hex { width: 26px; height: 26px; }
+  .a-lect { font: 600 34px/1 Rajdhani; color: #fff; }
+  .a-lect small { font-size: 15px; color: var(--amarillo); }
+
+  /* B · A la carta */
+  .b-hueco { display: grid; grid-template-columns: 64px 30px 1fr auto; align-items: center; gap: 8px; height: 41px; border-top: 1px solid var(--linea); }
+  .b-hueco .flechas { letter-spacing: .5em; color: var(--tenue); font-size: 13px; }
+  .desl { margin: 9px 0 3px; }
+  .desl .via { position: relative; height: 6px; background: var(--hueco); margin: 6px 0 7px; }
+  .desl .via i { position: absolute; top: -6px; width: 10px; height: 18px; background: var(--amarillo); }
+
+  /* C · Pedirlo */
+  .c-pide { padding: 9px 11px 11px; font: 600 18px/1.3 Rajdhani; color: #fff; }
+  .ref { color: var(--amarillo); border-bottom: 1px solid var(--amarillo); white-space: nowrap; }
+  .cursor { display: inline-block; width: 8px; height: 17px; background: var(--rojo); vertical-align: -2px; margin-left: 3px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 9px; }
+  .chip { padding: 2px 8px 3px; background: var(--hueco); font: 600 13px Rajdhani; letter-spacing: .06em; color: #fff; }
+  .c-hilo { padding: 8px 0 0; border-top: 1px solid var(--linea); }
+  .c-hilo p { margin: 3px 0 0; line-height: 1.25; }
+
+  /* D · Taller */
+  .tramos3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 8px; }
+  .tramos3 span { padding-top: 5px; border-top: 3px solid var(--hueco); font: 700 12px Rajdhani; letter-spacing: .14em; color: var(--tenue); }
+  .tramos3 .on { border-color: var(--amarillo); color: #fff; }
+  .tramos3 .sig { border-color: var(--rojo); color: #fff; }
+  .d-mod { height: 38px; border-top: 1px solid var(--linea); }
+  .d-mod .hex { width: 26px; height: 26px; }
+  .d-nota { margin: 0 0 6px 36px; padding: 5px 9px 6px; border-left: 2px solid var(--rojo); background: var(--panel); line-height: 1.2; }
+</style>
+</head>
+<body>
+<script>
+const cab = (ruta) => `<div class="cab"><span class="logo">RE-TRACK</span><span class="ruta">${ruta}</span>
+  <span class="vent">―</span><span class="vent">✕</span></div><div class="glitch"></div>`;
+const pie = (der) => `<div class="pie"><span class="am">■ Live conectado</span><span>${der}</span></div>`;
+const celda = (letra, nombre, idea, html) =>
+  `<div class="celda"><h2>${letra} · ${nombre}<small>${idea}</small></h2><div class="app">${html}</div></div>`;
+const RUTA = "← Lecciones · <b>Nueva</b>";
+
+// A · Canción: se suelta un archivo y la pantalla enseña en qué fase va la generación.
+const FASES = [["Escuchar", "130 BPM · F#m · 6 secciones", "on"], ["Separar las pistas", "bass · drums · pad · lead", "on"],
+  ["Recrear en Live", "pista 2/4 · BASS", "sig"], ["Comparar con el original", "", ""], ["Escribir la lección", "", ""]];
+const hechas = FASES.filter((f) => f[2] === "on").length;
+const A = `${cab(RUTA)}
+  <div class="corte caja fila"><div class="gr"><span class="et">Canción</span><div class="nombre" style="font-size:19px">bicep-glue.wav</div>
+      <span class="te">Bicep · Glue · 4:31</span></div>
+    <div class="a-lect num">${hechas + 1}<small> / ${FASES.length} fases</small></div></div>
+  <div style="margin-top:8px">${FASES.map(([n, d, e], i) => `<div class="fila a-fase ${e ? "" : "off"}">
+    <span class="hex ${e}">${e === "on" ? "■" : e === "sig" ? "▸" : i + 1}</span><span class="nombre gr">${n}</span>
+    <span class="${e === "sig" ? "bl" : "te"}">${e === "on" ? `${d} <span class="am">OK</span>` : d}</span></div>`).join("")}</div>
+  <div class="abajo sig-caja"><div><span class="et ro">▸ Ahora · recreando el bass</span><strong>Operator: sub con 2.º armónico</strong></div><span class="sec">Parar</span></div>
+  ${pie("Se puede seguir con otra lección")}`;
+
+// B · A la carta: un hueco por papel, una pieza de cualquier canción en cada uno, y el deslizador.
+const HUECOS = [["BASS", "Jungle", "v1 · 134 · G#m", 8], ["DRUMS", "Around the World", "v1 · 121 · Em", 6],
+  ["PAD", "Jungle", "v1 · 134 · G#m", 10], ["ARREGLO", "Around the World", "v1 · 121 · Em", 12], ["LEAD", null]];
+const puestas = HUECOS.filter((h) => h[1]), pasos = puestas.reduce((s, h) => s + h[3], 0);
+const B = `${cab(RUTA)}
+  ${HUECOS.map(([papel, de, meta, n]) => `<div class="b-hueco"><span class="et ${de ? "bl" : ""}">${papel}</span>
+    <span class="hex ${de ? "on" : ""}">${de ? "■" : "+"}</span>
+    ${de ? `<span><span class="nombre">${de}</span> <span class="te">${meta}</span></span><span class="num te">${n} pasos <span class="flechas">◂▸</span></span>`
+      : `<span class="te">Sin pieza · se puede dejar vacío</span><span class="et bl">Elegir ▸</span>`}</div>`).join("")}
+  <div class="desl"><div class="fila"><span class="et bl gr">■ Back to back</span><span class="et">Mix</span></div>
+    <div class="via"><i style="left:0"></i></div>
+    <span class="te">Las lecciones una detrás de otra, llevadas a 128 BPM · G#m. Nada inventado.</span></div>
+  <div class="abajo sig-caja ok"><div><span class="et am">■ ${puestas.length} piezas · 2 canciones</span><strong class="num">${pasos} pasos · 128 BPM · G#m</strong></div><span class="cta">Generar ▸</span></div>
+  ${pie("")}`;
+
+// C · Pedirlo: se escribe lo que se quiere; las piezas se citan con # y los comentarios crean versiones.
+const ref = (t) => `<span class="ref">#${t}</span>`;
+const C = `${cab(RUTA)}
+  <span class="et">Qué se quiere aprender</span>
+  <div class="corte c-pide" style="margin-top:4px">El bass de ${ref("jungle/bass")} con los drums de ${ref("around/drums")}, más lento y oscuro<span class="cursor"></span></div>
+  <div class="chips" style="margin-top:8px"><span class="et" style="flex-basis:100%">Entendido</span><span class="chip">jungle/bass v1</span><span class="chip">around/drums v1</span>
+    <span class="chip">≈ 124 BPM</span><span class="chip">mix</span></div>
+  <div class="c-hilo"><span class="et">Comentarios · crean una versión nueva</span>
+    <p><span class="am">#jungle/bass</span> <span class="bl">«no es así, el ataque es más lento»</span></p>
+    <p class="te"><span class="am">■</span> bass v2 creado · v1 se conserva</p></div>
+  <div class="abajo fila"><span class="sec">+ Canción</span><span class="gr te">o suelta un archivo aquí</span><span class="cta">Generar ▸</span></div>
+  ${pie("2 piezas citadas")}`;
+
+// D · Taller: tres pasos en una pantalla; aquí el tercero, donde se revisa lo generado módulo a módulo.
+const MODS = [["BASS", "v2", "de Jungle · 8 pasos", "on"], ["DRUMS", "v1", "de Around the World · 6 pasos", "sig"],
+  ["PAD", "v1", "de Jungle · 10 pasos", ""], ["ARREGLO", "v1", "nuevo · 12 pasos", ""]];
+const D = `${cab(RUTA)}
+  <div class="tramos3"><span class="on">■ 1 Fuente</span><span class="on">■ 2 Mezcla</span><span class="sig">▸ 3 Revisar</span></div>
+  <div class="fila" style="margin-bottom:7px"><div class="gr"><h1 style="font-size:20px">Jungle × Around the World</h1><span class="te">mix · 128 BPM · G#m · ${pasos} pasos</span></div>
+    <span class="sec">▸ Oír todo</span></div>
+  ${MODS.map(([n, v, d, e], i) => `<div class="fila d-mod"><span class="hex ${e}">${e === "on" ? "■" : e === "sig" ? "▸" : i + 1}</span>
+    <span class="gr"><span class="nombre">${n}</span> <span class="am num">${v}</span> <span class="te">${d}</span></span>
+    <span class="et ${e === "on" ? "am" : "bl"}">${e === "on" ? "■ Vale" : "▸ Oír"}</span></div>${
+    e === "sig" ? `<div class="d-nota"><span class="bl">«el bombo, más seco»</span><br><span class="te">Enviar crea drums v2 · v1 se conserva</span></div>` : ""}`).join("")}
+  <div class="abajo fila"><span class="gr te">1 de ${MODS.length} módulos revisado</span><span class="cta">Guardar lección ▸</span></div>
+  ${pie("")}`;
+
+document.body.innerHTML = celda("A", "CANCIÓN", "se suelta un archivo y se ve cómo avanza", A) + celda("B", "A LA CARTA", "un hueco por papel, piezas de varias canciones", B) +
+  celda("C", "PEDIRLO", "con palabras; las piezas se citan con #", C) + celda("D", "TALLER", "fuente, mezcla y revisión módulo a módulo", D);
+console.assert(pasos === 36 && puestas.length === 4, "36 pasos en 4 piezas");
+</script>
+</body>
+</html>
