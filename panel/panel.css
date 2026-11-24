@@ -138,11 +138,11 @@ body.inicio .elegir { display: block; }
 .escala { display: flex; justify-content: space-between; font-size: 11px; color: #44444d; margin-top: 3px; }
 
 #haz[hidden] { display: none; }
-#titulo { display: block; margin: 1px 0 10px; font: 600 24px/1.1 Rajdhani, sans-serif; color: #fff; }
+#titulo { display: block; margin: 0 0 8px; font: 600 24px/1.1 Rajdhani, sans-serif; color: #fff; }
 #titulo b { font-weight: 600; color: var(--amarillo); }
 
 /* El espejo: un trozo de Live con la marca encima. Esquina cortada y pestaña amarilla con el nombre de la zona. */
-.espejo { position: relative; padding: 30px 10px 10px; background: #131317; border-left: 2px solid var(--amarillo);
+.espejo { position: relative; padding: 26px 10px 8px; background: #131317; border-left: 2px solid var(--amarillo);
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
 .espejo[hidden] { display: none; }
 .zona { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px;
@@ -154,7 +154,7 @@ body.inicio .elegir { display: block; }
 /* Dónde tocar: marco rojo. Lo que falta por crear: discontinuo, con el nombre en amarillo. */
 .aqui { background: var(--negro); color: #fff; outline: 2px solid var(--rojo); outline-offset: 1px; }
 .falta { background: none; color: var(--amarillo); outline: 2px dashed var(--rojo); outline-offset: 1px; }
-.globo { margin-top: 10px; font: 700 14px/1.2 Rajdhani, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: var(--rojo); }
+.globo { margin-top: 7px; font: 700 14px/1.2 Rajdhani, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: var(--rojo); }
 .globo b { color: var(--amarillo); }
 .fila { display: flex; gap: 5px; align-items: center; }
 .fila .hueco { flex: 1; }
@@ -169,15 +169,52 @@ body.inicio .elegir { display: block; }
 .n { display: inline-block; width: 15px; margin-right: 5px; background: var(--rojo); color: #fff; font: 700 12px/15px Rajdhani, sans-serif;
   font-style: normal; text-align: center; letter-spacing: 0; }
 .gesto { margin-top: 3px; }
-.dos { display: grid; grid-template-columns: 128px 1fr; gap: 12px; align-items: start; }
-.live-derecha .et { display: block; margin: 12px 0 5px; font-size: 10px; color: var(--tenue); }
-.live-derecha .fila .pieza { flex: 1; font-size: 12px; }
-.cadena { display: flex; gap: 6px; padding: 8px; background: #1a1a1f; }
-.cadena .pieza { flex: 1; padding: 12px 6px; font-size: 12px; white-space: normal; }
-.lista span { display: block; padding: 2px 8px; font: 600 13px Rajdhani, sans-serif; color: #8a8a96; }
-.lista .et { padding: 0 8px 2px; font-size: 10px; color: var(--tenue); }
-.lista span { padding-top: 1px; padding-bottom: 1px; }
-.lista .aqui { margin: 3px 0; color: var(--amarillo); }
+/* Mapa de Live: la ventana de Ableton en miniatura. Barra de control arriba, navegador a la izquierda, pistas, y abajo los devices. */
+.mapa-live { position: relative; display: grid; grid-template-columns: 104px 1fr; grid-template-rows: 8px auto auto; gap: 4px; }
+.mapa-live > div { background: #1a1a1f; padding: 4px 5px 5px; }
+.mapa-live .control { grid-column: 1 / 3; padding: 0; background: var(--linea); }
+.mapa-live .nave { grid-row: 2 / 4; }
+.mapa-live .et { display: block; margin-bottom: 4px; font-size: 9px; letter-spacing: .14em; color: var(--tenue); }
+.nave span { display: block; padding: 1px 4px; font: 600 12px Rajdhani, sans-serif; color: #8a8a96; }
+.nave .et { padding: 0; }
+.nave .aqui { margin: 4px 1px; color: var(--amarillo); }
+.mapa-live .pieza { flex: 1; padding: 3px 4px; font-size: 12px; }
+.cadena { display: flex; gap: 6px; }
+.cadena .pieza { position: relative; padding: 8px 4px; white-space: normal; }
+.destello { position: absolute; inset: 0; background: var(--amarillo); opacity: 0; }
+/* El device que se arrastra. Solo se ve durante la demo. */
+.mapa-live .fantasma { position: absolute; z-index: 1; padding: 0; background: none; opacity: 0; pointer-events: none; }
+.fantasma span { display: block; padding: 2px 8px; background: var(--amarillo); color: var(--negro); font: 700 12px Rajdhani, sans-serif;
+  white-space: nowrap; box-shadow: -3px 3px 0 var(--magenta); }
+
+/* Demo del gesto, en bucle: se enciende 1 (la pista), luego 2 (el device), y en 3 el device viaja hasta su sitio y cae.
+   Solo transform y opacity. X e Y van en dos elementos con curvas distintas: el recorrido sale en arco. */
+:root { --demo: 5.2s; }
+.demo :is(.pistas .aqui, .gesto:nth-child(1)) { animation: demo-1 var(--demo) infinite; }
+.demo :is(.nave .aqui, .gesto:nth-child(2)) { animation: demo-2 var(--demo) infinite; }
+.demo :is(.cadena .falta, .gesto:nth-child(3)) { animation: demo-3 var(--demo) infinite; }
+.demo .fantasma { animation: demo-x var(--demo) infinite; }
+.demo .fantasma span { animation: demo-y var(--demo) infinite; }
+.demo .destello { animation: demo-destello var(--demo) infinite; }
+@keyframes demo-1 { 0%, 17% { opacity: 1; } 21%, 96% { opacity: .4; } 100% { opacity: 1; } }
+@keyframes demo-2 { 0%, 17% { opacity: .4; } 21%, 36% { opacity: 1; } 40%, 100% { opacity: .4; } }
+@keyframes demo-3 { 0%, 36% { opacity: .4; } 40%, 92% { opacity: 1; } 96%, 100% { opacity: .4; } }
+@keyframes demo-x {
+  0%, 34% { opacity: 0; transform: none; }
+  38% { opacity: 1; }
+  44% { opacity: 1; transform: none; animation-timing-function: cubic-bezier(.77, 0, .175, 1); }
+  70%, 86% { opacity: 1; transform: translateX(var(--dx)); }
+  92%, 100% { opacity: 0; transform: translateX(var(--dx)); }
+}
+@keyframes demo-y {
+  0%, 38% { transform: scale(1); }
+  44% { transform: scale(1.08) rotate(-5deg); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
+  70% { transform: translateY(var(--dy)) scale(1.08) rotate(-5deg); }
+  74% { transform: translateY(var(--dy)) scale(.94); }
+  78%, 100% { transform: translateY(var(--dy)) scale(1); }
+}
+@keyframes demo-destello { 0%, 70% { opacity: 0; } 73% { opacity: .45; } 86%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .demo * { animation: none !important; } }
 .arreglo { display: grid; grid-template-columns: 48px 1fr; row-gap: 3px; align-items: center; font: 600 12px Rajdhani, sans-serif; color: var(--amarillo); }
 .regla { position: relative; height: 14px; font-size: 10px; color: var(--tenue); }
 .regla span { position: absolute; top: 0; border-left: 1px solid #3a3a44; padding-left: 3px; }

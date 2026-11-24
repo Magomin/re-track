@@ -241,41 +241,58 @@ const ESPEJOS = {
       gestos: [["Ctrl+Shift+T: crea una pista MIDI"], ["Ctrl+R: escribe ", [v], " y pulsa Enter"]],
     };
   },
-  // Tres gestos y su orden: elegir la pista, encontrar el device, soltarlo en la zona de devices (abajo en Live).
+  // La ventana de Ableton en miniatura, cada zona en su sitio: navegador a la izquierda, pistas arriba, devices abajo
+  // del todo. Tres gestos en orden, y el device viaja animado del navegador a su destino (panel.css, «demo»).
   device_en_pista(v, live) {
     const nombre = nombreDevice(v.device);
     const instrumento = INSTRUMENTOS.includes(nombre);
-    const lista = crea("div", "lista");
-    // Del navegador basta el device y sus vecinos: el dibujo tiene que caber con los tres gestos debajo.
     const i = INSTRUMENTOS.indexOf(nombre);
     const vecinos = instrumento ? INSTRUMENTOS.slice(Math.max(0, i - 1), i + 2) : ["···", nombre, "···"];
-    lista.append(crea("span", "et", instrumento ? "Instruments" : "Navegador"),
-      ...vecinos.map((d) => (d === nombre ? marca(2, crea("span", "aqui", d)) : crea("span", "", d))));
+    const origen = marca(2, crea("span", "aqui", nombre));
+    const nave = crea("div", "nave");
+    nave.append(crea("span", "et", "Navegador"), ...vecinos.map((d) => (d === nombre ? origen : crea("span", "", d))));
 
-    // Arriba, las pistas (la del paso primero); abajo, sus devices tal como están en Live.
-    const pistas = crea("div", "fila");
-    const otras = (live?.pistas ?? []).filter((p) => !igual(p, v.pista)).slice(0, 2);
-    pistas.append(marca(1, pieza(v.pista, "aqui")), ...otras.map((p) => pieza(p)));
+    const otras = (live?.pistas ?? []).filter((p) => !igual(p, v.pista)).slice(0, 3);
+    const fila = crea("div", "fila");
+    fila.append(marca(1, pieza(v.pista, "aqui")), ...otras.map((p) => pieza(p)));
+    const pistas = crea("div", "pistas");
+    pistas.append(crea("span", "et", "Pistas"), fila);
+
+    // Abajo, los devices de la pista tal como están en Live. Un instrumento va siempre el primero; un efecto, detrás.
     const hay = (live?.devices ?? []).map(nombreDevice);
     const destino = marca(3, pieza(hay.length ? nombre : "Drop an Instrument or Sample Here", "falta"));
+    destino.append(crea("i", "destello"));
     const cadena = crea("div", "cadena");
-    // Un instrumento va siempre el primero de la cadena; un efecto, detrás de lo que ya hay.
-    cadena.append(...(instrumento ? [destino, ...hay.map((d) => pieza(d))] : [...hay.map((d) => pieza(d)), destino]));
-    const derecha = crea("div", "live-derecha");
-    derecha.append(pistas, crea("span", "et", `Devices de ${v.pista} · abajo en Live`), cadena);
-    const dos = crea("div", "dos");
-    dos.append(lista, derecha);
+    const resto = hay.map((d) => pieza(d));
+    cadena.append(...(instrumento ? [destino, ...resto] : [...resto, destino]));
+    const abajo = crea("div", "abajo");
+    abajo.append(crea("span", "et", `Devices de ${v.pista} · abajo del todo`), cadena);
 
-    const donde = !hay.length ? ["en «Drop an Instrument…»"] : instrumento ? [`delante de ${hay[0]}`] : [`detrás de ${hay.at(-1)}`];
+    const fantasma = crea("div", "fantasma");
+    fantasma.append(crea("span", "", `${nombre} ▸`));
+    const mapa = crea("div", "mapa-live");
+    mapa.append(crea("div", "control"), nave, pistas, abajo, fantasma);
+
+    const sinPista = Boolean(live) && !live.devices;
+    const junto = !hay.length ? [] : [instrumento ? `, delante de ${hay[0]}` : `, detrás de ${hay.at(-1)}`];
     return {
-      zona: `Navegador → pista ${v.pista}`,
-      dibujo: [dos],
+      zona: "Tu ventana de Ableton, en pequeño",
+      dibujo: [mapa],
       globo: [`▸ Falta la pista ${v.pista}`],
-      gestos: live && !live.devices ? null : [
-        ["Clic en la pista ", [v.pista], ": abajo salen sus devices"],
-        ["Navegador (Ctrl+Alt+B) · busca ", [nombre]],
-        ["Suéltalo abajo, ", donde],
+      gestos: sinPista ? null : [
+        ["Clic en la pista ", [v.pista]],
+        ["Busca ", [nombre], " en el navegador (Ctrl+Alt+B)"],
+        ["Arrástralo ", ["abajo del todo"], ...junto],
       ],
+      demo: !sinPista,
+      // Con el dibujo ya en pantalla: de dónde sale el device y cuánto tiene que viajar.
+      despues() {
+        const m = mapa.getBoundingClientRect(), o = origen.getBoundingClientRect(), d = destino.getBoundingClientRect();
+        fantasma.style.left = `${o.left - m.left}px`;
+        fantasma.style.top = `${o.top - m.top}px`;
+        mapa.style.setProperty("--dx", `${d.left - o.left + (d.width - fantasma.offsetWidth) / 2}px`);
+        mapa.style.setProperty("--dy", `${d.top - o.top + (d.height - o.height) / 2}px`);
+      },
     };
   },
   clip_en_pista(v, live) {
@@ -317,14 +334,19 @@ const ESPEJOS = {
   },
 };
 
+// Lo último dibujado: si Live contesta lo mismo que hace un segundo no se repinta, y la animación no vuelve a empezar.
+let espejoPintado = "";
 function dibujarEspejo(live = null, detalle = "") {
   const paso = pasos[indice];
   const plantilla = paso && ESPEJOS[paso.check];
   $("espejo").hidden = !plantilla;
-  if (!plantilla) return;
-  const { zona, dibujo, globo, gestos } = plantilla(paso.valor, live, detalle);
+  const clave = JSON.stringify([leccion, modulo, indice, live, detalle]);
+  if (!plantilla || clave === espejoPintado) return;
+  espejoPintado = clave;
+  const { zona, dibujo, globo, gestos, demo, despues } = plantilla(paso.valor, live, detalle);
   $("zona-live").textContent = zona;
   $("dibujo").replaceChildren(...dibujo);
+  $("espejo").classList.toggle("demo", Boolean(demo));
   // Varios gestos van numerados y en su orden; uno solo, en una línea.
   if (gestos) {
     $("globo").replaceChildren(...gestos.map((g, i) => {
@@ -333,6 +355,7 @@ function dibujarEspejo(live = null, detalle = "") {
       return marca(i + 1, linea);
     }));
   } else trozos($("globo"), globo);
+  despues?.();
 }
 
 function pintar() {
