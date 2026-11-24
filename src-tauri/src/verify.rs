@@ -139,6 +139,35 @@ pub fn cumple(check: &Check, snapshot: &Snapshot) -> bool {
 }
 
 // Compases de Live (4/4, el 1 empieza en el beat 0) a semicorcheas.
+// La pista sobre la que actúa el paso, si actúa sobre una.
+fn pista_del_check(check: &Check) -> Option<&str> {
+    match check {
+        Check::TempoEs(_) => None,
+        Check::TrackExiste(pista) | Check::ClipEnPista(pista) => Some(pista),
+        Check::DeviceEnPista { pista, .. }
+        | Check::NotasEnClip { pista, .. }
+        | Check::ParametroEnRango { pista, .. }
+        | Check::VolumenEnRango { pista, .. }
+        | Check::ClipEnArreglo { pista, .. } => Some(pista),
+    }
+}
+
+// Lo que Live tiene ahora, para que el panel lo dibuje en el espejo del paso (FDR-002).
+// `arreglo` va en compases de Live (4/4), como las lecciones: [desde, hasta).
+pub fn ahora(check: &Check, snapshot: &Snapshot) -> Value {
+    let p = pista_del_check(check).and_then(|nombre| pista(snapshot, nombre));
+    let nombres: Vec<&String> = snapshot.tracks.iter().map(|p| &p.name).collect();
+    json!({
+        "tempo": snapshot.session.tempo,
+        "pistas": nombres,
+        "devices": p.map(|p| p.devices.iter().map(|d| &d.class_name).collect::<Vec<_>>()),
+        "huecos": p.map(|p| p.clip_slots.iter().map(|h| h.has_clip).collect::<Vec<_>>()),
+        "arreglo": p.map(|p| p.arrangement_clips.iter()
+            .map(|c| [c.start_time / 4.0 + 1.0, c.end_time / 4.0 + 1.0])
+            .collect::<Vec<_>>()),
+    })
+}
+
 fn compases(desde: u32, hasta: u32) -> (i64, i64) {
     ((desde as i64 - 1) * 16, (hasta as i64 - 1) * 16)
 }
@@ -453,6 +482,28 @@ mod tests {
             pista: pista.into(),
             notas: notas(n),
         }
+    }
+
+    #[test]
+    fn ahora_cuenta_lo_que_hay_en_live_y_en_la_pista_del_paso() {
+        let mut snapshot = base();
+        snapshot.tracks[0].arrangement_clips = vec![ClipArreglo {
+            start_time: 4.0,
+            end_time: 36.0,
+        }];
+        assert_eq!(
+            ahora(&Check::ClipEnPista("pad".into()), &snapshot),
+            json!({"tempo": 134.0, "pistas": ["PAD", "2-MIDI"], "devices": ["Operator"],
+                   "huecos": [false, true], "arreglo": [[2.0, 10.0]]})
+        );
+        // Sin pista (tempo) o con una que aún no existe: solo lo general.
+        let general = json!({"tempo": 134.0, "pistas": ["PAD", "2-MIDI"],
+                             "devices": null, "huecos": null, "arreglo": null});
+        assert_eq!(ahora(&Check::TempoEs(120.0), &snapshot), general);
+        assert_eq!(
+            ahora(&Check::TrackExiste("BASS".into()), &snapshot),
+            general
+        );
     }
 
     #[test]

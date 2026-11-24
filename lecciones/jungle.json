@@ -7,10 +7,10 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"id": "tempo", "instruccion": "Tempo a 134 BPM, medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
-        {"id": "pista", "instruccion": "Pista MIDI llamada PAD. Suena en los compases 2–9 y 26–41, y una octava arriba en el drop 2.", "check": "track_existe", "valor": "PAD"},
-        {"id": "operator", "instruccion": "Operator en PAD. El pad medido es casi senoidal (h2 −10 dB, h3 −17 dB): senos de Operator, no sierras.", "check": "device_en_pista", "valor": {"pista": "PAD", "device": "Operator"}},
-        {"id": "clip", "instruccion": "Clip MIDI en PAD (doble clic en un hueco vacío). Contendrá el ciclo de 4 compases.", "check": "clip_en_pista", "valor": "PAD"},
+        {"id": "tempo", "instruccion": "Medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Pista MIDI. Suena en los compases 2–9 y 26–41, y una octava arriba en el drop 2.", "check": "track_existe", "valor": "PAD"},
+        {"id": "operator", "instruccion": "El pad medido es casi senoidal (h2 −10 dB, h3 −17 dB): senos de Operator, no sierras.", "check": "device_en_pista", "valor": {"pista": "PAD", "device": "Operator"}},
+        {"id": "clip", "instruccion": "Clip MIDI. Contendrá el ciclo de 4 compases.", "check": "clip_en_pista", "valor": "PAD"},
         {"id": "notas-c1", "instruccion": "Clip a 4 compases (Length 4.0.0). Compás 1: A1 + E2 enteras. A1 = 109 Hz, la fundamental que más pesa del pad.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [{"pitch": 45, "inicio": 0, "duracion": 4}, {"pitch": 52, "inicio": 0, "duracion": 4}]}},
         {"id": "notas-c2", "instruccion": "Compás 2: G#1 + D#2; en el beat 3 la voz de arriba baja a C#2. El movimiento interno cae siempre en el beat 3.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [{"pitch": 44, "inicio": 4, "duracion": 4}, {"pitch": 51, "inicio": 4, "duracion": 2}, {"pitch": 49, "inicio": 6, "duracion": 2}]}},
         {"id": "notas-c3", "instruccion": "Compás 3: G#1 + E2 enteras.", "check": "notas_en_clip", "valor": {"pista": "PAD", "notas": [{"pitch": 44, "inicio": 8, "duracion": 4}, {"pitch": 52, "inicio": 8, "duracion": 4}]}},
@@ -25,10 +25,10 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"id": "tempo", "instruccion": "Tempo a 134 BPM, medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
-        {"id": "pista", "instruccion": "Pista MIDI llamada LEAD. La alarma del drop 2 (compases 68–81): E4 ↔ D#4, ~660 Hz.", "check": "track_existe", "valor": "LEAD"},
-        {"id": "operator", "instruccion": "Operator en LEAD. Armónicos medidos h2 −8, h3 −20, h4 −27 dB: se construyen sumando osciladores.", "check": "device_en_pista", "valor": {"pista": "LEAD", "device": "Operator"}},
-        {"id": "clip", "instruccion": "Clip MIDI en LEAD, 4 compases (Length 4.0.0).", "check": "clip_en_pista", "valor": "LEAD"},
+        {"id": "tempo", "instruccion": "Medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Pista MIDI. La alarma del drop 2 (compases 68–81): E4 ↔ D#4, ~660 Hz.", "check": "track_existe", "valor": "LEAD"},
+        {"id": "operator", "instruccion": "Armónicos medidos h2 −8, h3 −20, h4 −27 dB: se construyen sumando osciladores.", "check": "device_en_pista", "valor": {"pista": "LEAD", "device": "Operator"}},
+        {"id": "clip", "instruccion": "Clip MIDI de 4 compases (Length 4.0.0).", "check": "clip_en_pista", "valor": "LEAD"},
         {"id": "notas-c1-2", "instruccion": "Compases 1–2: E4 entera, D#4 entera. Semitono abajo y vuelta: esa es la alarma.", "check": "notas_en_clip", "valor": {"pista": "LEAD", "notas": [{"pitch": 76, "inicio": 0, "duracion": 4}, {"pitch": 75, "inicio": 4, "duracion": 4}]}},
         {"id": "notas-c3-4", "instruccion": "Compases 3–4: D#4 al inicio, E4 desde el 2.3 (beat 2, tercera semicorchea); compás 4, E4 entero. Notas pegadas, sin hueco (legato).", "check": "notas_en_clip", "valor": {"pista": "LEAD", "notas": [{"pitch": 75, "inicio": 8, "duracion": 1.5}, {"pitch": 76, "inicio": 9.5, "duracion": 2.5}, {"pitch": 76, "inicio": 12, "duracion": 4}]}},
         {"id": "osc-b", "instruccion": "Osc-B Level → 0.60–0.72. B va a ×2 de la frecuencia: fija el 2.º armónico, objetivo h2 ≈ −8 dB bajo la fundamental.", "check": "parametro_en_rango", "valor": {"pista": "LEAD", "device": "Operator", "parametro": "Osc-B Level", "min": 0.6, "max": 0.72}}
@@ -40,10 +40,10 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"id": "tempo", "instruccion": "Tempo a 134 BPM, medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
-        {"id": "pista", "instruccion": "Pista MIDI llamada BASS. Sub de los drops: G#0 (52 Hz) mono, casi nada por encima de 500 Hz.", "check": "track_existe", "valor": "BASS"},
-        {"id": "operator", "instruccion": "Operator en BASS. Seno A ×1 + seno B ×2: fundamental más 2.º armónico, como el original.", "check": "device_en_pista", "valor": {"pista": "BASS", "device": "Operator"}},
-        {"id": "clip", "instruccion": "Clip MIDI en BASS para la línea del drop 1.", "check": "clip_en_pista", "valor": "BASS"},
+        {"id": "tempo", "instruccion": "Medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Pista MIDI. Sub de los drops: G#0 (52 Hz) mono, casi nada por encima de 500 Hz.", "check": "track_existe", "valor": "BASS"},
+        {"id": "operator", "instruccion": "Seno A ×1 + seno B ×2: fundamental más 2.º armónico, como el original.", "check": "device_en_pista", "valor": {"pista": "BASS", "device": "Operator"}},
+        {"id": "clip", "instruccion": "Clip MIDI para la línea del drop 1.", "check": "clip_en_pista", "valor": "BASS"},
         {"id": "notas-c1-4", "instruccion": "Clip a 8 compases (Length 8.0.0). Compases 1–4, una entera por compás: G#0, F#0, G#0, G#1.", "check": "notas_en_clip", "valor": {"pista": "BASS", "notas": [{"pitch": 32, "inicio": 0, "duracion": 4}, {"pitch": 30, "inicio": 4, "duracion": 4}, {"pitch": 32, "inicio": 8, "duracion": 4}, {"pitch": 44, "inicio": 12, "duracion": 4}]}},
         {"id": "notas-c5-8", "instruccion": "Compases 5–8: G#0, F#0, G#0, G#0. La bajada a F#0 cae en los compases pares.", "check": "notas_en_clip", "valor": {"pista": "BASS", "notas": [{"pitch": 32, "inicio": 16, "duracion": 4}, {"pitch": 30, "inicio": 20, "duracion": 4}, {"pitch": 32, "inicio": 24, "duracion": 4}, {"pitch": 32, "inicio": 28, "duracion": 4}]}},
         {"id": "osc-b", "instruccion": "Osc-B Level → 0.80–0.92. Medido: 0.84 da h2 −10 dB, 0.90 da −3; Fred, −7. Sin h2 el sub no se oye en altavoces pequeños.", "check": "parametro_en_rango", "valor": {"pista": "BASS", "device": "Operator", "parametro": "Osc-B Level", "min": 0.8, "max": 0.92}},
@@ -56,10 +56,10 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"id": "tempo", "instruccion": "Tempo a 134 BPM, medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
-        {"id": "pista", "instruccion": "Pista MIDI llamada DRUMS. Los drops van sobre un patrón 909: kick, clap, hat abierto y hat cerrado.", "check": "track_existe", "valor": "DRUMS"},
-        {"id": "drum-rack", "instruccion": "Drum Rack con un kit 909 en DRUMS (Browser → Drums → 909 Core Kit). El loop del original es una 909.", "check": "device_en_pista", "valor": {"pista": "DRUMS", "device": "DrumGroupDevice"}},
-        {"id": "clip", "instruccion": "Clip MIDI de 1 compás en DRUMS. En el drop 1 el patrón se repite idéntico cada compás.", "check": "clip_en_pista", "valor": "DRUMS"},
+        {"id": "tempo", "instruccion": "Medido sobre el grid del kick del original.", "check": "tempo_es", "valor": 134},
+        {"id": "pista", "instruccion": "Pista MIDI. Los drops van sobre un patrón 909: kick, clap, hat abierto y hat cerrado.", "check": "track_existe", "valor": "DRUMS"},
+        {"id": "drum-rack", "instruccion": "Con un kit 909 (Browser → Drums → 909 Core Kit). El loop del original es una 909.", "check": "device_en_pista", "valor": {"pista": "DRUMS", "device": "DrumGroupDevice"}},
+        {"id": "clip", "instruccion": "Clip MIDI de 1 compás. En el drop 1 el patrón se repite idéntico cada compás.", "check": "clip_en_pista", "valor": "DRUMS"},
         {"id": "kick", "instruccion": "Kick (C1) en los 4 tiempos, notas de 1/16 (four-on-the-floor). Kick medido: f0 ~59 Hz (A#0), redondo, sin click.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 36, "inicio": 0, "duracion": 0.25}, {"pitch": 36, "inicio": 1, "duracion": 0.25}, {"pitch": 36, "inicio": 2, "duracion": 0.25}, {"pitch": 36, "inicio": 3, "duracion": 0.25}]}},
         {"id": "clap", "instruccion": "Clap (D#1) en los tiempos 2 y 4. Va ~9 dB por debajo del kick: marca el backbeat sin taparlo.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 39, "inicio": 1, "duracion": 0.25}, {"pitch": 39, "inicio": 3, "duracion": 0.25}]}},
         {"id": "hat-abierto", "instruccion": "Hat abierto (A#1) en cada contratiempo (las «&»). Medido: cae −20 dB en ~95 ms, no se solapa con el siguiente.", "check": "notas_en_clip", "valor": {"pista": "DRUMS", "notas": [{"pitch": 46, "inicio": 0.5, "duracion": 0.25}, {"pitch": 46, "inicio": 1.5, "duracion": 0.25}, {"pitch": 46, "inicio": 2.5, "duracion": 0.25}, {"pitch": 46, "inicio": 3.5, "duracion": 0.25}]}},
@@ -72,19 +72,19 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
-        {"id": "pad-intro", "instruccion": "Vista Arrangement (Tab). Clip de PAD de 2 a 10: el compás 1 es el pickup vocal. En el 10, corte seco: −21 → −57 dB en una corchea.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 2, "hasta": 10}},
-        {"id": "pad-vuelta", "instruccion": "PAD de 26 a 42: vuelve tras la parte vocal y atraviesa el build (34–41). En el original se apaga en ~5/8 de compás.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 26, "hasta": 42}},
-        {"id": "drop1-drums", "instruccion": "Drop 1: DRUMS de 46 a 54. Ocho compases de 909, kick a negras.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 46, "hasta": 54}},
-        {"id": "drop1-bass", "instruccion": "BASS de 46 a 54. En el 54 hay un stop de 2 compases: el original corta el bajo ~60 ms antes del compás.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 46, "hasta": 54}},
-        {"id": "drop1b-drums", "instruccion": "Drop 1b: DRUMS de 56 a 66, después del stop (54–55).", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 56, "hasta": 66}},
-        {"id": "drop1b-bass", "instruccion": "BASS de 56 a 66. Segundo stop en el 66, otros 2 compases.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 56, "hasta": 66}},
-        {"id": "drop2-lead", "instruccion": "Drop 2: LEAD de 68 a 82. La alarma E4 ↔ D#4 durante 14 compases.", "check": "clip_en_arreglo", "valor": {"pista": "LEAD", "desde": 68, "hasta": 82}},
-        {"id": "drop2-pad", "instruccion": "PAD de 68 a 82, transpuesto +12 (una octava arriba). En el original va a velocity 50, por debajo de la alarma.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 68, "hasta": 82}},
-        {"id": "drop2-drums", "instruccion": "DRUMS de 68 a 82. El sub de los drops descansa aquí: en el original suena otro bajo que sigue los acordes.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 68, "hasta": 82}},
-        {"id": "drop3-drums", "instruccion": "Drop 3: DRUMS de 84 a 92, tras 2 compases de build (82–83).", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 84, "hasta": 92}},
-        {"id": "drop3-bass", "instruccion": "BASS de 84 a 92. El compás 92–93 es el fill antes del final.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 84, "hasta": 92}},
-        {"id": "final-drums", "instruccion": "Final drop: DRUMS de 94 a 108, 14 compases.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 94, "hasta": 108}},
-        {"id": "final-bass", "instruccion": "BASS de 94 a 108. En el 108 empieza el END: solo queda un kick filtrado (~700–800 Hz) hasta el 110.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 94, "hasta": 108}}
+        {"id": "pad-intro", "instruccion": "Vista Arrangement (Tab). El compás 1 es el pickup vocal. En el 10, corte seco: −21 → −57 dB en una corchea.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 2, "hasta": 10}},
+        {"id": "pad-vuelta", "instruccion": "Vuelve tras la parte vocal y atraviesa el build (34–41). En el original se apaga en ~5/8 de compás.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 26, "hasta": 42}},
+        {"id": "drop1-drums", "instruccion": "Drop 1. Ocho compases de 909, kick a negras.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 46, "hasta": 54}},
+        {"id": "drop1-bass", "instruccion": "En el 54 hay un stop de 2 compases: el original corta el bajo ~60 ms antes del compás.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 46, "hasta": 54}},
+        {"id": "drop1b-drums", "instruccion": "Drop 1b, después del stop (54–55).", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 56, "hasta": 66}},
+        {"id": "drop1b-bass", "instruccion": "Segundo stop en el 66, otros 2 compases.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 56, "hasta": 66}},
+        {"id": "drop2-lead", "instruccion": "Drop 2. La alarma E4 ↔ D#4 durante 14 compases.", "check": "clip_en_arreglo", "valor": {"pista": "LEAD", "desde": 68, "hasta": 82}},
+        {"id": "drop2-pad", "instruccion": "Transpuesto +12 (una octava arriba). En el original va a velocity 50, por debajo de la alarma.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 68, "hasta": 82}},
+        {"id": "drop2-drums", "instruccion": "El sub de los drops descansa aquí: en el original suena otro bajo que sigue los acordes.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 68, "hasta": 82}},
+        {"id": "drop3-drums", "instruccion": "Drop 3, tras 2 compases de build (82–83).", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 84, "hasta": 92}},
+        {"id": "drop3-bass", "instruccion": "El compás 92–93 es el fill antes del final.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 84, "hasta": 92}},
+        {"id": "final-drums", "instruccion": "Final drop, 14 compases.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 94, "hasta": 108}},
+        {"id": "final-bass", "instruccion": "En el 108 empieza el END: solo queda un kick filtrado (~700–800 Hz) hasta el 110.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 94, "hasta": 108}}
       ]
     },
     {
@@ -97,8 +97,8 @@
         {"id": "drums-volumen", "instruccion": "Fader de DRUMS → −2.2 dB, 4 dB por debajo del bajo: el kick marca el pulso sin pisar el sub.", "check": "volumen_en_rango", "valor": {"pista": "DRUMS", "min": -3.2, "max": -1.2}},
         {"id": "pad-volumen", "instruccion": "Fader de PAD → −13 dB. A ese nivel el render del pad quedó a 1–3 dB del original (−20 dB RMS en la intro).", "check": "volumen_en_rango", "valor": {"pista": "PAD", "min": -14, "max": -12}},
         {"id": "lead-volumen", "instruccion": "Fader de LEAD → −24 dB. La alarma va ~5 dB bajo el pad: con −23.8 dB el render dio −34 dB en su banda; Fred, −33.", "check": "volumen_en_rango", "valor": {"pista": "LEAD", "min": -25, "max": -23}},
-        {"id": "glue", "instruccion": "Glue Compressor en el Master. Compacta el bus entero: con Glue + Limiter el drop 1 dio 7.8 dB de crest; Fred, 7.9.", "check": "device_en_pista", "valor": {"pista": "Master", "device": "GlueCompressor"}},
-        {"id": "limiter", "instruccion": "Limiter en el Master, detrás del Glue. El drop del original va a −7.6 dB RMS: sin limiter, a ese nivel clipea.", "check": "device_en_pista", "valor": {"pista": "Master", "device": "Limiter"}}
+        {"id": "glue", "instruccion": "Compacta el bus entero: con Glue + Limiter el drop 1 dio 7.8 dB de crest; Fred, 7.9.", "check": "device_en_pista", "valor": {"pista": "Master", "device": "GlueCompressor"}},
+        {"id": "limiter", "instruccion": "Va detrás del Glue. El drop del original va a −7.6 dB RMS: sin limiter, a ese nivel clipea.", "check": "device_en_pista", "valor": {"pista": "Master", "device": "Limiter"}}
       ]
     }
   ]
