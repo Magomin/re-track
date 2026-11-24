@@ -11,7 +11,7 @@ Es lo primero que se ve al abrir Re-track: la lección donde se dejó, con su ca
 
 - Arriba, el cartel: la carátula de la lección en curso a todo el ancho, su nombre, el porcentaje, el paso que toca («Bass · paso 7 de 8») y el botón «Continuar», que abre ese paso.
 - Debajo, una fila por cada una de las demás lecciones: carátula pequeña, nombre, artista y porcentaje (o «■ OK» si está completada). Pulsar una fila abre su pantalla de lecciones (FDR-001).
-- La última fila, «+ Nueva lección», abre la pantalla de nueva lección (IA). Mientras esa pantalla no exista (#52), la fila está apagada y dice «Próximamente».
+- La última fila, «+ Nueva lección», abre la pantalla de nueva lección (IA).
 - La lección en curso es la última en la que se superó un paso. Si esa ya está completada, la primera que esté a medias; si no hay ninguna, la primera sin empezar.
 - Sin ninguna lección empezada, el cartel enseña la primera con «▸ Por empezar», «0 % · Pad · paso 1 de 10» y el botón «Empezar».
 - Con todas completadas, el cartel enseña la última tocada con «■ Completada» y el botón «Repasar», que abre su pantalla de lecciones.

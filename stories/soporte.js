@@ -5,6 +5,20 @@ import jungle from "../lecciones/jungle.json";
 
 export const modulo = (id) => jungle.modulos.find((m) => m.id === id);
 
+// Lo que contesta el comando `canciones` (pantalla de nueva lección): Jungle, de su JSON, y una segunda de muestra.
+const CANCIONES = [
+  { leccion: "jungle", titulo: jungle.titulo, modulos: jungle.modulos.map((m) => ({ id: m.id, titulo: m.titulo, pasos: m.pasos.length })) },
+  {
+    leccion: "around-the-world",
+    titulo: "Daft Punk — Around the World",
+    modulos: [
+      { id: "drums", titulo: "Drums: el bombo a negras", pasos: 6 },
+      { id: "bass", titulo: "Bass: la línea que no para", pasos: 9 },
+      { id: "synth", titulo: "Synth: el talkbox", pasos: 7 },
+    ],
+  },
+];
+
 // hechos: { idDeMódulo: pasos hechos }. Lo que no se nombra va a 0.
 export const resumen = (hechos = {}) =>
   jungle.modulos.map((m) => ({ id: m.id, titulo: m.titulo, total: m.pasos.length, hechos: hechos[m.id] ?? 0 }));
@@ -20,6 +34,9 @@ function falsoTauri(h) {
         if (comando === "inicio") return h.inicio;
         if (comando === "modulos") return h.modulos;
         if (comando === "conectado") return !h.sinLive;
+        if (comando === "canciones") return h.canciones;
+        if (comando === "crear_leccion" && h.errorCrear) throw h.errorCrear;
+        if (comando === "crear_leccion") return "receta-1";
         if (comando === "pasos") return h.pasos[args.modulo];
         if (comando === "progreso") return { indice: args.modulo === h.abrir ? h.indice : (h.hechos[args.modulo] ?? 0) };
         if (comando === "comprobar") return { hecho: false, indice: h.indice, ...h.comprobar };
@@ -60,6 +77,10 @@ function falsoTauri(h) {
       for (const key of h.revision.teclas ?? []) campo.dispatchEvent(new KeyboardEvent("keydown", { key }));
       await new Promise((r) => setTimeout(r, 0)); // el envío contesta en otro turno
     }
+    if (h.receta) {
+      await abrirReceta();
+      for (const foco of h.receta) document.querySelector(`[data-foco="${foco}"]`).click();
+    }
     document.body.dataset.lista = "si"; // el test de stories espera a esto
   });
 }
@@ -70,13 +91,14 @@ function falsoTauri(h) {
 // revision: { datos, escribir, teclas, fallo } = entra en la pantalla de revisión con esos datos, escribe ese texto en
 // la barra y pulsa esas teclas; fallo: lo que contesta el backend al enviar el comentario.
 // abrir: id del módulo en el que entra; indice: paso que enseña; comprobar: lo que contesta Live; error: lo que falla.
+// receta: abre la pantalla de nueva lección y pulsa, en orden, los botones con esos data-foco; errorCrear: lo que falla al generar.
 // monta: código (texto) que se ejecuta dentro del panel ya arrancado, para enseñar una pieza que aún no sale en ninguna pantalla.
 const PRIMERA = { nombre: "primera", titulo: "Primera lección", total: 3, hechos: 3 };
-export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, monta, pantalla, titulo = jungle.titulo, otras = [PRIMERA], ultima = "jungle", revision } = {}) {
+export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, monta, pantalla, titulo = jungle.titulo, otras = [PRIMERA], ultima = "jungle", revision, receta, errorCrear } = {}) {
   const pasos = Object.fromEntries(jungle.modulos.map((m) => [m.id, m.pasos]));
   const suma = (campo) => resumen(hechos).reduce((s, m) => s + m[campo], 0);
   const inicio = { lecciones: [{ nombre: "jungle", titulo, total: suma("total"), hechos: suma("hechos") }, ...otras], ultima };
-  const h = { pantalla, inicio, modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar, monta, revision };
+  const h = { pantalla, inicio, modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar, monta, revision, receta, errorCrear, canciones: CANCIONES };
   const marco = document.createElement("iframe");
   marco.title = "Panel de Re-track";
   marco.style.cssText = "width:460px;height:460px;border:0;display:block";

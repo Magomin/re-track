@@ -22,3 +22,4 @@ ninguna.
 | [ADR-012](ADR-012-tono-profe-tecnico.md) | Tono de las lecciones: profe técnico | 2026-11-23 |
 | [ADR-013](ADR-013-instrumento-de-medida-cyberpunk.md) | Dirección visual: instrumento de medida con ambiente cyberpunk | 2026-11-23 |
 | [ADR-014](ADR-014-elementos-con-identidad-y-comparacion.md) | Cada elemento tiene dibujo y color propios; la app tendrá que facilitar compararlos (cómo, sin decidir) | 2026-11-24 |
+| [ADR-015](ADR-015-lecciones-creadas-en-carpeta-propia.md) | Una lección creada en la app copia sus módulos y vive en carpeta propia, fuera de las empaquetadas | 2026-11-24 |

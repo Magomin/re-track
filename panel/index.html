@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="panel.css">
   <link rel="stylesheet" href="caratula.css">
   <link rel="stylesheet" href="revision.css">
+  <link rel="stylesheet" href="receta.css">
 </head>
 <body>
   <!-- Barra de título propia (decorations: false): se arrastra desde aquí -->
@@ -14,6 +15,8 @@
     <span id="ruta" data-tauri-drag-region></span>
     <button id="salir-revision">← Inicio</button>
     <label class="elegir"><select id="leccion" aria-label="Lección"></select></label>
+    <!-- Pantalla de nueva lección (FDR-004): se entra con la fila «+ Nueva lección» del inicio y se sale con este botón. -->
+    <button id="salir-receta">← Inicio</button>
     <button id="minimizar" class="ventana" aria-label="Minimizar" title="Minimizar">―</button>
     <button id="cerrar" class="ventana" aria-label="Cerrar" title="Cerrar">✕</button>
   </div>
@@ -74,10 +77,14 @@
     </form>
   </div>
 
+  <!-- La Receta: canciones y sus módulos a la izquierda, la lección que se monta a la derecha (panel/receta.js). -->
+  <div id="vista-receta" hidden></div>
+
   <div class="pie"><span id="live">Live</span><span id="progreso-modulo"></span></div>
 
   <script src="caratula.js"></script>
   <script src="panel.js"></script>
   <script src="revision.js"></script>
+  <script src="receta.js"></script>
 </body>
 </html>

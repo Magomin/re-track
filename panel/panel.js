@@ -525,12 +525,9 @@ async function verInicio() {
     fila.addEventListener("click", () => verModulos(l.nombre));
     return fila;
   });
-  // La pantalla de nueva lección (#52) aún no existe: la fila está, apagada, y lo dice.
   const nueva = crea("button", "lec");
-  nueva.disabled = true;
-  const rotulo = crea("span", "gr", "Nueva lección");
-  rotulo.append(crea("small", "", "Próximamente"));
-  nueva.append(crea("span", "mas", "+"), rotulo);
+  nueva.append(crea("span", "mas", "+"), crea("span", "gr", "Nueva lección"));
+  nueva.addEventListener("click", () => abrirReceta()); // receta.js
   $("filas").replaceChildren(...filas, nueva);
 
   ruta.textContent = "";
