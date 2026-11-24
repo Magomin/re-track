@@ -1,6 +1,6 @@
 # FDR-005: Pantalla de revisión (elementos y barra con #)
 
-**Status:** Draft (diseñada, sin construir)
+**Status:** Draft (pantalla construida en el panel, `panel/revision.js`; falta la generación con IA que le da los datos, hoy solo los tiene en Storybook)
 **Last reviewed:** 2026-11-24
 
 ## Overview
@@ -14,6 +14,8 @@ Es donde se ve lo que la IA saca de una canción y se le corrige. La IA detecta 
 - Abajo, la barra de comentario. Al escribir `#` sale la lista de elementos para elegir uno; el elemento mencionado queda escrito en su color.
 - Al enviar, el comentario queda pegado debajo de su elemento, que se regenera como versión nueva (v2). La v1 se guarda y se puede volver a ella desde las etiquetas «v1 | v2» de la fila.
 - La barra queda libre para otro comentario mientras un elemento se regenera.
+- Un comentario sin `#` no se envía: la barra dice «No se ha enviado: falta señalar un elemento. Escribir # y elegir uno.» y el texto se queda escrito. Lo mismo si el envío falla.
+- Un elemento de un tipo sin dibujo propio lleva el de por defecto: un rombo gris `#8a8a96`.
 
 ## Design Decisions
 
@@ -34,6 +36,18 @@ Es donde se ve lo que la IA saca de una canción y se le corrige. La IA detecta 
 **Decision:** Un comentario crea una versión nueva del elemento y conserva la anterior.
 **Why:** `docs/DESIGN.md`, «Visión ampliada»: nunca se pierde una lección que funcionaba.
 **Tradeoff:** Hay que guardar y enseñar versiones.
+
+### 4. Un comentario, un elemento
+
+**Decision:** El comentario va al primer elemento mencionado; las demás menciones se quedan en el texto.
+**Why:** Cada comentario crea una versión de un elemento y queda pegado bajo él; repartirlo entre varios dejaría la misma frase bajo cada uno, hablando de los otros.
+**Tradeoff:** «#bass y #lead suenan muy altos» hay que escribirlo dos veces.
+
+### 5. El panel no guarda la revisión
+
+**Decision:** Elementos, versiones y comentarios los contesta el backend (`revision`, `comentar`, `elegir_version`; forma de los datos en la cabecera de `panel/revision.js`). El panel pregunta cada segundo mientras quede algo por detectar o generar.
+**Why:** El panel no lleva lógica propia (`CONTEXT.md`, «Panel»), y las versiones tienen que sobrevivir a cerrar la ventana.
+**Tradeoff:** Hasta que existan esos comandos en Rust, la pantalla solo se ve en Storybook; se entra con `verRevision(cancion)`.
 
 ## Related
 
