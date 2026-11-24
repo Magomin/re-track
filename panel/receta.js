@@ -9,8 +9,8 @@ let aviso = ""; // lo último que no se pudo hacer; lo borra la siguiente acció
 // «Fred again.. — Jungle» → «Jungle»; «Pad: el colchón de acordes» → «Pad».
 const nombreCancion = (c) => c.titulo.split(" — ").pop();
 const nombreModulo = (m) => m.titulo.split(":")[0];
-// La carátula de reserva (la inicial sobre rayas); la foto de la canción llega con #51.
-const caratula = (c) => crea("span", "car", nombreCancion(c)[0]);
+// La carátula de reserva (la inicial sobre rayas). shortcut: aún sin la foto de caratula.js (#51); usarla cuando las canciones traigan artista.
+const inicialCancion = (c) => crea("span", "car", nombreCancion(c)[0]);
 const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
 
 // Un botón de la pantalla. `foco` lo identifica entre repintados: quien va con teclado no pierde el sitio.
@@ -45,7 +45,7 @@ function pintarReceta() {
       crea("b", "", nombreCancion(c)),
       crea("small", "", !estaAbierta && cogidas ? `■ ${plural(cogidas, "pieza cogida", "piezas cogidas")}` : ""),
     );
-    const fila = botonReceta(`can ${estaAbierta ? "on" : ""}`, `c:${c.leccion}`, () => (abierta = c.leccion), caratula(c), texto);
+    const fila = botonReceta(`can ${estaAbierta ? "on" : ""}`, `c:${c.leccion}`, () => (abierta = c.leccion), inicialCancion(c), texto);
     fila.setAttribute("aria-expanded", String(estaAbierta));
     lista.append(fila);
     if (!estaAbierta) continue;
