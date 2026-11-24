@@ -67,7 +67,7 @@
 <body>
 <script>
 const MODULOS = [["PAD", "el colchón de acordes", 10], ["LEAD", "la alarma del drop 2", 7], ["BASS", "el sub de los drops", 8],
-  ["DRUMS", "el 909 del drop", 8], ["ARREGLO", "la estructura del tema", 13], ["MEZCLA", "niveles y master", 4]];
+  ["DRUMS", "el 909 del drop", 8], ["ARREGLO", "la estructura del tema", 13], ["MEZCLA", "niveles y master", 6]];
 const P = [[40, 24], [100, 67], [160, 110], [100, 153], [40, 196], [100, 239]];
 const dos = (n) => String(n).padStart(2, "0");
 
@@ -104,7 +104,7 @@ const celda = (nombre, nota, estado) => `<div class="celda"><h2>${nombre}<small>
 document.body.innerHTML =
   celda("Lección empezada", "donde toca seguir, en rojo", { hechos: [10, 7, 6, 0, 0, 0], racha: 4, hoy: 6, que: "Osc-B Level → 0.80–0.92" }) +
   celda("Lección sin empezar", "el primer módulo espera", { hechos: [0, 0, 0, 0, 0, 0], racha: 0, hoy: 0, que: "Tempo a 134 BPM" }) +
-  celda("Lección completada", "todo el camino en amarillo", { hechos: [10, 7, 8, 8, 13, 4], racha: 9, hoy: 4, que: "" }) +
+  celda("Lección completada", "todo el camino en amarillo", { hechos: [10, 7, 8, 8, 13, 6], racha: 9, hoy: 4, que: "" }) +
   celda("Sin Live", "se puede mirar, no comprobar", { hechos: [10, 7, 6, 0, 0, 0], racha: 4, hoy: 0, que: "Osc-B Level → 0.80–0.92", live: false });
 </script>
 </body>

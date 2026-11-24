@@ -18,8 +18,10 @@ function falsoTauri(h) {
         if (comando === "comprobar" && h.error) throw h.error;
         if (comando === "lecciones") return ["jungle", "primera"];
         if (comando === "modulos") return h.modulos;
-        if (comando === "pasos") return h.pasos;
-        if (comando === "progreso") return { indice: h.indice };
+        if (comando === "resumen") return { racha: h.racha, hoy: h.hoy };
+        if (comando === "conectado") return !h.sinLive;
+        if (comando === "pasos") return h.pasos[args.modulo];
+        if (comando === "progreso") return { indice: args.modulo === h.abrir ? h.indice : (h.hechos[args.modulo] ?? 0) };
         if (comando === "comprobar") return { hecho: false, indice: h.indice, ...h.comprobar };
         throw `La story no contesta a ${comando}`;
       },
@@ -27,7 +29,7 @@ function falsoTauri(h) {
   };
   // Entra en el módulo y lanza una comprobación, sin esperar al segundo del setInterval.
   window.addEventListener("load", async () => {
-    while (!document.querySelector(".modulo")) await new Promise((r) => setTimeout(r, 10));
+    while (!document.querySelector(".cta")) await new Promise((r) => setTimeout(r, 10));
     if (h.abrir) {
       await abrirModulo(h.abrir, h.titulo);
       await comprobar();
@@ -36,10 +38,11 @@ function falsoTauri(h) {
   });
 }
 
+// hechos, racha, hoy, sinLive: lo que enseña la pantalla de lecciones.
 // abrir: id del módulo en el que entra; indice: paso que enseña; comprobar: lo que contesta Live; error: lo que falla.
-export function panel({ hechos, abrir, indice = 0, comprobar = {}, error } = {}) {
-  const m = abrir ? modulo(abrir) : null;
-  const h = { modulos: resumen(hechos), abrir, titulo: m?.titulo, pasos: m?.pasos ?? [], indice, comprobar, error };
+export function panel({ hechos = {}, racha = 0, hoy = 0, sinLive = false, abrir, indice = 0, comprobar = {}, error } = {}) {
+  const pasos = Object.fromEntries(jungle.modulos.map((m) => [m.id, m.pasos]));
+  const h = { modulos: resumen(hechos), hechos, racha, hoy, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error };
   const marco = document.createElement("iframe");
   marco.title = "Panel de Re-track";
   marco.style.cssText = "width:460px;height:460px;border:0;display:block";
