@@ -93,6 +93,8 @@
       "tempo": 134,
       "tonalidad": "G#m",
       "pasos": [
+        {"id": "bass-volumen", "instruccion": "Fader de BASS → +2 dB. Es la pista más alta del set: el sub (52 Hz) carga casi toda la energía del drop.", "check": "volumen_en_rango", "valor": {"pista": "BASS", "min": 1, "max": 3}},
+        {"id": "drums-volumen", "instruccion": "Fader de DRUMS → −2.2 dB, 4 dB por debajo del bajo: el kick marca el pulso sin pisar el sub.", "check": "volumen_en_rango", "valor": {"pista": "DRUMS", "min": -3.2, "max": -1.2}},
         {"id": "pad-volumen", "instruccion": "Fader de PAD → −13 dB. A ese nivel el render del pad quedó a 1–3 dB del original (−20 dB RMS en la intro).", "check": "volumen_en_rango", "valor": {"pista": "PAD", "min": -14, "max": -12}},
         {"id": "lead-volumen", "instruccion": "Fader de LEAD → −24 dB. La alarma va ~5 dB bajo el pad: con −23.8 dB el render dio −34 dB en su banda; Fred, −33.", "check": "volumen_en_rango", "valor": {"pista": "LEAD", "min": -25, "max": -23}},
         {"id": "glue", "instruccion": "Glue Compressor en el Master. Compacta el bus entero: con Glue + Limiter el drop 1 dio 7.8 dB de crest; Fred, 7.9.", "check": "device_en_pista", "valor": {"pista": "Master", "device": "GlueCompressor"}},
