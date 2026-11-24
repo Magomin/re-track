@@ -1,12 +1,12 @@
 /* Pantalla de nueva lección (Receta, FDR-004). Copia de docs/design/ia/objetivo.html; body.receta = se está viendo.
    Todo va bajo #vista-receta: no pisa las clases de panel.css. */
 #vista-receta { position: absolute; inset: 54px 20px 32px; display: flex; flex-direction: column; }
-#vista-receta[hidden], #a-inicio, body:not(.inicio) #nueva-leccion, body.receta :is(#nueva-leccion, .elegir) { display: none; }
-body.receta #a-inicio { display: block; }
-/* En la cabecera: entrar a la pantalla y volver de ella, con la letra de la ruta. */
-#nueva-leccion, #a-inicio { margin-right: 8px; padding: 0 4px; border-color: transparent; background: none; color: #fff;
+#vista-receta[hidden], #salir-receta, body.receta .elegir { display: none; }
+body.receta #salir-receta { display: block; }
+/* En la cabecera: volver de la pantalla, con la letra de la ruta. */
+#salir-receta { margin-right: 8px; padding: 0 4px; border-color: transparent; background: none; color: #fff;
   font-size: 12px; line-height: 16px; letter-spacing: .18em; white-space: nowrap; }
-#a-inicio { color: var(--tenue); }
+#salir-receta { color: var(--tenue); }
 
 #vista-receta :where(button:not(.cta)) { padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: 0; text-transform: none; text-align: left; }
 #vista-receta button:focus-visible { outline-offset: -1px; } /* las columnas recortan lo que sobresale */

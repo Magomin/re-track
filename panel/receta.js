@@ -129,20 +129,18 @@ async function abrirReceta() {
   }
   abierta = canciones[0]?.leccion ?? "";
   modulo = null; // como en la pantalla de lecciones: solo se pregunta si Live contesta
-  vistaModulos.hidden = true;
-  vistaPaso.hidden = true;
+  mostrar(null); // oculta inicio, lecciones y paso (panel.js)
   vistaReceta.hidden = false;
   document.body.classList.add("inicio", "receta");
   progresoModulo.textContent = "";
   pintarReceta();
 }
 
-// Sale a la pantalla de lecciones de `nombre`. Cuando exista la pantalla de inicio (#50), «← Inicio» irá a ella.
-function cerrarReceta(nombre = leccion) {
+// Sale a la pantalla de lecciones de `nombre` (la recién creada) o, sin nombre, a la de inicio.
+function cerrarReceta(nombre) {
   vistaReceta.hidden = true;
   document.body.classList.remove("receta");
-  return verModulos(nombre);
+  return nombre ? verModulos(nombre) : verInicio();
 }
 
-$("nueva-leccion").addEventListener("click", abrirReceta);
-$("a-inicio").addEventListener("click", () => cerrarReceta());
+$("salir-receta").addEventListener("click", () => cerrarReceta());

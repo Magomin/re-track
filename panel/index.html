@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <title>Re-track</title>
   <link rel="stylesheet" href="panel.css">
+  <link rel="stylesheet" href="caratula.css">
+  <link rel="stylesheet" href="revision.css">
   <link rel="stylesheet" href="receta.css">
 </head>
 <body>
@@ -11,18 +13,25 @@
   <div class="cab" data-tauri-drag-region>
     <span class="logo" data-t="RE-TRACK" data-tauri-drag-region>RE-TRACK</span>
     <span id="ruta" data-tauri-drag-region></span>
+    <button id="salir-revision">← Inicio</button>
     <label class="elegir"><select id="leccion" aria-label="Lección"></select></label>
-    <!-- Pantalla de nueva lección (FDR-004): se entra con «+ Nueva lección» y se sale con «← Inicio». -->
-    <button id="nueva-leccion">+ Nueva lección</button>
-    <button id="a-inicio">← Inicio</button>
+    <!-- Pantalla de nueva lección (FDR-004): se entra con la fila «+ Nueva lección» del inicio y se sale con este botón. -->
+    <button id="salir-receta">← Inicio</button>
     <button id="minimizar" class="ventana" aria-label="Minimizar" title="Minimizar">―</button>
     <button id="cerrar" class="ventana" aria-label="Cerrar" title="Cerrar">✕</button>
   </div>
   <div class="glitch"></div>
 
-  <div id="vista-modulos">
+  <!-- Pantalla de inicio (el Cartel, FDR-003): lo primero que se ve -->
+  <div id="vista-inicio">
+    <div id="cartel" class="cartel" hidden></div>
+    <div id="filas"></div>
+  </div>
+
+  <div id="vista-modulos" hidden>
     <div class="stats">
       <div><span class="et" id="avance-de"></span><b id="avance"></b></div>
+      <button id="a-inicio">← Inicio</button>
     </div>
     <div id="mapa"></div>
     <div id="siguiente" class="sig-caja"></div>
@@ -52,12 +61,30 @@
     <p id="resultado"></p>
   </div>
 
+  <!-- Pantalla de revisión (FDR-005): los elementos detectados y la barra de comentario con #. La pinta revision.js. -->
+  <div id="vista-revision" hidden>
+    <div class="rev-cabeza"><span id="rev-caratula" class="rev-car"></span><span><b id="rev-titulo"></b><span id="rev-estado" class="rev-suave"></span></span></div>
+    <div id="rev-elementos"></div>
+    <p id="rev-aviso" role="alert"></p>
+    <form id="rev-barra">
+      <ul id="rev-menu" role="listbox" aria-label="Elementos" hidden></ul>
+      <span class="rev-campo">
+        <span id="rev-calco" aria-hidden="true"></span>
+        <input id="rev-comentario" role="combobox" aria-label="Comentario" aria-controls="rev-menu" aria-expanded="false" aria-autocomplete="list"
+          placeholder="Escribir # para señalar un elemento…" autocomplete="off" spellcheck="false">
+      </span>
+      <button id="rev-enviar" aria-label="Enviar el comentario" title="Enviar el comentario">▸</button>
+    </form>
+  </div>
+
   <!-- La Receta: canciones y sus módulos a la izquierda, la lección que se monta a la derecha (panel/receta.js). -->
   <div id="vista-receta" hidden></div>
 
   <div class="pie"><span id="live">Live</span><span id="progreso-modulo"></span></div>
 
+  <script src="caratula.js"></script>
   <script src="panel.js"></script>
+  <script src="revision.js"></script>
   <script src="receta.js"></script>
 </body>
 </html>

@@ -211,11 +211,27 @@ fn reiniciar(leccion: String, modulo: String) -> Result<Value, String> {
     Ok(json!({"indice": 0}))
 }
 
-// Racha y pasos de hoy: de toda la app, no de una lección (FDR-001).
+// Pantalla de inicio (FDR-003): cada lección con su avance, y la última en la que se superó un paso.
 #[tauri::command]
-fn resumen() -> Result<Value, String> {
-    let (racha, hoy) = progreso::resumen(&base_de_datos())?;
-    Ok(json!({"racha": racha, "hoy": hoy}))
+fn inicio() -> Result<Value, String> {
+    let mut filas = Vec::new();
+    for nombre in leccion::listar(&carpeta_lecciones())? {
+        let contenido = cargar(&nombre)?;
+        let (mut total, mut suma) = (0, 0);
+        for m in &contenido.modulos {
+            total += m.pasos.len();
+            suma += m.contar_hechos(&hechos(&nombre, m)?);
+        }
+        filas.push(
+            json!({"nombre": nombre, "titulo": contenido.titulo, "total": total, "hechos": suma}),
+        );
+    }
+    let ultima = progreso::ultimo(&base_de_datos())?.and_then(|clave| {
+        clave
+            .split_once('/')
+            .map(|(leccion, _)| leccion.to_string())
+    });
+    Ok(json!({"lecciones": filas, "ultima": ultima}))
 }
 
 // Para la pantalla de lecciones, que no comprueba ningún paso: ¿contesta Live?
@@ -238,7 +254,7 @@ pub fn run() {
             comprobar,
             progreso,
             reiniciar,
-            resumen,
+            inicio,
             conectado,
             canciones,
             crear_leccion

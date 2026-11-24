@@ -1,0 +1,9 @@
+/* Carátula «digitalizada» (FDR-003, docs/design/propuestas.css): la foto con líneas de VHS, una franja corrida y un filo
+   rojo/cian. Sin foto (.sin): la inicial. Quien la coloca le da el tamaño con --lado. */
+.car { --lado: 64px; position: relative; flex: none; width: var(--lado); aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
+  background: var(--hueco) center/cover; filter: saturate(.7) contrast(1.15); font: 700 calc(var(--lado) / 2)/1 Rajdhani, sans-serif; color: var(--amarillo); }
+.car.sin { background: repeating-linear-gradient(135deg, #1a1a20 0 6px, #141418 6px 12px); filter: none; }
+.car::before { content: ""; position: absolute; inset: 0; background: inherit; clip-path: inset(61% 0 31% 0); transform: translateX(7px); }
+.car::after { content: ""; position: absolute; inset: 0; background:
+  repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px),
+  linear-gradient(90deg, rgba(255,42,61,.22), transparent 25%, transparent 75%, rgba(0,229,255,.22)); }

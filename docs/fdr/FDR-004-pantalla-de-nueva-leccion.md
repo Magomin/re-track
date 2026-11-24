@@ -5,7 +5,7 @@
 
 ## Overview
 
-Aquí se monta una lección nueva con piezas (módulos) de las canciones que ya hay, o soltando una canción nueva. Se llega desde «+ Nueva lección» en la pantalla de inicio (FDR-003); mientras esa pantalla no exista, desde el botón «+ Nueva lección» de la cabecera de la pantalla de lecciones. Aspecto objetivo: `docs/design/ia/objetivo.html` (y su captura `objetivo.png`); se copia fielmente.
+Aquí se monta una lección nueva con piezas (módulos) de las canciones que ya hay, o soltando una canción nueva. Se llega desde «+ Nueva lección» en la pantalla de inicio (FDR-003). Aspecto objetivo: `docs/design/ia/objetivo.html` (y su captura `objetivo.png`); se copia fielmente.
 
 ## Behavior
 
