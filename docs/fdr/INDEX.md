@@ -6,3 +6,4 @@
 | [FDR-002](FDR-002-pantalla-de-paso.md) | Pantalla de paso (Espejo de Live) | Active | 2026-11-24 |
 | [FDR-003](FDR-003-pantalla-de-inicio.md) | Pantalla de inicio (Cartel) | Draft | 2026-11-24 |
 | [FDR-004](FDR-004-pantalla-de-nueva-leccion.md) | Pantalla de nueva lección (Receta) | Draft | 2026-11-24 |
+| [FDR-005](FDR-005-pantalla-de-revision.md) | Pantalla de revisión (elementos y barra con #) | Draft | 2026-11-24 |
