@@ -32,7 +32,7 @@ Aquí se monta una lección nueva con piezas (módulos) de las canciones que ya 
 ## Related
 
 - **ADRs:** ADR-013
-- **FDRs:** FDR-003 (de donde se llega). La pantalla de revisión (comentar lo generado) tiene cuatro propuestas en `docs/design/revision/propuestas.html`, sin elegir.
+- **FDRs:** FDR-003 (de donde se llega). FDR-005 (la pantalla de revisión, a donde lleva «Generar»).
 
 ## Open Questions
 

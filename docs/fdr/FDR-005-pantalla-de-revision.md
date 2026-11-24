@@ -20,7 +20,7 @@ Es donde se ve lo que la IA saca de una canción y se le corrige. La IA detecta 
 ### 1. Lista de elementos y barra con #
 
 **Decision:** Una sola pantalla con los elementos detectados y una barra de texto, en vez de un panel por elemento.
-**Why:** Pedido por Matthieu el 2026-11-24, según su dibujo del 2026-11-03: que detecte los elementos de la canción y que una barra abajo permita mencionarlos con `#` y decir «esto está mal». Las cuatro propuestas anteriores (`propuestas.html`) quedan descartadas.
+**Why:** Pedido por Matthieu el 2026-11-24, según su dibujo del 2026-11-03: que detecte los elementos de la canción y que una barra abajo permita mencionarlos con `#` y decir «esto está mal». Las cuatro propuestas anteriores se descartaron y se borraron (quedan en el historial de git, `docs/design/revision/propuestas.html`).
 **Tradeoff:** El comentario va al elemento entero, no a un paso concreto.
 
 ### 2. Cada elemento se ve distinto
