@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Re-track · pantalla de nueva lección (IA) · aspecto objetivo (Receta)</title>
+<!-- Elegida por Matthieu el 2026-11-24: propuesta D (Receta) de propuestas.html, con un cambio suyo: los módulos a elegir salen
+     justo debajo de la canción seleccionada. Ventana real: 460×460. Canciones, módulos y pasos son de muestra. -->
+<link rel="stylesheet" href="../propuestas.css">
+<style>
+  .aire { position: absolute; inset: 54px 20px 32px; display: flex; flex-direction: column; }
+  .fila { display: flex; align-items: center; gap: 14px; }
+  .gr { flex: 1; min-width: 0; }
+  .suave { font-size: 16px; color: var(--tenue); line-height: 1.25; }
+  .abajo { margin-top: auto; }
+  .chip { display: inline-block; margin: 6px 6px 0 0; padding: 4px 10px; background: var(--hueco); font: 600 14px Rajdhani; color: #fff; }
+  .chip.on { background: var(--amarillo); color: #08080a; }
+  .cols { flex: 1; display: grid; grid-template-columns: 180px 1fr; gap: 20px; }
+  .can { margin-top: 8px; }
+  .can b { font: 700 16px/1.1 Rajdhani; color: var(--tenue); }
+  .can.on b { color: #fff; }
+  .can.on .car { outline: 2px solid var(--amarillo); outline-offset: -2px; }
+  .can small { display: block; font: 500 14px Rajdhani; color: var(--tenue); }
+  .mods { padding: 0 0 8px 10px; margin-left: 27px; border-left: 2px solid var(--amarillo); }
+  .paso { height: 50px; padding: 0 12px; margin-top: 8px; background: var(--panel); border-left: 2px solid var(--amarillo); }
+  .paso b { font: 700 16px Rajdhani; letter-spacing: .08em; color: #fff; }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 10px; text-align: center; font: 700 14px Rajdhani; letter-spacing: .06em; }
+  .dos span { padding: 7px 0; background: var(--panel); color: var(--tenue); }
+  .dos .on { background: var(--hueco); color: #fff; }
+</style>
+</head>
+<body>
+<script src="../propuestas.js"></script>
+<script>
+const [J, W] = L;
+const PIEZAS = [["BASS", J, 8], ["DRUMS", W, 6]];
+const pasos = PIEZAS.reduce((s, p) => s + p[2], 0);
+const MODULOS = [[J, ["Drums", "Bass", "Pad", "Lead"], "Bass"], [W, ["Drums", "Bass", "Synth"], "Drums"]];
+
+// abierta = la canción seleccionada: sus módulos salen justo debajo de ella.
+const pantalla = (abierta) => `<div class="cols"><div><span class="et">Canciones</span>
+    ${MODULOS.map(([l, ms, on]) => `<div class="fila can ${l === abierta ? "on" : ""}">${car(l, 56)}<span class="gr"><b>${l.t}</b><small>${l === abierta ? "" : "■ 1 pieza cogida"}</small></span></div>
+      ${l === abierta ? `<div class="mods">${ms.map((m) => `<span class="chip ${m === on ? "on" : ""}">${m === on ? "■ " : "+ "}${m}</span>`).join("")}</div>` : ""}`).join("")}
+    <div class="fila can"><span class="car sin" style="width:56px;background:none;border:2px dashed #3a3a44;box-sizing:border-box;color:#fff;font-size:18px">+</span><span class="gr"><b class="bl">Otra canción</b><small>mp3 o wav</small></span></div></div>
+  <div><span class="et">La lección</span>${PIEZAS.map(([papel, l, n], i) => `<div class="fila paso"><span class="am num">${i + 1}</span><span class="gr"><b>${papel}</b><br><span class="suave" style="font-size:14px">${l.t}</span></span><span class="te num">${n}</span><span class="te">✕</span></div>`).join("")}</div></div>
+  <div class="abajo"><div class="dos"><span class="on">■ Una detrás de otra</span><span>Mezcladas</span></div>
+    <div class="fila"><span class="suave gr num">■ ${PIEZAS.length} piezas · ${pasos} pasos</span><span class="cta">Generar ▸</span></div></div>`;
+
+document.body.innerHTML = celda("1", "JUNGLE SELECCIONADA", "sus módulos salen debajo de ella", pantalla(J), "← Inicio") +
+  celda("2", "AROUND THE WORLD SELECCIONADA", "se cierran los de Jungle", pantalla(W), "← Inicio");
+console.assert(pasos === 14, "8 + 6 pasos");
+</script>
+</body>
+</html>
