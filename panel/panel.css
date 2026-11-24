@@ -165,13 +165,19 @@ body.inicio .elegir { display: block; }
 .sesion i.lleno { background: #3a3a44; }
 .sesion i.falta { height: 11px; margin: 4px 1px 1px; font: 700 10px/11px Rajdhani, sans-serif; font-style: normal; text-align: center; letter-spacing: .1em; }
 .sesion .nueva i { background: none; border: 1px dashed #3a3a44; height: 11px; }
-.dos { display: grid; grid-template-columns: 150px 26px 1fr; align-items: center; }
+/* El número de un gesto: en el dibujo marca el sitio, en la lista marca el orden. */
+.n { display: inline-block; width: 15px; margin-right: 5px; background: var(--rojo); color: #fff; font: 700 12px/15px Rajdhani, sans-serif;
+  font-style: normal; text-align: center; letter-spacing: 0; }
+.gesto { margin-top: 3px; }
+.dos { display: grid; grid-template-columns: 128px 1fr; gap: 12px; align-items: start; }
+.live-derecha .et { display: block; margin: 12px 0 5px; font-size: 10px; color: var(--tenue); }
+.live-derecha .fila .pieza { flex: 1; font-size: 12px; }
+.cadena { display: flex; gap: 6px; padding: 8px; background: #1a1a1f; }
+.cadena .pieza { flex: 1; padding: 12px 6px; font-size: 12px; white-space: normal; }
 .lista span { display: block; padding: 2px 8px; font: 600 13px Rajdhani, sans-serif; color: #8a8a96; }
 .lista .et { padding: 0 8px 2px; font-size: 10px; color: var(--tenue); }
+.lista span { padding-top: 1px; padding-bottom: 1px; }
 .lista .aqui { margin: 3px 0; color: var(--amarillo); }
-.soltar { min-height: 96px; display: grid; place-items: center; align-content: center; gap: 4px; padding: 0 8px; text-align: center;
-  font: 700 13px Rajdhani, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
-.soltar small { font: 500 12px Rajdhani, sans-serif; letter-spacing: 0; text-transform: none; color: var(--tenue); }
 .arreglo { display: grid; grid-template-columns: 48px 1fr; row-gap: 3px; align-items: center; font: 600 12px Rajdhani, sans-serif; color: var(--amarillo); }
 .regla { position: relative; height: 14px; font-size: 10px; color: var(--tenue); }
 .regla span { position: absolute; top: 0; border-left: 1px solid #3a3a44; padding-left: 3px; }

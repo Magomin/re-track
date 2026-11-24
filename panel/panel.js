@@ -186,7 +186,7 @@ function trozos(destino, partes) {
   destino.replaceChildren(...partes.map((p) => (Array.isArray(p) ? crea("b", "", String(p[0])) : String(p))));
 }
 // Live llama a algunos devices por su nombre de clase.
-const NOMBRE_DEVICE = { DrumGroupDevice: "Drum Rack", GlueCompressor: "Glue Compressor", InstrumentGroupDevice: "Instrument Rack" };
+const NOMBRE_DEVICE = { StereoGain: "Utility", DrumGroupDevice: "Drum Rack", GlueCompressor: "Glue Compressor", InstrumentGroupDevice: "Instrument Rack" };
 const nombreDevice = (clase) => NOMBRE_DEVICE[clase] ?? clase;
 const INSTRUMENTOS = ["Analog", "Drift", "Electric", "Operator", "Sampler", "Wavetable"];
 const igual = (a, b) => a.toLowerCase() === b.toLowerCase(); // Rust compara los nombres de pista sin mayúsculas
@@ -205,6 +205,11 @@ function tituloDe(paso) {
 }
 
 const pieza = (texto, clase = "") => crea("span", `pieza ${clase}`, texto);
+// El número del gesto, pegado al sitio del dibujo donde se hace.
+function marca(n, nodo) {
+  nodo.prepend(crea("em", "n", String(n)));
+  return nodo;
+}
 // Una columna de la vista Session: cabecera y cuatro huecos. `huecos`: "lleno", "falta" o "".
 function columna(nombre, clase, huecos = ["", "", "", ""]) {
   const col = crea("div", clase);
@@ -230,22 +235,47 @@ const ESPEJOS = {
     // Caben cuatro pistas de Live y la que falta; si hay más, la cuarta dice cuántas quedan fuera.
     const visibles = hay.length > 4 ? [...hay.slice(0, 3), `+${hay.length - 3} más`] : hay;
     sesion.append(...visibles.map((p) => columna(p, "")), columna(v, "nueva"));
-    return { zona: "Vista Session · las pistas", dibujo: [sesion], globo: ["▸ Ctrl+Shift+T crea la pista · Ctrl+R la nombra ", [v]] };
+    return {
+      zona: "Vista Session · las pistas",
+      dibujo: [sesion],
+      gestos: [["Ctrl+Shift+T: crea una pista MIDI"], ["Ctrl+R: escribe ", [v], " y pulsa Enter"]],
+    };
   },
+  // Tres gestos y su orden: elegir la pista, encontrar el device, soltarlo en la zona de devices (abajo en Live).
   device_en_pista(v, live) {
     const nombre = nombreDevice(v.device);
+    const instrumento = INSTRUMENTOS.includes(nombre);
     const lista = crea("div", "lista");
-    const vecinos = INSTRUMENTOS.includes(nombre) ? INSTRUMENTOS : ["···", nombre, "···"];
-    lista.append(crea("span", "et", INSTRUMENTOS.includes(nombre) ? "Instrumentos" : "Navegador"),
-      ...vecinos.map((d) => (d === nombre ? crea("span", "aqui", `▸ ${d}`) : crea("span", "", d))));
-    const soltar = crea("div", "soltar falta", `Suéltalo en ${v.pista}`);
-    if (live?.devices?.length) soltar.append(crea("small", "", `ya tiene: ${live.devices.map(nombreDevice).join(", ")}`));
+    // Del navegador basta el device y sus vecinos: el dibujo tiene que caber con los tres gestos debajo.
+    const i = INSTRUMENTOS.indexOf(nombre);
+    const vecinos = instrumento ? INSTRUMENTOS.slice(Math.max(0, i - 1), i + 2) : ["···", nombre, "···"];
+    lista.append(crea("span", "et", instrumento ? "Instruments" : "Navegador"),
+      ...vecinos.map((d) => (d === nombre ? marca(2, crea("span", "aqui", d)) : crea("span", "", d))));
+
+    // Arriba, las pistas (la del paso primero); abajo, sus devices tal como están en Live.
+    const pistas = crea("div", "fila");
+    const otras = (live?.pistas ?? []).filter((p) => !igual(p, v.pista)).slice(0, 2);
+    pistas.append(marca(1, pieza(v.pista, "aqui")), ...otras.map((p) => pieza(p)));
+    const hay = (live?.devices ?? []).map(nombreDevice);
+    const destino = marca(3, pieza(hay.length ? nombre : "Drop an Instrument or Sample Here", "falta"));
+    const cadena = crea("div", "cadena");
+    // Un instrumento va siempre el primero de la cadena; un efecto, detrás de lo que ya hay.
+    cadena.append(...(instrumento ? [destino, ...hay.map((d) => pieza(d))] : [...hay.map((d) => pieza(d)), destino]));
+    const derecha = crea("div", "live-derecha");
+    derecha.append(pistas, crea("span", "et", `Devices de ${v.pista} · abajo en Live`), cadena);
     const dos = crea("div", "dos");
-    dos.append(lista, crea("span", "ro", "▸▸"), soltar);
+    dos.append(lista, derecha);
+
+    const donde = !hay.length ? ["en «Drop an Instrument…»"] : instrumento ? [`delante de ${hay[0]}`] : [`detrás de ${hay.at(-1)}`];
     return {
       zona: `Navegador → pista ${v.pista}`,
       dibujo: [dos],
-      globo: live && !live.devices ? [`▸ Falta la pista ${v.pista}`] : ["▸ Arrastra ", [nombre], ` del navegador a la pista ${v.pista}`],
+      globo: [`▸ Falta la pista ${v.pista}`],
+      gestos: live && !live.devices ? null : [
+        ["Clic en la pista ", [v.pista], ": abajo salen sus devices"],
+        ["Navegador (Ctrl+Alt+B) · busca ", [nombre]],
+        ["Suéltalo abajo, ", donde],
+      ],
     };
   },
   clip_en_pista(v, live) {
@@ -292,10 +322,17 @@ function dibujarEspejo(live = null, detalle = "") {
   const plantilla = paso && ESPEJOS[paso.check];
   $("espejo").hidden = !plantilla;
   if (!plantilla) return;
-  const { zona, dibujo, globo } = plantilla(paso.valor, live, detalle);
+  const { zona, dibujo, globo, gestos } = plantilla(paso.valor, live, detalle);
   $("zona-live").textContent = zona;
   $("dibujo").replaceChildren(...dibujo);
-  trozos($("globo"), globo);
+  // Varios gestos van numerados y en su orden; uno solo, en una línea.
+  if (gestos) {
+    $("globo").replaceChildren(...gestos.map((g, i) => {
+      const linea = crea("div", "gesto");
+      trozos(linea, g);
+      return marca(i + 1, linea);
+    }));
+  } else trozos($("globo"), globo);
 }
 
 function pintar() {
