@@ -20,7 +20,8 @@ test("el cartel dice la lección en curso y el paso que toca, y «Continuar» lo
 
 test("las demás lecciones van en filas, sin repetir la del cartel; una fila abre su pantalla de lecciones y «← Inicio» vuelve", async ({ page }) => {
   const panel = await abrir(page);
-  await expect(panel.locator("#filas .lec")).toHaveText(["Around the WorldDaft Punk0 %", "Primera lecciónRe-track■ OK", "+Nueva lecciónPróximamente"]);
+  await expect(panel.locator("#filas .gr")).toHaveText(["Around the WorldDaft Punk", "Primera lecciónRe-track", "Nueva lecciónPróximamente"]);
+  await expect(panel.locator("#filas .pct")).toHaveText(["0 %", "■ OK"]);
   await panel.getByRole("button", { name: "Around the World" }).click();
   await expect(panel.locator("#vista-modulos")).toBeVisible();
   await expect(panel.locator("#avance-de")).toHaveText("around");
