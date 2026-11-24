@@ -9,7 +9,7 @@ const abrir = async (page, nombre) => {
   await page.goto(`/iframe.html?id=${story.id}&viewMode=story`);
   const panel = page.frameLocator('iframe[title="Panel de Re-track"]');
   await expect(panel.locator('body[data-lista="si"]')).toBeAttached();
-  return panel.locator(".car");
+  return panel.locator("#vista-modulos .car"); // la story las monta ahí; la pantalla de inicio, oculta, tiene las suyas
 };
 
 for (const nombre of ["con foto", "sin conexión, con la foto ya guardada"]) {
