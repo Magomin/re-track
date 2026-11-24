@@ -28,3 +28,6 @@ learn/
 
 
 node_modules/
+
+# Planes y handoffs de sesión
+.context/
