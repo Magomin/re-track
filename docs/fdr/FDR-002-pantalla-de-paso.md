@@ -1,6 +1,6 @@
 # FDR-002: Pantalla de paso (Espejo de Live)
 
-**Status:** Planned
+**Status:** Active
 **Last reviewed:** 2026-11-24
 
 ## Overview
@@ -15,7 +15,11 @@ Es la pantalla en la que se pasa casi todo el tiempo: un paso de la lección, co
 - El espejo dibuja la zona de Live que toca, con su nombre en una pestaña: en gris lo que Live tiene ahora, con marco rojo el sitio donde actuar, en amarillo lo que hay que conseguir.
 - Lo gris es el estado real de Live, leído en cada comprobación: el tempo actual, las pistas que existen, los clips ya colocados.
 - Cuando el paso pide varios gestos y su orden importa (poner un device: elegir la pista, buscarlo, soltarlo abajo), van numerados: el número aparece en el dibujo, en el sitio donde se hace, y en la lista de gestos.
-- El paso de poner un device dibuja la ventana de Ableton en miniatura (navegador a la izquierda, pistas arriba, devices abajo del todo) y una demo en bucle: los gestos se encienden en orden y el device viaja del navegador a su sitio. Con movimiento reducido en el sistema, la demo no se mueve.
+- El espejo es siempre la ventana de Ableton en miniatura, con la misma geografía: barra de control arriba, navegador a la izquierda, la vista (Session o Arrangement) y el detalle abajo del todo. Cada tipo de paso detalla la zona donde se actúa.
+- Cada paso son tres gestos numerados; el número aparece en el dibujo y en la lista. Una demo en bucle los enciende por turno y enseña el resultado: el tempo cambia, la pista nace y recibe su nombre, el device viaja del navegador a su sitio, el clip aparece, el tramo del arreglo se rellena.
+- Parámetro y fader llevan la lectura de Live con su aguja y la zona objetivo dentro del mapa; las notas, el piano roll con lo que falta en rojo.
+- Glitch: lo que aparece entra con glitch, un rasgado cruza el espejo al cambiar de gesto y el título entra con glitch en cada paso nuevo. Con movimiento reducido en el sistema, nada se mueve y se ve el estado final.
+- El porqué ocupa dos líneas como mucho (entero al pasar el ratón); si Live no contesta, el error ocupa su sitio.
 - El texto de la lección queda como el porqué del paso, debajo del espejo.
 - Si falta algo previo (la pista, el device), la línea bajo el espejo lo dice en vez del gesto.
 
@@ -52,6 +56,6 @@ Es la pantalla en la que se pasa casi todo el tiempo: un paso de la lección, co
 
 ## Open Questions
 
-- Llevar el mapa de Live en miniatura y la demo animada al resto de pasos.
 - Qué se ve al superar un paso y al completar un módulo.
-- En el mezclador solo se lee el fader de la pista del paso; los demás se dibujan sin valor.
+- El fader se dibuja como barra horizontal, no como el fader vertical del mezclador.
+- El parámetro se dibuja solo, sin los controles vecinos del device.
