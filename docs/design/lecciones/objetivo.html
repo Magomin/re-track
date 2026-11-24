@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Re-track · pantalla de lecciones · aspecto objetivo (Ruta)</title>
+<!-- Aspecto objetivo de la pantalla de inicio: la propuesta B («Ruta») elegida el 2026-11-24, en sus cuatro estados.
+     Se copia fielmente al panel. Ventana real: 460×460. Módulos y pasos: lecciones/jungle.json; progreso, racha y
+     «hoy» son de muestra. Tokens: panel/index.html (ADR-013). -->
+<style>
+  @font-face { font-family: Rajdhani; font-weight: 500; src: url(../../../panel/fonts/Rajdhani-Medium.ttf); }
+  @font-face { font-family: Rajdhani; font-weight: 600; src: url(../../../panel/fonts/Rajdhani-SemiBold.ttf); }
+  @font-face { font-family: Rajdhani; font-weight: 700; src: url(../../../panel/fonts/Rajdhani-Bold.ttf); }
+  :root {
+    --negro: #08080a; --panel: #111114; --linea: #26262c; --hueco: #24242a;
+    --amarillo: #fcee0a; --rojo: #ff2a3d; --magenta: #ff2fb0; --cian: #00e5ff;
+    --texto: #c9c9cf; --tenue: #6c6c78;
+  }
+  body { margin: 0; padding: 24px; background: #1d1d23; font: 500 15px Rajdhani, sans-serif; color: var(--texto);
+    display: grid; grid-template-columns: 460px 460px; gap: 28px 40px; width: max-content; }
+  .celda h2 { margin: 0 0 8px; font: 700 20px Rajdhani; color: #fff; letter-spacing: .04em; }
+  .celda h2 small { font: 500 15px Rajdhani; color: #9a9aa6; letter-spacing: 0; margin-left: 8px; }
+
+  .app { position: relative; width: 460px; height: 460px; box-sizing: border-box; padding: 12px 16px 0; overflow: hidden;
+    background: var(--negro); border-top: 2px solid var(--amarillo); }
+  .app::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
+  .cab { display: flex; align-items: center; gap: 4px; }
+  .logo { position: relative; font: 700 24px/1 Rajdhani; letter-spacing: .04em; color: var(--amarillo);
+    transform: skewX(-12deg); text-shadow: -2px 0 var(--rojo), 2px 0 var(--cian); }
+  .logo::after { content: "RE-TRACK"; position: absolute; left: 0; top: 0; clip-path: inset(52% 0 30% 0);
+    transform: translateX(5px); text-shadow: -2px 0 var(--magenta); }
+  .ruta { flex: 1; text-align: right; margin-right: 8px; }
+  .et, .ruta { font: 600 12px Rajdhani; letter-spacing: .18em; text-transform: uppercase; color: var(--tenue); }
+  .ruta b { color: #fff; font-weight: 600; }
+  .vent { color: var(--tenue); font-size: 12px; width: 22px; text-align: center; }
+  .glitch { height: 2px; margin: 8px 0 10px;
+    background: linear-gradient(90deg, var(--magenta) 0 12%, transparent 12% 14%, var(--magenta) 14% 17%, transparent 17%); }
+  .pie { position: absolute; left: 16px; right: 16px; bottom: 8px; display: flex; justify-content: space-between;
+    font: 600 12px Rajdhani; letter-spacing: .1em; text-transform: uppercase; color: var(--tenue); }
+  .am { color: var(--amarillo); } .ro { color: var(--rojo); } .bl { color: #fff; } .te { color: var(--tenue); }
+  .num { font-variant-numeric: tabular-nums; }
+  .cta { display: inline-block; padding: 7px 14px; background: var(--amarillo); color: #08080a;
+    font: 700 14px Rajdhani; letter-spacing: .1em; text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%); }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: 4px; }
+  .stats div { border-left: 1px solid var(--linea); padding-left: 9px; }
+  .stats div:first-child { border: 0; padding: 0; }
+  .stats b { display: block; font: 600 24px/1 Rajdhani; color: #fff; }
+  .stats small { font-size: 14px; color: var(--tenue); }
+  .mapa { position: relative; height: 262px; }
+  .mapa svg { position: absolute; inset: 0; }
+  /* Nodo de módulo: ■ hecho (amarillo), ▸ donde toca seguir (rojo, más grande), número = pendiente. */
+  .nodo { position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; display: grid; place-items: center;
+    font: 700 15px Rajdhani; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); background: var(--hueco); color: var(--tenue); }
+  .nodo.on { background: var(--amarillo); color: #08080a; }
+  .nodo.sig { width: 48px; height: 48px; margin: -24px 0 0 -24px; background: var(--rojo); color: #fff; font-size: 17px; }
+  .rot { position: absolute; line-height: 1.15; }
+  .rot b { display: block; font: 700 15px Rajdhani; letter-spacing: .08em; color: #fff; }
+  .rot.off b { color: var(--tenue); }
+  .sig-caja { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-left: 2px solid var(--rojo); background: var(--panel); }
+  .sig-caja.ok { border-color: var(--amarillo); }
+  .sig-caja div { flex: 1; min-width: 0; }
+  .sig-caja strong { display: block; font: 600 17px/1.15 Rajdhani; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+<script>
+const MODULOS = [["PAD", "el colchón de acordes", 10], ["LEAD", "la alarma del drop 2", 7], ["BASS", "el sub de los drops", 8],
+  ["DRUMS", "el 909 del drop", 8], ["ARREGLO", "la estructura del tema", 13], ["MEZCLA", "niveles y master", 4]];
+const P = [[40, 24], [100, 67], [160, 110], [100, 153], [40, 196], [100, 239]];
+const dos = (n) => String(n).padStart(2, "0");
+
+// `hechos`: pasos hechos por módulo. `que`: la instrucción corta del paso donde toca seguir.
+function pantalla({ hechos, racha, hoy, que, live = true }) {
+  const M = MODULOS.map(([n, t, total], i) => ({ n, t, total, hechos: hechos[i] }));
+  const total = M.reduce((s, m) => s + m.total, 0), suma = M.reduce((s, m) => s + m.hechos, 0);
+  const act = M.find((m) => m.hechos < m.total);
+  const hasta = act ? M.indexOf(act) + 1 : M.length; // el camino amarillo llega hasta el módulo en curso
+  const caja = act
+    ? `<div class="sig-caja"><div><span class="et ro">▸ Siguiente · ${act.n} · paso ${dos(act.hechos + 1)}/${dos(act.total)}</span>
+        <strong>${que}</strong></div><span class="cta">${suma ? "Continuar" : "Empezar"} ▸</span></div>`
+    : `<div class="sig-caja ok"><div><span class="et am">■ Lección completada · ${suma}/${total}</span>
+        <strong>Jungle está reconstruida entera.</strong></div><span class="cta">Otra lección ▸</span></div>`;
+  return `<div class="cab"><span class="logo">RE-TRACK</span><span class="ruta"><b>Jungle</b> ▾</span>
+      <span class="vent">―</span><span class="vent">✕</span></div><div class="glitch"></div>
+    <div class="stats"><div><span class="et">Racha</span><b class="num">${racha} <small>${racha === 1 ? "día" : "días"}</small></b></div>
+      <div><span class="et">Hoy</span><b class="num">${hoy} <small>${hoy === 1 ? "paso" : "pasos"}</small></b></div>
+      <div><span class="et">Jungle</span><b class="num ${suma ? "am" : ""}">${Math.round((suma / total) * 100)} %</b></div></div>
+    <div class="mapa"><svg width="428" height="262">
+      <polyline points="${P.map((p) => p.join(",")).join(" ")}" fill="none" stroke="#26262c" stroke-width="6"/>
+      ${hasta > 1 ? `<polyline points="${P.slice(0, hasta).map((p) => p.join(",")).join(" ")}" fill="none" stroke="#fcee0a" stroke-width="6"/>` : ""}</svg>
+      ${M.map((m, i) => { const [x, y] = P[i], e = m.hechos >= m.total ? "on" : m === act ? "sig" : "";
+        return `<div class="nodo ${e}" style="left:${x}px;top:${y}px">${e === "on" ? "■" : e === "sig" ? "▸" : i + 1}</div>
+        <div class="rot ${e ? "" : "off"}" style="top:${y - 17}px;left:${x + 36}px">
+          <b>${m.n} <span class="num" style="font-weight:600;letter-spacing:0">${e === "on" ? `<span class="am">OK</span>`
+            : `<span class="${e ? "bl" : "te"}">${m.hechos}/${m.total}</span>`}</span></b><span class="te">${m.t}</span></div>`; }).join("")}
+    </div>${caja}
+    <div class="pie">${live ? `<span class="am">■ Live conectado</span>` : `<span class="ro">■ Sin Live · abre Ableton para comprobar los pasos</span>`}
+      <span>${suma}/${total} pasos</span></div>`;
+}
+const celda = (nombre, nota, estado) => `<div class="celda"><h2>${nombre}<small>${nota}</small></h2><div class="app">${pantalla(estado)}</div></div>`;
+
+document.body.innerHTML =
+  celda("Lección empezada", "donde toca seguir, en rojo", { hechos: [10, 7, 6, 0, 0, 0], racha: 4, hoy: 6, que: "Osc-B Level → 0.80–0.92" }) +
+  celda("Lección sin empezar", "el primer módulo espera", { hechos: [0, 0, 0, 0, 0, 0], racha: 0, hoy: 0, que: "Tempo a 134 BPM" }) +
+  celda("Lección completada", "todo el camino en amarillo", { hechos: [10, 7, 8, 8, 13, 4], racha: 9, hoy: 4, que: "" }) +
+  celda("Sin Live", "se puede mirar, no comprobar", { hechos: [10, 7, 6, 0, 0, 0], racha: 4, hoy: 0, que: "Osc-B Level → 0.80–0.92", live: false });
+</script>
+</body>
+</html>

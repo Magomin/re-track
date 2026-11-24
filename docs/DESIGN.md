@@ -1,4 +1,4 @@
-# Re-track — diseño (grill 2026-10-11)
+# Re-track — documento de diseño
 
 ## Visión
 
@@ -18,23 +18,59 @@ Re-track = **tutoriales a la carta hechos con piezas de canciones**.
 
 Implicación inmediata: el schema pasa a `Leccion → modulos[] (id, version, tempo, tonalidad) → pasos[]`, y el progreso se guarda por módulo.
 
-## Decisiones cerradas
+## Decisiones
 
-| # | Decisión |
+Las decisiones cerradas viven en `docs/adr/` (índice: `docs/adr/INDEX.md`); el vocabulario, en `CONTEXT.md`; cada funcionalidad visible, en `docs/fdr/`.
+
+## Dirección visual
+
+Instrumento de medida con ambiente cyberpunk (ADR-013). Los valores viven en `panel/index.html`:
+
+| Papel | Valor |
 |---|---|
-| 1 | Herramienta personal primero; productizar solo si la v1 funciona |
-| 2 | Integrado en Ableton: verificación por Remote Script/socket; UI = panel Python always-on-top → overlay transparente por zonas (v2) → pixel-matching fino solo si hace falta (v3) |
-| 3 | Envuelve el pipeline musichelper existente (scout/demucs/medición/render); reescrituras selectivas como ejercicios |
-| 4 | Stack Rust + Tauri 2 (2026-11-22; antes Python + FastAPI + Electron, y antes tkinter). Lógica en módulos Rust sin Tauri; panel HTML/CSS/JS llama por `invoke`. Rune (Anomaly) descartado por ahora: pre-release |
-| 5 | Protocolo enseñanza: ver CLAUDE.md (regla maestra) |
-| 6 | Orden: **lesson player primero** (Jungle como golden data) → **remake runner** después (`claude -p` headless detrás de interfaz `AIProvider`; BYOK futuro cuando usuarios traigan su API key) |
-| 7 | Verificación por niveles: estructura (clip existe, device cargado) → exactitud (notas exactas, params en tolerancia, dB objetivo) |
-| 8 | Repo público. Sin auth/pagos/multiusuario en v1 |
-| 9 | **Solo devices nativos de Ableton** en las lecciones (2026-11-02, Matthieu: "mejor para el usuario", cualquiera con Live puede seguirlas). Sin VST. |
-| 10 | Verificación de sonido con **un check genérico de parámetros** (`class_name` del device + `name` del parámetro + rango), válido para cualquier device nativo. Qué parámetro y qué valor lo decide el pipeline de musichelper midiendo (elements.md), no exploración manual por device. |
-| 11 | **Samples vía Splice opcional**: Re-track detecta si hay Splice disponible y un interruptor en ajustes lo activa o desactiva. Activado → la lección propone samples de Splice (sample-hunter de musichelper, sección C). Desactivado o sin Splice → solo librería local y Core Library. Nunca descarga sin OK del usuario. |
-| 12 | **Tono de las lecciones: profe técnico** (2026-11-23). Sobrio y preciso: acción + dato medido + razón técnica en una frase ("Osc-B Level → 0,80–0,92. El sub de Fred = G#0 + 2.º armónico (−7 dB)"). Sin adornos, emojis ni hype. Los datos salen de `elements.md`. |
-| 13 | **Dirección visual: instrumento de medida con ambiente cyberpunk** (2026-11-23, referencia: arte de Cyberpunk 2077 Phantom Liberty, sin copiar su logo ni su tipografía, que son marca de CD Projekt). Negro; amarillo neón `#fcee0a` = objetivo/bien; rojo `#ff2a3d` = falta/corrige; magenta `#ff2fb0` solo en detalles glitch. Rajdhani (OFL, en `panel/fonts/`) en todo. Logo RE-TRACK: Rajdhani Bold inclinada con desplazamiento rojo/cian y corte glitch. Pasos `parametro_en_rango`: lectura grande del valor + barra con la zona objetivo y una aguja. |
+| Fondo / superficie / línea | `#08080a` / `#111114` / `#26262c` |
+| Objetivo, hecho, bien | amarillo `#fcee0a`, con ■ |
+| Falta, corrige, siguiente | rojo `#ff2a3d`, con ▸ ▲ ▼ |
+| Detalle glitch | magenta `#ff2fb0`, cian `#00e5ff` solo en el desplazamiento del logo |
+| Texto / secundario | `#c9c9cf` / `#6c6c78` |
+| Tipografía | Rajdhani 500/600/700 en todo; cifras tabulares |
+| Formas | esquina superior derecha cortada en cajas y botones; hexágono para los nodos de módulo |
+
+Ventana: 460×460, siempre encima, sin marco. Toda pantalla cabe ahí sin desplazamiento salvo listas largas.
+
+## Pantallas de la versión final
+
+| Pantalla | Qué responde | Estado |
+|---|---|---|
+| Lecciones (Ruta) | ¿Qué toca ahora y cuánto llevo? | Diseñada: `docs/design/lecciones/objetivo.html`, FDR-001. Sin construir (hoy: desplegable + lista) |
+| Lista de lecciones | ¿Qué canciones hay y cómo voy en cada una? | Sin diseñar |
+| Paso | ¿Qué hago en Live y me falta mucho? | Construida: lectura con aguja, piano roll, instrucción. Falta el momento «paso superado» |
+| Módulo completado | ¿Qué he construido y qué viene? | Sin diseñar (hoy: una línea de texto) |
+| Ajustes | Splice sí/no (ADR-011) | Sin diseñar; llega con el remake runner |
+| A la carta | Elegir piezas de varias canciones, back to back o mix | Sin diseñar; v3 |
+
+Cada pantalla nueva pasa por cuatro propuestas antes de construirse (`CLAUDE.md`, «Diseño»).
+
+## Reglas de juego
+
+Decididas con la pantalla de lecciones (FDR-001):
+
+- **Progreso**: pasos superados sobre el total, por módulo y por lección. Un paso solo se supera cuando Live lo confirma.
+- **Racha**: días seguidos con al menos un paso superado, de toda la app.
+- **Hoy**: pasos superados hoy.
+- **Orden libre**: el camino sugiere un orden; ningún módulo se bloquea.
+
+Por decidir, cada una con sus propuestas a la vista:
+
+- Qué pasa en pantalla al superar un paso y al completar un módulo.
+- Precisión: premiar cuánto se acerca el valor al medido en el original, no solo entrar en el rango.
+- Puntos, niveles o retos diarios, y cómo conviven con el tono sobrio de las lecciones (ADR-012).
+
+## Feedback
+
+Lo que ya existe en el paso: la lectura grande con su objetivo, la aguja sobre la zona, «▲ Súbelo / ▼ Bájalo / ■ En su sitio», las notas que faltan en rojo en el piano roll, y el glitch del número al cambiar el valor. Un fallo dice qué no pasó, por qué y qué hacer.
+
+Movimiento: solo `transform` y `opacity`, duraciones en variables CSS con nombre, sin animación en acciones de teclado, y todo se apaga con «reducir movimiento».
 
 ## Lo aprendido del RE de beatspark (v0.4.2, Electron, macOS-only)
 
@@ -44,22 +80,9 @@ Implicación inmediata: el schema pasa a `Leccion → modulos[] (id, version, te
 - Sus lecciones se GRABAN de un humano (lesson-recorder, `"generated": true` + sourceRecording); @anthropic-ai/sdk bundleado sin uso visible. NO generan desde canciones arbitrarias → nuestro diferenciador confirmado.
 - Detalles útiles: step types `info`/`play`/`complete` sin verificación; `trackMatch` por nombre en vez de índice fijo; starter .als por lección; logging a fichero.
 
-## Syllabus (del vídeo + adaptado; cada tema entra cuando el proyecto lo pide)
-
-1. Estructura de proyecto y git — día 1
-2. Contratos tipados: schema de lección + comandos socket (pydantic) — semanas 1-2
-3. pytest — desde la primera lógica
-4. GitHub Actions: pytest on push — semanas 2-3
-5. SQLite para progreso; migración de schema cuando el formato de lección cambie
-6. Evals: cmp.py como harness, Jungle como golden dataset
-7. Runner v2: jobs largos, retries, fallos parciales, dead-letter
-8. Observabilidad: logging a fichero primero; telemetría solo con runner en producción
-
-Descartado: portfolio-driven development, OpenAPI/GraphQL (no hay HTTP), Postgres (SQLite basta), Docker (app escritorio), OpenTelemetry v1.
-
 ## Roadmap
 
-- **v1 — lesson player**: carga lección JSON (Jungle) → API FastAPI (checks en Python) → panel Electron always-on-top muestra paso y llama a la API → verifica contra Live por socket → progreso en SQLite. Una lección jugable end-to-end.
+- **v1 — lesson player** (hecho): carga lección JSON (Jungle) → checks en Rust → panel Tauri siempre encima muestra el paso → verifica contra Live por socket → progreso en SQLite.
 - **v1.5a — módulos**: schema con módulos (id fijo + versión + tempo/tonalidad), progreso por módulo, Jungle partido en Bass / Pad / Arrangement.
 - **v1.5 — Jungle suena** (hecho 2026-11-22: progreso por id de paso con migración, check `parametro_en_rango` con racks, pasos nuevos en Pad/Lead/Bass; el snapshot de Live 12 no trae el texto de pantalla, así que el panel dice súbelo/bájalo. Pendiente: valores legibles vía `str_for_value` en el Remote Script): check `parametro_en_rango` (decisión 10) + notas de BASS y LEAD. Valores legibles en el panel (dB/Hz) con el `chain_device` del Remote Script de musichelper, que devuelve el texto de display de Live y llega a devices dentro de racks. Progreso por id de paso, no por posición (hoy se descoloca al insertar pasos).
 - **v1.5b — segunda canción**: valida que el formato generaliza. RE fino de beatspark si hace falta (su schema completo en `step-types.js`).
