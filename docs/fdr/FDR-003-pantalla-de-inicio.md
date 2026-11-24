@@ -1,6 +1,6 @@
 # FDR-003: Pantalla de inicio (Cartel)
 
-**Status:** Draft (diseñada, sin construir)
+**Status:** Active (construida en #50 con la carátula de reserva; la foto y las mezclas, pendientes de #51 y #54)
 **Last reviewed:** 2026-11-24
 
 ## Overview
@@ -11,7 +11,11 @@ Es lo primero que se ve al abrir Re-track: la lección donde se dejó, con su ca
 
 - Arriba, el cartel: la carátula de la lección en curso a todo el ancho, su nombre, el porcentaje, el paso que toca («Bass · paso 7 de 8») y el botón «Continuar», que abre ese paso.
 - Debajo, una fila por cada una de las demás lecciones: carátula pequeña, nombre, artista y porcentaje (o «■ OK» si está completada). Pulsar una fila abre su pantalla de lecciones (FDR-001).
-- La última fila, «+ Nueva lección», abre la pantalla de nueva lección (IA).
+- La última fila, «+ Nueva lección», abre la pantalla de nueva lección (IA). Mientras esa pantalla no exista (#52), la fila está apagada y dice «Próximamente».
+- La lección en curso es la última en la que se superó un paso. Si esa ya está completada, la primera que esté a medias; si no hay ninguna, la primera sin empezar.
+- Sin ninguna lección empezada, el cartel enseña la primera con «▸ Por empezar», «0 % · Pad · paso 1 de 10» y el botón «Empezar».
+- Con todas completadas, el cartel enseña la última tocada con «■ Completada» y el botón «Repasar», que abre su pantalla de lecciones.
+- Desde la pantalla de lecciones se vuelve con «← Inicio».
 - Carátula: la app busca la foto de la canción por su cuenta y la guarda; la primera vez hace falta conexión. Toda carátula se «digitaliza»: líneas de VHS, una franja corrida y un filo rojo y cian. Si no se encuentra foto, sale la inicial de la lección en amarillo sobre un fondo rayado.
 - Lección mezclada (piezas de varias canciones): su carátula junta las de sus canciones cortadas como una pizza, una porción por canción. Con dos, el corte es la diagonal. Bajo el nombre van las canciones de las que sale.
 - Con más lecciones de las que caben, las filas se desplazan en vertical; el cartel se queda.
@@ -42,6 +46,12 @@ Es lo primero que se ve al abrir Re-track: la lección donde se dejó, con su ca
 **Why:** Es la fuente de las hojas de diseño, no pide cuenta ni clave, y sus imágenes se dejan leer desde el panel. Con la copia, la foto sigue saliendo sin conexión; una canción que no aparece o un fallo de red no se guardan, y se reintenta al abrir la app. Hacerlo en Rust pedía dos dependencias nuevas para el mismo resultado (#51).
 **Tradeoff:** Se coge el primer resultado, que puede ser otra versión de la canción, y no hay forma de corregirlo a mano. La copia vive en los datos del WebView: se pierde si se borran.
 
+### 5. «Donde se dejó» es el último paso superado
+
+**Decision:** El cartel enseña la lección del último paso superado, no la primera de la lista ni la más avanzada.
+**Why:** Es lo que dice el rótulo «Donde se dejó». Decidido al construir (#50), con Matthieu fuera; sustituye a la racha y a los pasos de hoy, que nadie leía desde #48.
+**Tradeoff:** Abrir una lección sin superar ningún paso no la convierte en la del cartel.
+
 ## Related
 
 - **ADRs:** ADR-013
@@ -51,4 +61,3 @@ Es lo primero que se ve al abrir Re-track: la lección donde se dejó, con su ca
 
 - Cómo corregir a mano una carátula cuando el buscador da con otra versión de la canción.
 - Cuántas porciones como máximo antes de resumir («+3»).
-- Sin ninguna lección empezada: qué enseña el cartel.
