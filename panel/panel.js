@@ -20,7 +20,6 @@ const siguiente = $("siguiente");
 const ruta = $("ruta");
 const instruccion = $("instruccion");
 const resultado = $("resultado");
-const roll = $("roll");
 const live = $("live");
 const progresoModulo = $("progreso-modulo");
 
@@ -59,51 +58,8 @@ function enCorto(paso) {
   return `${esVolumen(paso) ? `Volumen ${paso.valor.pista}` : paso.valor.parametro} → ${objetivoDe(paso)}`;
 }
 
-// Mini piano roll: notas que faltan en rojo, las ya puestas en amarillo apagado,
-// las de pasos anteriores de la misma pista en gris para dar contexto.
-function dibujarRoll(faltan = null) {
-  roll.replaceChildren();
-  const paso = pasos[indice];
-  if (!paso || paso.check !== "notas_en_clip") {
-    roll.toggleAttribute("hidden", true); // un <svg> no tiene la propiedad .hidden de HTML
-    return;
-  }
-  const anteriores = pasos
-    .slice(0, indice)
-    .filter((p) => p.check === "notas_en_clip" && p.valor.pista === paso.valor.pista)
-    .flatMap((p) => p.valor.notas);
-  const actuales = paso.valor.notas;
-  const todas = [...anteriores, ...actuales];
-
-  const pitches = [...new Set(todas.map((n) => n.pitch))].sort((a, b) => b - a);
-  const beats = Math.max(4, Math.ceil(Math.max(...todas.map((n) => n.inicio + n.duracion)) / 4) * 4);
-  const izq = 34, fila = 18, ancho = 428, alto = pitches.length * fila + 16;
-  const x = (beat) => izq + (beat / beats) * (ancho - izq);
-  const y = (pitch) => 16 + pitches.indexOf(pitch) * fila;
-  roll.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
-
-  for (const p of pitches) {
-    roll.append(svg("rect", { x: izq, y: y(p), width: ancho - izq, height: fila - 1, fill: "#111114" }));
-    roll.append(svg("text", { x: 2, y: y(p) + 13 }, nombreNota(p)));
-  }
-  for (let b = 0; b <= beats; b++) {
-    const compas = b % 4 === 0;
-    roll.append(svg("line", { x1: x(b), x2: x(b), y1: 14, y2: alto, stroke: compas ? "#3a3a44" : "#1c1c22" }));
-    if (compas && b < beats) roll.append(svg("text", { x: x(b) + 3, y: 11 }, String(b / 4 + 1)));
-  }
-  const pintarNota = (n, atributos) =>
-    roll.append(svg("rect", { x: x(n.inicio) + 1, y: y(n.pitch) + 2, width: x(n.inicio + n.duracion) - x(n.inicio) - 2, height: fila - 5, ...atributos }));
-  for (const n of anteriores) pintarNota(n, { fill: "#2a2a30" });
-  for (const n of actuales) {
-    const falta = faltan === null || faltan.some((f) => f.pitch === n.pitch && f.inicio === n.inicio);
-    pintarNota(n, falta ? { fill: "#ff2a3d", opacity: 0.85 } : { fill: "rgba(252,238,10,.2)", stroke: "#fcee0a" });
-  }
-  roll.toggleAttribute("hidden", false);
-}
-
 // Cambio de valor = efecto glitch: los dígitos se barajan ~0.3 s hasta el número real.
 const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)");
-let ultimoValor = null;
 let animacion = 0;
 function glitchNumero(el, final) {
   cancelAnimationFrame(animacion);
@@ -131,55 +87,6 @@ function glitchNumero(el, final) {
   animacion = requestAnimationFrame(fotograma);
 }
 
-// Pasos parametro_en_rango / volumen_en_rango: lectura grande del valor y barra con la zona objetivo.
-// `actual` = el parámetro tal como lo devuelve Rust ({value, min, max}) o null si aún no se ha leído.
-function dibujarMedida(actual = null) {
-  const paso = pasos[indice];
-  const medida = $("medida");
-  if (!actual) ultimoValor = null; // paso nuevo o sin lectura: el siguiente valor entra sin glitch
-  if (!conMedida(paso)) {
-    medida.hidden = true;
-    return;
-  }
-  const { min, max } = paso.valor;
-  const volumen = esVolumen(paso);
-  const parametro = volumen ? `Volumen ${paso.valor.pista} (dB)` : paso.valor.parametro;
-  const escalaMin = actual && actual.max > actual.min ? actual.min : 0;
-  const escalaMax = actual && actual.max > actual.min ? actual.max : 1;
-  const pos = (v) => `${((v - escalaMin) / (escalaMax - escalaMin)) * 100}%`;
-
-  $("parametro").textContent = parametro;
-  const objetivo = objetivoDe(paso);
-  const texto = actual ? (volumen ? actual.value.toFixed(1) : num(actual.value)) : "—";
-  const numero = Object.assign(document.createElement("span"), { id: "numero", textContent: ultimoValor ?? texto });
-  $("valor").replaceChildren(numero, " ", Object.assign(document.createElement("small"), { textContent: `→ ${objetivo}` }));
-  // Solo anima si cambia un valor ya leído (no al entrar en el paso ni en la primera lectura).
-  if (actual && ultimoValor !== null && ultimoValor !== "—" && texto !== ultimoValor) glitchNumero(numero, texto);
-  else numero.textContent = texto;
-  ultimoValor = actual ? texto : null;
-  $("zona").style.left = pos(min);
-  $("zona").style.width = `max(2px, calc(${pos(max)} - ${pos(min)}))`;
-  const aguja = $("aguja");
-  const accion = $("accion");
-  aguja.hidden = !actual;
-  accion.textContent = "";
-  if (actual) {
-    const dentro = actual.value >= min && actual.value <= max;
-    aguja.style.left = pos(actual.value);
-    aguja.className = dentro ? "ok" : "";
-    accion.className = dentro ? "ok" : "";
-    accion.textContent = dentro ? "■ En su sitio" : actual.value < min ? "▲ Súbelo" : "▼ Bájalo";
-  }
-  // Objetivo de un solo valor (interruptores como "Glide On"): la barra no aporta, basta la lectura.
-  $("medidor").hidden = min === max;
-  $("escalas").hidden = min === max;
-  $("escala-min").textContent = num(escalaMin);
-  $("escala-mid").textContent = num((escalaMin + escalaMax) / 2);
-  $("escala-max").textContent = num(escalaMax);
-  medida.hidden = false;
-}
-
-
 // --- El espejo de Live (FDR-002): una plantilla por tipo de paso; la lección solo trae los datos. ---
 // Trozos de texto: una cadena va en blanco, un array de un elemento va en amarillo (el objetivo).
 function trozos(destino, partes) {
@@ -205,75 +112,184 @@ function tituloDe(paso) {
 }
 
 const pieza = (texto, clase = "") => crea("span", `pieza ${clase}`, texto);
-// El número del gesto, pegado al sitio del dibujo donde se hace.
-function marca(n, nodo) {
+// El número del gesto, pegado al sitio del dibujo donde se hace. La clase g1/g2/g3 lo enciende en su turno de la demo;
+// con `fijo`, el sitio se queda encendido todo el rato (algo aparece en él más tarde).
+function marca(n, nodo, fijo = false) {
   nodo.prepend(crea("em", "n", String(n)));
+  if (!fijo) nodo.classList.add(`g${n}`);
   return nodo;
 }
-// Una columna de la vista Session: cabecera y cuatro huecos. `huecos`: "lleno", "falta" o "".
-function columna(nombre, clase, huecos = ["", "", "", ""]) {
-  const col = crea("div", clase);
-  col.append(pieza(nombre, clase === "nueva" ? "falta" : ""), ...huecos.map((h) => crea("i", h, h === "falta" ? "+ CLIP" : "")));
+// Una zona de la ventana de Live: su rótulo y lo que lleva dentro.
+function zonaDe(clase, rotulo, ...nodos) {
+  const zona = crea("div", clase);
+  zona.append(...(rotulo ? [crea("span", "et", rotulo)] : []), ...nodos);
+  return zona;
+}
+const relleno = (n) => Array.from({ length: n }, () => crea("i", "barra"));
+// Las pistas de Live en una fila; la del paso va la primera, marcada con su número de gesto si lo tiene.
+function filaPistas(live, pista = null, gesto = 0) {
+  const fila = crea("div", "fila");
+  const otras = (live?.pistas ?? []).filter((p) => !pista || !igual(p, pista)).slice(0, pista ? 3 : 4);
+  if (pista) fila.append(gesto ? marca(gesto, pieza(pista, "aqui")) : pieza(pista, "aqui"));
+  fila.append(...otras.map((p) => pieza(p)));
+  if (!fila.children.length) fila.append(pieza("···"));
+  return fila;
+}
+// La ventana de Ableton en miniatura, siempre con la misma geografía: barra de control arriba, navegador a la izquierda,
+// la vista (Session o Arrangement) y abajo del todo el detalle. Cada plantilla detalla la zona donde se actúa.
+function mapaLive(live, { control, nave, arriba, abajo }) {
+  const mapa = crea("div", "mapa-live");
+  mapa.append(
+    control ?? crea("div", "control"),
+    nave ?? zonaDe("nave", "Navegador", ...relleno(3)),
+    arriba ?? zonaDe("pistas", "Pistas", filaPistas(live)),
+    abajo ?? zonaDe("abajo", "Detalle · abajo del todo"),
+  );
+  return mapa;
+}
+// Una columna de la vista Session: cabecera y huecos. `huecos`: nodos <i>.
+function columna(cabecera, huecos = [crea("i", ""), crea("i", "")]) {
+  const col = crea("div", "");
+  col.append(cabecera, ...huecos);
   return col;
 }
+// Dos textos en el mismo sitio: el de ahora se va y el objetivo entra con glitch en el gesto `n` de la demo.
+function cambia(antes, despues, n) {
+  const caja = crea("span", "cambia");
+  caja.append(crea("span", `sale-${n}`, antes), crea("span", `entra-${n} meta`, despues));
+  return caja;
+}
 
-// Cada plantilla devuelve { zona, dibujo: [nodos], globo: trozos }. `live` = lo que Live tiene ahora, o null si aún no ha contestado.
+// Lectura con aguja: el valor de Live sobre la zona objetivo. Devuelve el nodo y cómo moverlo sin repintar.
+function medidor(paso, actual, nombre = null) {
+  const { min, max } = paso.valor;
+  const numero = crea("span", "", "—");
+  numero.id = "numero";
+  const lectura = crea("div", "lectura-grande");
+  lectura.append(numero, " ", crea("small", "", `→ ${objetivoDe(paso)}`));
+  const zona = crea("div", "obj"), aguja = crea("div", "aguja"), carro = crea("div", "carro");
+  carro.append(aguja);
+  const barra = crea("div", "medidor");
+  barra.append(zona, carro);
+  barra.hidden = min === max; // un interruptor (Glide On): la barra no aporta, basta la lectura
+  const caja = crea("div", "medida");
+  if (nombre) lectura.prepend(nombre);
+  caja.append(lectura, barra);
+  let ultimo = null;
+  const ajusta = (a) => {
+    carro.hidden = !a;
+    if (!a) return;
+    const ancho = a.max > a.min ? a.max - a.min : 1, base = a.max > a.min ? a.min : 0;
+    const pos = (x) => ((x - base) / ancho) * 100;
+    zona.style.left = `${pos(min)}%`;
+    zona.style.width = `max(3px, ${pos(max) - pos(min)}%)`;
+    carro.style.transform = `translateX(${pos(a.value)}%)`; // el carro mide lo que la barra: su % es el de la escala
+    aguja.className = a.value >= min && a.value <= max ? "aguja ok" : "aguja";
+    const texto = esVolumen(paso) ? a.value.toFixed(1) : num(a.value);
+    // Solo anima si cambia un valor ya leído (no en la primera lectura).
+    if (ultimo !== null && texto !== ultimo) glitchNumero(numero, texto);
+    else numero.textContent = texto;
+    ultimo = texto;
+  };
+  ajusta(actual);
+  return { caja, ajusta };
+}
+// Hacia dónde hay que mover el valor: -1 subir, 1 bajar, 0 en su sitio, null sin lectura.
+const lado = (paso, a) => (!a ? null : a.value < paso.valor.min ? -1 : a.value > paso.valor.max ? 1 : 0);
+const ordenDe = (l) => (l === null ? "Muévelo" : l < 0 ? "▲ Súbelo" : l > 0 ? "▼ Bájalo" : "■ En su sitio:");
+
+// Piano roll: notas que faltan en rojo discontinuo, las ya puestas en amarillo, las de pasos anteriores en gris.
+function pianoRoll(paso, faltan) {
+  const anteriores = pasos
+    .slice(0, indice)
+    .filter((p) => p.check === "notas_en_clip" && p.valor.pista === paso.valor.pista)
+    .flatMap((p) => p.valor.notas);
+  const actuales = paso.valor.notas;
+  const todas = [...anteriores, ...actuales];
+  const pitches = [...new Set(todas.map((n) => n.pitch))].sort((a, b) => b - a);
+  const beats = Math.max(4, Math.ceil(Math.max(...todas.map((n) => n.inicio + n.duracion)) / 4) * 4);
+  const izq = 30, fila = 10, ancho = 290, alto = pitches.length * fila + 12;
+  const x = (beat) => izq + (beat / beats) * (ancho - izq);
+  const y = (pitch) => 12 + pitches.indexOf(pitch) * fila;
+  const roll = svg("svg", { viewBox: `0 0 ${ancho} ${alto}`, class: "roll" });
+  for (const p of pitches) {
+    roll.append(svg("rect", { x: izq, y: y(p), width: ancho - izq, height: fila - 1, fill: "#111114" }));
+    roll.append(svg("text", { x: 1, y: y(p) + 8 }, nombreNota(p)));
+  }
+  for (let b = 0; b <= beats; b++) {
+    const compas = b % 4 === 0;
+    roll.append(svg("line", { x1: x(b), x2: x(b), y1: 11, y2: alto, stroke: compas ? "#3a3a44" : "#1c1c22" }));
+    if (compas && b < beats) roll.append(svg("text", { x: x(b) + 2, y: 9 }, String(b / 4 + 1)));
+  }
+  const nota = (n, atributos) =>
+    roll.append(svg("rect", { x: x(n.inicio) + 1, y: y(n.pitch) + 1, width: x(n.inicio + n.duracion) - x(n.inicio) - 2, height: fila - 3, ...atributos }));
+  for (const n of anteriores) nota(n, { fill: "#2a2a30" });
+  for (const n of actuales) {
+    const falta = !faltan || faltan.some((f) => f.pitch === n.pitch && f.inicio === n.inicio);
+    nota(n, falta ? { fill: "rgba(255,42,61,.25)", stroke: "#ff2a3d", "stroke-dasharray": "4 2", class: "g3" } : { fill: "rgba(252,238,10,.2)", stroke: "#fcee0a" });
+  }
+  return roll;
+}
+
+// Cada plantilla recibe el valor del paso y lo que contestó `comprobar` (d.live, d.detalle, d.actual, d.faltan; vacío si
+// Live aún no ha contestado) y devuelve { zona, dibujo, gestos | globo, demo, despues, ajusta }.
 const ESPEJOS = {
-  tempo_es(v, live) {
-    const fila = crea("div", "fila");
-    fila.append(pieza("Link"), pieza("Tap"), pieza(live ? live.tempo.toFixed(2) : "—", "aqui lectura"), pieza("4 / 4"), pieza("●"), crea("span", "hueco"), pieza("▶"), pieza("■"));
-    const falta = live ? v - live.tempo : 0;
+  tempo_es(v, d) {
+    const ahora = d.live ? d.live.tempo.toFixed(2) : "—";
+    const caja = marca(1, pieza("", "aqui lectura"), true);
+    caja.append(cambia(ahora, Number(v).toFixed(2), 2), crea("i", "flash-3"));
+    const control = crea("div", "control grande");
+    control.append(pieza("Link"), pieza("Tap"), caja, pieza("4 / 4"), pieza("●"), crea("span", "hueco"), pieza("▶"), pieza("■"));
     return {
-      zona: "Barra de control · arriba a la izquierda",
-      dibujo: [fila],
-      globo: [live ? `${falta > 0 ? "▲ Súbelo" : "▼ Bájalo"} ${num(Math.abs(falta))}: doble clic y escribe ` : "▸ Doble clic en el tempo y escribe ", [num(v)]],
+      zona: "Barra de control · arriba del todo",
+      dibujo: [mapaLive(d.live, { control })],
+      gestos: [[`Doble clic en el tempo${d.live ? ` (ahora ${ahora})` : ""}`], ["Escribe ", [num(v)]], ["Pulsa Enter"]],
+      demo: true,
     };
   },
-  track_existe(v, live) {
+  track_existe(v, d) {
+    const hay = d.live?.pistas ?? [];
+    // Caben tres pistas de Live y la nueva; si hay más, la tercera dice cuántas quedan fuera.
+    const visibles = hay.length > 3 ? [...hay.slice(0, 2), `+${hay.length - 2} más`] : hay;
+    const cabecera = marca(1, pieza("", "falta"), true);
+    cabecera.append(cambia(`${hay.length + 1}-MIDI`, v, 3));
+    const nueva = columna(cabecera);
+    nueva.className = "nueva entra-1";
     const sesion = crea("div", "sesion");
-    const hay = live?.pistas ?? [];
-    // Caben cuatro pistas de Live y la que falta; si hay más, la cuarta dice cuántas quedan fuera.
-    const visibles = hay.length > 4 ? [...hay.slice(0, 3), `+${hay.length - 3} más`] : hay;
-    sesion.append(...visibles.map((p) => columna(p, "")), columna(v, "nueva"));
+    sesion.append(...visibles.map((p) => columna(pieza(p))), nueva);
     return {
       zona: "Vista Session · las pistas",
-      dibujo: [sesion],
-      gestos: [["Ctrl+Shift+T: crea una pista MIDI"], ["Ctrl+R: escribe ", [v], " y pulsa Enter"]],
+      dibujo: [mapaLive(d.live, { arriba: zonaDe("pistas", "Pistas", sesion) })],
+      gestos: [["Ctrl+Shift+T: nace una pista MIDI"], ["Ctrl+R: se puede renombrar"], ["Escribe ", [v], " y pulsa Enter"]],
+      demo: true,
     };
   },
-  // La ventana de Ableton en miniatura, cada zona en su sitio: navegador a la izquierda, pistas arriba, devices abajo
-  // del todo. Tres gestos en orden, y el device viaja animado del navegador a su destino (panel.css, «demo»).
-  device_en_pista(v, live) {
+  // Tres gestos y su orden: elegir la pista, encontrar el device y soltarlo abajo. El device viaja animado a su destino.
+  device_en_pista(v, d) {
     const nombre = nombreDevice(v.device);
     const instrumento = INSTRUMENTOS.includes(nombre);
     const i = INSTRUMENTOS.indexOf(nombre);
     const vecinos = instrumento ? INSTRUMENTOS.slice(Math.max(0, i - 1), i + 2) : ["···", nombre, "···"];
     const origen = marca(2, crea("span", "aqui", nombre));
-    const nave = crea("div", "nave");
-    nave.append(crea("span", "et", "Navegador"), ...vecinos.map((d) => (d === nombre ? origen : crea("span", "", d))));
-
-    const otras = (live?.pistas ?? []).filter((p) => !igual(p, v.pista)).slice(0, 3);
-    const fila = crea("div", "fila");
-    fila.append(marca(1, pieza(v.pista, "aqui")), ...otras.map((p) => pieza(p)));
-    const pistas = crea("div", "pistas");
-    pistas.append(crea("span", "et", "Pistas"), fila);
+    const nave = zonaDe("nave", "Navegador", ...vecinos.map((x) => (x === nombre ? origen : crea("span", "", x))));
 
     // Abajo, los devices de la pista tal como están en Live. Un instrumento va siempre el primero; un efecto, detrás.
-    const hay = (live?.devices ?? []).map(nombreDevice);
+    const hay = (d.live?.devices ?? []).map(nombreDevice);
     const destino = marca(3, pieza(hay.length ? nombre : "Drop an Instrument or Sample Here", "falta"));
     destino.append(crea("i", "destello"));
     const cadena = crea("div", "cadena");
-    const resto = hay.map((d) => pieza(d));
+    const resto = hay.map((x) => pieza(x));
     cadena.append(...(instrumento ? [destino, ...resto] : [...resto, destino]));
-    const abajo = crea("div", "abajo");
-    abajo.append(crea("span", "et", `Devices de ${v.pista} · abajo del todo`), cadena);
-
     const fantasma = crea("div", "fantasma");
     fantasma.append(crea("span", "", `${nombre} ▸`));
-    const mapa = crea("div", "mapa-live");
-    mapa.append(crea("div", "control"), nave, pistas, abajo, fantasma);
+    const mapa = mapaLive(d.live, {
+      nave,
+      arriba: zonaDe("pistas", "Pistas", filaPistas(d.live, v.pista, 1)),
+      abajo: zonaDe("abajo", `Devices de ${v.pista} · abajo del todo`, cadena),
+    });
+    mapa.append(fantasma);
 
-    const sinPista = Boolean(live) && !live.devices;
+    const sinPista = Boolean(d.live) && !d.live.devices;
     const junto = !hay.length ? [] : [instrumento ? `, delante de ${hay[0]}` : `, detrás de ${hay.at(-1)}`];
     return {
       zona: "Tu ventana de Ableton, en pequeño",
@@ -287,29 +303,38 @@ const ESPEJOS = {
       demo: !sinPista,
       // Con el dibujo ya en pantalla: de dónde sale el device y cuánto tiene que viajar.
       despues() {
-        const m = mapa.getBoundingClientRect(), o = origen.getBoundingClientRect(), d = destino.getBoundingClientRect();
+        const m = mapa.getBoundingClientRect(), o = origen.getBoundingClientRect(), z = destino.getBoundingClientRect();
         fantasma.style.left = `${o.left - m.left}px`;
         fantasma.style.top = `${o.top - m.top}px`;
-        mapa.style.setProperty("--dx", `${d.left - o.left + (d.width - fantasma.offsetWidth) / 2}px`);
-        mapa.style.setProperty("--dy", `${d.top - o.top + (d.height - o.height) / 2}px`);
+        mapa.style.setProperty("--dx", `${z.left - o.left + (z.width - fantasma.offsetWidth) / 2}px`);
+        mapa.style.setProperty("--dy", `${z.top - o.top + (z.height - o.height) / 2}px`);
       },
     };
   },
-  clip_en_pista(v, live) {
+  clip_en_pista(v, d) {
+    const llenos = (d.live?.huecos ?? []).slice(0, 3);
+    while (llenos.length < 3) llenos.push(false);
+    const libre = llenos.indexOf(false); // el primer hueco vacío es donde se crea el clip
+    const huecos = llenos.map((lleno, i) => {
+      if (i !== libre) return crea("i", lleno ? "lleno" : "");
+      const hueco = marca(2, crea("i", "falta"), true);
+      hueco.append(crea("b", "entra-3 clip", "clip"));
+      return hueco;
+    });
+    const otras = (d.live?.pistas ?? []).filter((p) => !igual(p, v)).slice(0, 3);
     const sesion = crea("div", "sesion");
-    const huecos = (live?.huecos ?? []).slice(0, 4).map((lleno) => (lleno ? "lleno" : ""));
-    while (huecos.length < 4) huecos.push("");
-    huecos[huecos.indexOf("")] = "falta"; // el primer hueco vacío es donde se crea el clip
-    const otras = (live?.pistas ?? []).filter((p) => !igual(p, v)).slice(0, 4);
-    sesion.append(columna(v, "", huecos), ...otras.map((p) => columna(p, "")));
+    sesion.append(columna(pieza(v, "aqui"), huecos), ...otras.map((p) => columna(pieza(p), [crea("i", ""), crea("i", ""), crea("i", "")])));
+    const sinPista = Boolean(d.live) && !d.live.huecos;
     return {
       zona: `Vista Session · los huecos de ${v}`,
-      dibujo: [sesion],
-      globo: live && !live.huecos ? [`▸ Falta la pista ${v}`] : ["▸ Doble clic en un hueco vacío de ", [v]],
+      dibujo: [mapaLive(d.live, { arriba: zonaDe("pistas", "Pistas", sesion) })],
+      globo: [`▸ Falta la pista ${v}`],
+      gestos: sinPista ? null : [["Vista Session (Tab)"], ["Un hueco vacío de ", [v]], ["Doble clic: nace el clip"]],
+      demo: !sinPista,
     };
   },
-  clip_en_arreglo(v, live, detalle) {
-    const clips = live?.arreglo ?? [];
+  clip_en_arreglo(v, d) {
+    const clips = d.live?.arreglo ?? [];
     // La regla llega al menos al compás 49 y siempre cubre el tramo pedido y lo que ya hay.
     const fin = Math.max(49, ...clips.map((c) => c[1]), v.hasta) + 1;
     const x = (compas) => `${((compas - 1) / (fin - 1)) * 100}%`;
@@ -322,32 +347,91 @@ const ESPEJOS = {
     const regla = crea("div", "regla");
     const cada = fin > 65 ? 16 : 8;
     for (let c = 1; c < fin; c += cada) regla.append(Object.assign(crea("span", "", String(c)), { style: `left:${x(c)}` }));
+    const falta = tramo(v.desde, v.hasta, "falta");
+    falta.append(crea("u", "entra-3", `${v.desde} – ${v.hasta}`));
     const carril = crea("div", "carril");
-    carril.append(...clips.map((c) => tramo(c[0], c[1], "hay")), tramo(v.desde, v.hasta, "falta", `${v.desde} – ${v.hasta}`));
+    carril.append(...clips.map((c) => tramo(c[0], c[1], "hay")), falta);
     const arreglo = crea("div", "arreglo");
     arreglo.append(crea("span", ""), regla, crea("span", "", v.pista), carril);
+    const sinPista = (d.detalle ?? "").startsWith("No encuentro");
     return {
       zona: "Vista Arrangement",
-      dibujo: [arreglo],
-      globo: detalle ? [`▸ ${detalle}`] : ["▸ Falta ", [v.pista], ` de ${v.desde} a ${v.hasta} · Ctrl+D duplica el clip`],
+      dibujo: [mapaLive(d.live, { arriba: zonaDe("pistas", "Arrangement · la línea de tiempo", arreglo) })],
+      globo: [`▸ ${d.detalle}`],
+      gestos: sinPista ? null : [
+        ["Vista Arrangement (Tab)"],
+        ["Clip de ", [v.pista], ` desde el compás ${v.desde}`],
+        // Si ya hay un clip pero mal colocado, Rust dice de dónde a dónde suena.
+        (d.detalle ?? "").includes("suena") ? [d.detalle] : ["Que acabe en el ", [v.hasta], " · Ctrl+D lo duplica"],
+      ],
+      demo: !sinPista,
+    };
+  },
+  parametro_en_rango(v, d) {
+    return conAguja(this.paso, d, {
+      zona: `${nombreDevice(v.device)} · pista ${v.pista}`,
+      arriba: (live) => zonaDe("pistas", "", filaPistas(live, v.pista, 1)),
+      abajo: (caja) => zonaDe("abajo", `${nombreDevice(v.device)} de ${v.pista} · abajo del todo`, caja),
+      nombre: marca(2, crea("span", "control-nombre", v.parametro)),
+      gestos: [["Clic en la pista ", [v.pista]], ["Abajo, en ", [nombreDevice(v.device)], `: ${v.parametro}`]],
+    });
+  },
+  volumen_en_rango(v, d) {
+    return conAguja(this.paso, d, {
+      zona: "Mezclador · vista Session",
+      arriba: (live, caja) => zonaDe("pistas", "Pistas · sus faders", filaPistas(live, v.pista, 2), caja),
+      nombre: crea("span", "control-nombre", "Fader"),
+      gestos: [["Vista Session (Tab)"], ["El fader de ", [v.pista], " (dB)"]],
+    });
+  },
+  notas_en_clip(v, d) {
+    const faltan = d.faltan ? [...new Set(d.faltan.map((f) => f.nombre))].join(" · ") : "";
+    const abajo = zonaDe("abajo", `Piano roll de ${v.pista} · abajo del todo`, pianoRoll(this.paso, d.faltan ?? null));
+    marca(2, abajo.firstChild);
+    return {
+      zona: `Piano roll · clip de ${v.pista}`,
+      dibujo: [mapaLive(d.live, { arriba: zonaDe("pistas", "", filaPistas(d.live, v.pista, 1)), abajo })],
+      gestos: [["Doble clic en el clip de ", [v.pista]], ["Abajo se abre el piano roll"], faltan ? ["Faltan ", [faltan]] : ["Dibuja las notas rojas (B: lápiz)"]],
+      demo: true,
     };
   },
 };
+// Parámetro y fader comparten la lectura con aguja; cambia la zona de Live donde vive.
+function conAguja(paso, d, { zona, arriba, abajo, gestos, nombre }) {
+  const sinLectura = Boolean(d.detalle) && !d.actual; // falta la pista, el device o el parámetro: Rust dice cuál
+  const { caja, ajusta } = medidor(paso, d.actual ?? null, nombre);
+  const l = lado(paso, d.actual);
+  return {
+    zona,
+    dibujo: [mapaLive(d.live, { arriba: arriba(d.live, abajo ? null : caja), abajo: abajo?.(caja) })],
+    globo: [`▸ ${d.detalle}`],
+    gestos: sinLectura ? null : [...gestos, [`${ordenDe(l)} ${l === 0 ? "" : "hasta "}`, [objetivoDe(paso)]]],
+    demo: !sinLectura,
+    ajusta: (datos) => ajusta(datos.actual ?? null),
+  };
+}
 
-// Lo último dibujado: si Live contesta lo mismo que hace un segundo no se repinta, y la animación no vuelve a empezar.
-let espejoPintado = "";
-function dibujarEspejo(live = null, detalle = "") {
+// Lo último dibujado. Si Live contesta lo mismo que hace un segundo no se repinta (la demo no vuelve a empezar);
+// si solo cambia el valor leído, se mueve la aguja sobre el mismo dibujo.
+let espejo = { clave: "", ajusta: null };
+function dibujarEspejo(d = {}) {
   const paso = pasos[indice];
-  const plantilla = paso && ESPEJOS[paso.check];
-  $("espejo").hidden = !plantilla;
-  const clave = JSON.stringify([leccion, modulo, indice, live, detalle]);
-  if (!plantilla || clave === espejoPintado) return;
-  espejoPintado = clave;
-  const { zona, dibujo, globo, gestos, demo, despues } = plantilla(paso.valor, live, detalle);
+  if (!paso) {
+    $("espejo").hidden = true;
+    return;
+  }
+  const clave = JSON.stringify([leccion, modulo, indice, d.live, d.detalle, d.faltan, Boolean(d.actual), lado(paso, d.actual)]);
+  if (clave === espejo.clave) {
+    espejo.ajusta?.(d);
+    return;
+  }
+  const { zona, dibujo, globo, gestos, demo, despues, ajusta } = ESPEJOS[paso.check].call({ paso }, paso.valor, d);
+  espejo = { clave, ajusta };
+  $("espejo").hidden = false;
   $("zona-live").textContent = zona;
   $("dibujo").replaceChildren(...dibujo);
   $("espejo").classList.toggle("demo", Boolean(demo));
-  // Varios gestos van numerados y en su orden; uno solo, en una línea.
+  // Los gestos van numerados y en su orden; si falta algo previo (la pista, el device), una sola línea lo dice.
   if (gestos) {
     $("globo").replaceChildren(...gestos.map((g, i) => {
       const linea = crea("div", "gesto");
@@ -367,16 +451,18 @@ function pintar() {
   // El progreso va por id: `indice` es el primer paso sin hacer, y los tramos lo pintan como «hasta aquí».
   $("tramos").replaceChildren(...pasos.map((_, i) => crea("i", i < indice ? "on" : i === indice ? "sig" : "")));
   $("haz").hidden = completo;
-  trozos($("titulo"), completo ? [["■ Módulo completado"]] : tituloDe(paso));
-  // Con el título diciendo la orden, el texto de la lección es el porqué; en las notas aún lleva el cómo (#35).
-  instruccion.className = completo || paso.check === "notas_en_clip" ? "" : "porque";
-  instruccion.textContent = completo ? "" : paso.instruccion;
-  const conEspejo = !completo && paso.check in ESPEJOS;
-  resultado.className = "espera";
-  resultado.textContent = completo || conEspejo ? "" : "Esperando a Live…";
+  const titulo = $("titulo");
+  trozos(titulo, completo ? [["■ Módulo completado"]] : tituloDe(paso));
+  // Paso nuevo: el título entra con glitch.
+  titulo.classList.remove("glitch-on");
+  void titulo.offsetWidth;
+  titulo.classList.add("glitch-on");
+  instruccion.textContent = completo ? "" : paso.instruccion; // el título dice la orden; esto es el porqué
+  instruccion.title = instruccion.textContent; // se corta a dos líneas: entero, al pasar el ratón
+  instruccion.hidden = false;
+  resultado.textContent = "";
+  espejo = { clave: "", ajusta: null };
   dibujarEspejo();
-  dibujarMedida();
-  dibujarRoll();
 }
 
 // Pantalla de lecciones: la lección como un camino de módulos (FDR-001). Todo sale del JSON de la lección.
@@ -518,26 +604,17 @@ async function comprobar() {
     if (datos.hecho) {
       indice = datos.indice; // el siguiente sin hacer (Rust ya lo ha guardado en SQLite)
       pintar();
-    } else if (pasos[indice].check in ESPEJOS) {
-      dibujarEspejo(datos.live, datos.detalle); // lo que Live tiene ahora, dentro del dibujo
-      resultado.textContent = "";
-    } else if (datos.detalle) {
-      dibujarMedida(datos.actual); // parámetro o volumen: aguja sobre el valor actual en Live
-      resultado.className = datos.actual ? "espera" : "";
-      resultado.textContent = datos.actual ? "" : datos.detalle; // sin parámetro: qué falta (pista, device…)
-    } else if (datos.faltan) {
-      resultado.className = "";
-      resultado.textContent = `Faltan: ${datos.faltan.map((f) => `${f.nombre} (compás ${f.compas}, ${f.duracion} beats)`).join(" · ")}`;
-      dibujarRoll(datos.faltan);
     } else {
-      resultado.className = "espera";
-      resultado.textContent = "Esperando a Live…";
+      dibujarEspejo(datos); // lo que Live tiene ahora, dentro del dibujo
+      instruccion.hidden = false;
+      resultado.textContent = "";
     }
   } catch (error) {
     const sinLive = String(error).startsWith("No conecto con Ableton");
     estadoLive(!sinLive);
     resultado.className = "";
     resultado.textContent = String(error); // el Err(String) del comando Rust
+    instruccion.hidden = true; // el error ocupa el sitio del porqué: los dos no caben
   } finally {
     ocupado = false;
   }
