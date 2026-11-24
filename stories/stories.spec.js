@@ -22,3 +22,15 @@ for (const story of stories) {
     expect(errores, "la story escribe errores en la consola").toEqual([]);
   });
 }
+
+// #61: el mapa sigue el alto de la ventana (262 px a 460, el diseño; más a 700).
+test("el mapa crece con la ventana", async ({ page }) => {
+  const alto = async (id) => {
+    await page.goto(`/iframe.html?id=${id}&viewMode=story`);
+    const panel = page.frameLocator('iframe[title="Panel de Re-track"]');
+    await expect(panel.locator('body[data-lista="si"]')).toBeAttached();
+    return (await panel.locator("#mapa").boundingBox()).height;
+  };
+  expect(await alto("pantalla-de-lecciones--empezada"), "a 460 de alto el mapa debe medir 262 px, como en docs/design").toBe(262);
+  expect(await alto("pantalla-de-lecciones--ventana-grande"), "el mapa no crece con la ventana: mira #mapa en panel/panel.css").toBe(502);
+});

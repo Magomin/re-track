@@ -39,14 +39,15 @@ function falsoTauri(h) {
 }
 
 // hechos, sinLive: lo que enseña la pantalla de lecciones.
+// alto: alto de la ventana en px (460 por defecto).
 // pulsar: selector de un botón que se pulsa al final.
 // abrir: id del módulo en el que entra; indice: paso que enseña; comprobar: lo que contesta Live; error: lo que falla.
-export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar } = {}) {
+export function panel({ hechos = {}, sinLive = false, abrir, indice = 0, comprobar = {}, error, pulsar, alto = 460 } = {}) {
   const pasos = Object.fromEntries(jungle.modulos.map((m) => [m.id, m.pasos]));
   const h = { modulos: resumen(hechos), hechos, sinLive, abrir, titulo: abrir && modulo(abrir).titulo, pasos, indice, comprobar, error, pulsar };
   const marco = document.createElement("iframe");
   marco.title = "Panel de Re-track";
-  marco.style.cssText = "width:460px;height:460px;border:0;display:block";
+  marco.style.cssText = `width:460px;height:${alto}px;border:0;display:block`;
   const base = new URL("panel/", document.baseURI);
   fetch(new URL("index.html", base))
     .then((r) => r.text())
