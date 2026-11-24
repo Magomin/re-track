@@ -5,6 +5,7 @@
 <title>Re-track · pantalla de revisión · elementos detectados y barra con # (cuatro momentos)</title>
 <!-- 2026-11-24, según lo que pidió Matthieu (su dibujo del 2026-11-03): la IA detecta los elementos de la canción y abajo hay
      una barra donde se mencionan con # para decir qué está mal. Corregir crea una versión nueva sin borrar la anterior.
+     Cada elemento tiene personalidad propia: su dibujo y su color (ADR-014); amarillo y rojo siguen siendo solo señal.
      Sustituye a las cuatro propuestas de propuestas.html. Ventana real: 460×460. Elementos, pasos y comentarios son de muestra. -->
 <link rel="stylesheet" href="../propuestas.css">
 <style>
@@ -14,52 +15,64 @@
   .suave { font-size: 15px; color: var(--tenue); }
   .cabeza { margin-bottom: 8px; }
   .cabeza b { display: block; font: 700 24px/1 Rajdhani; color: #fff; }
+  /* --c = el color del elemento. El hexágono lleva su dibujo; la almohadilla, su color. */
   .el { height: 40px; font: 700 18px Rajdhani; color: #fff; }
-  .el .hex { width: 26px; height: 26px; }
-  .el.no { color: var(--tenue); }
+  .el .hex { width: 34px; height: 34px; background: var(--c); color: #08080a; }
+  .el svg, .menu svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: square; }
+  .el i, .barra i, .menu i { font-style: normal; color: var(--c); }
+  .el.no { opacity: .3; }
   .est { font: 700 14px Rajdhani; }
   .chip { display: inline-block; margin-left: 4px; padding: 2px 8px; background: var(--hueco); font: 600 13px Rajdhani; color: #fff; }
   .chip.on { background: var(--amarillo); color: #08080a; }
-  .nota { margin: 0 0 4px 38px; padding: 4px 10px; border-left: 2px solid var(--rojo); background: var(--panel); font: 600 15px Rajdhani; color: #fff; }
+  .nota { margin: 0 0 4px 46px; padding: 4px 10px; border-left: 2px solid var(--rojo); background: var(--panel); font: 600 15px Rajdhani; color: #fff; }
   .barra { position: relative; margin-top: auto; padding: 0 12px; height: 46px; background: var(--panel); border-bottom: 2px solid var(--amarillo); font: 600 17px Rajdhani; color: #fff; }
   .barra .te { font-weight: 500; }
   .cursor { display: inline-block; width: 8px; height: 18px; background: var(--rojo); vertical-align: -3px; margin-left: 2px; }
   .menu { position: absolute; left: 0; bottom: 52px; width: 190px; padding: 4px 0; background: #1a1a20; border: 1px solid var(--linea); }
-  .menu div { padding: 5px 12px; font: 600 16px Rajdhani; color: var(--texto); }
-  .menu .on { background: var(--amarillo); color: #08080a; }
+  .menu div { display: flex; align-items: center; gap: 10px; padding: 5px 12px; font: 600 16px Rajdhani; color: #fff; }
+  .menu svg { color: var(--c); }
+  .menu .on { background: var(--hueco); border-left: 2px solid var(--amarillo); }
 </style>
 </head>
 <body>
 <script src="../propuestas.js"></script>
 <script>
 const J = L[0];
-const ELEMENTOS = [["drums", 10], ["bass", 8], ["pad", 13], ["lead", 6], ["arreglo", 14]];
-const tag = (n) => `<span class="am">#${n}</span>`;
-// estados por elemento: "ok" hecho, "gen" generándose, "no" aún sin detectar. extra: lo que va a la derecha y debajo.
-const fila = ([n, pasos], e, derecha = "", debajo = "") => `<div class="fila el ${e === "no" ? "no" : ""}"><span class="hex ${e === "ok" ? "on" : e === "gen" ? "sig" : ""}">${e === "ok" ? "■" : e === "gen" ? "▸" : ""}</span>
-    <span class="gr">#${n}</span>${derecha || (e === "ok" ? `<span class="suave num">${pasos} pasos</span>` : e === "gen" ? `<span class="est ro">▸ Generando</span>` : `<span class="suave">…</span>`)}</div>${debajo}`;
+// Cada elemento: nombre, pasos, color y dibujo (24×24). Ni amarillo ni rojo: esos son señal.
+const ELEMENTOS = [
+  ["drums", 10, "#00e5ff", `<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/><path d="M14 4h6v6h-6z" fill="currentColor"/>`], // cuatro pads, uno golpeado
+  ["bass", 8, "#9d7bff", `<path d="M2 12C6 0 9 0 12 12s6 12 10 0"/>`], // una onda grave, ancha
+  ["pad", 13, "#3dffb0", `<path d="M2 15C8 3 16 3 22 15M2 20h20"/>`], // una nota que crece despacio y se sostiene
+  ["lead", 6, "#4d8dff", `<path d="M2 19l6-10 5 6 9-12"/>`], // una melodía que sube
+  ["arreglo", 14, "#e6e6ec", `<path d="M2 6h9M14 6h8M2 12h5M10 12h12M2 18h14M19 18h3"/>`], // clips en una línea de tiempo
+];
+const dibujo = (el) => `<svg viewBox="0 0 24 24">${el[3]}</svg>`;
+const tag = (el) => `<i style="--c:${el[2]}">#${el[0]}</i>`;
+// estados por elemento: "ok" hecho, "gen" generándose, "no" aún sin detectar.
+const fila = (el, e, derecha = "", debajo = "") => `<div class="fila el ${e === "no" ? "no" : ""}" style="--c:${el[2]}"><span class="hex">${dibujo(el)}</span>
+    <span class="gr"><i>#</i>${el[0]}</span>${derecha || (e === "ok" ? `<span class="suave num">${el[1]} pasos</span>` : e === "gen" ? `<span class="est ro">▸ Generando</span>` : `<span class="suave">…</span>`)}</div>${debajo}`;
 const cabeza = (texto) => `<div class="fila cabeza">${car(J, 52)}<span class="gr"><b>${J.t}</b><span class="suave">${texto}</span></span></div>`;
 const barra = (html, menu = "") => `<div class="fila barra">${menu}<span class="gr">${html}</span><span class="am">▸</span></div>`;
-const todos = (i, d, b) => ELEMENTOS.map((el, k) => (k === i ? fila(el, d ? "gen" : "ok", d, b) : fila(el, "ok"))).join("");
+const todos = (i, d, b) => ELEMENTOS.map((el, k) => (k === i ? fila(el, "gen", d, b) : fila(el, "ok"))).join("");
+const BASS = ELEMENTOS[1], total = ELEMENTOS.reduce((s, e) => s + e[1], 0);
+const hueco = `<span class="te">Escribir # para señalar un elemento…</span>`;
 
 // 1 · Detectando: los elementos van apareciendo según la IA los encuentra.
-const UNO = cabeza("Detectando elementos · 3 de 5") + ELEMENTOS.map((el, k) => fila(el, k < 2 ? "ok" : k === 2 ? "gen" : "no")).join("") +
-  barra(`<span class="te">Escribir # para señalar un elemento…</span>`);
+const UNO = cabeza("Detectando elementos · 3 de 5") + ELEMENTOS.map((el, k) => fila(el, k < 2 ? "ok" : k === 2 ? "gen" : "no")).join("") + barra(hueco);
 
 // 2 · Al escribir #: salen los elementos para elegir.
-const DOS = cabeza("5 elementos · 51 pasos") + todos(-1) +
-  barra(`#b<span class="cursor"></span>`, `<div class="menu"><div class="on">■ #bass</div><div>#drums</div><div>#pad</div><div>#lead</div><div>#arreglo</div></div>`);
+const DOS = cabeza(`5 elementos · ${total} pasos`) + todos(-1) +
+  barra(`#b<span class="cursor"></span>`, `<div class="menu">${[1, 0, 2, 3, 4].map((k, n) => `<div class="${n ? "" : "on"}" style="--c:${ELEMENTOS[k][2]}">${dibujo(ELEMENTOS[k])}<span><i>#</i>${ELEMENTOS[k][0]}</span></div>`).join("")}</div>`);
 
-// 3 · El comentario escrito, con el elemento mencionado.
-const TRES = cabeza("5 elementos · 51 pasos") + todos(-1) + barra(`${tag("bass")} está mal, el ataque es más corto<span class="cursor"></span>`);
+// 3 · El comentario escrito, con el elemento mencionado en su color.
+const TRES = cabeza(`5 elementos · ${total} pasos`) + todos(-1) + barra(`${tag(BASS)} está mal, el ataque es más corto<span class="cursor"></span>`);
 
 // 4 · Enviado: el comentario queda pegado a su elemento, que se regenera como v2; la v1 se guarda.
-const CUATRO = cabeza("5 elementos · 51 pasos") + todos(1, `<span><span class="chip">v1</span><span class="chip on">▸ v2</span></span>`, `<div class="nota">«está mal, el ataque es más corto»</div>`) +
-  barra(`<span class="te">Escribir # para señalar un elemento…</span>`);
+const CUATRO = cabeza(`5 elementos · ${total} pasos`) + todos(1, `<span><span class="chip">v1</span><span class="chip on">▸ v2</span></span>`, `<div class="nota">«está mal, el ataque es más corto»</div>`) + barra(hueco);
 
 document.body.innerHTML = celda("1", "DETECTANDO", "los elementos van apareciendo", UNO, "← Inicio") + celda("2", "AL ESCRIBIR #", "se elige el elemento", DOS, "← Inicio") +
   celda("3", "EL COMENTARIO", "el elemento va mencionado", TRES, "← Inicio") + celda("4", "ENVIADO", "el elemento se regenera como v2", CUATRO, "← Inicio");
-console.assert(ELEMENTOS.reduce((s, e) => s + e[1], 0) === 51, "51 pasos");
+console.assert(total === 51, "51 pasos");
 </script>
 </body>
 </html>

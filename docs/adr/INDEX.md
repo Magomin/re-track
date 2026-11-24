@@ -21,3 +21,4 @@ ninguna.
 | [ADR-011](ADR-011-samples-via-splice-opcional.md) | Samples vía Splice, opcional y nunca sin OK del usuario | 2026-10-11 |
 | [ADR-012](ADR-012-tono-profe-tecnico.md) | Tono de las lecciones: profe técnico | 2026-11-23 |
 | [ADR-013](ADR-013-instrumento-de-medida-cyberpunk.md) | Dirección visual: instrumento de medida con ambiente cyberpunk | 2026-11-23 |
+| [ADR-014](ADR-014-elementos-con-identidad-y-comparacion.md) | Cada elemento tiene dibujo y color propios; la app tendrá que facilitar compararlos (cómo, sin decidir) | 2026-11-24 |
