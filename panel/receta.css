@@ -1,0 +1,60 @@
+/* Pantalla de nueva lección (Receta, FDR-004). Copia de docs/design/ia/objetivo.html; body.receta = se está viendo.
+   Todo va bajo #vista-receta: no pisa las clases de panel.css. */
+#vista-receta { position: absolute; inset: 54px 20px 32px; display: flex; flex-direction: column; }
+#vista-receta[hidden], #salir-receta, body.receta .elegir { display: none; }
+body.receta #salir-receta { display: block; }
+/* En la cabecera: volver de la pantalla, con la letra de la ruta. */
+#salir-receta { margin-right: 8px; padding: 0 4px; border-color: transparent; background: none; color: #fff;
+  font-size: 12px; line-height: 16px; letter-spacing: .18em; white-space: nowrap; }
+#salir-receta { color: var(--tenue); }
+
+#vista-receta :where(button:not(.cta)) { padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: 0; text-transform: none; text-align: left; }
+#vista-receta button:focus-visible { outline-offset: -1px; } /* las columnas recortan lo que sobresale */
+#vista-receta .et { display: block; }
+#vista-receta .gr { flex: 1; min-width: 0; }
+/* 180 px de canciones y 20 de aire, como en el diseño; la barra de desplazamiento de las canciones vive en ese aire. */
+#vista-receta .cols { flex: 1; min-height: 0; display: grid; grid-template-columns: 192px 1fr; gap: 8px; }
+#vista-receta .cols > div { min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--tenue) transparent; }
+#vista-receta .cols > div:first-child { scrollbar-gutter: stable; }
+
+/* Una canción: carátula y nombre. Seleccionada: nombre en blanco y carátula con marco amarillo. */
+#vista-receta .can { display: flex; align-items: center; gap: 14px; width: 100%; margin-top: 8px; }
+#vista-receta .can b { display: block; font: 700 16px/1.1 Rajdhani, sans-serif; color: var(--tenue); }
+#vista-receta .can.on b { color: #fff; }
+#vista-receta .can small { display: block; font: 500 14px Rajdhani, sans-serif; color: var(--tenue); }
+#vista-receta .car { position: relative; flex: none; width: 56px; aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
+  background: repeating-linear-gradient(135deg, #1a1a20 0 6px, #141418 6px 12px); font: 700 28px/1 Rajdhani, sans-serif; color: var(--amarillo); }
+#vista-receta .car::after { content: ""; position: absolute; inset: 0; background:
+  repeating-linear-gradient(0deg, rgba(0,0,0,.5) 0 1px, transparent 1px 3px),
+  linear-gradient(90deg, rgba(255,42,61,.22), transparent 25%, transparent 75%, rgba(0,229,255,.22)); }
+#vista-receta .can.on .car { outline: 2px solid var(--amarillo); outline-offset: -2px; }
+#vista-receta .otra .car { background: none; border: 2px dashed #3a3a44; box-sizing: border-box; color: #fff; font-size: 18px; }
+
+/* Los módulos de la canción seleccionada, pegados a ella. «+» sin coger; cogido, amarillo con ■. */
+#vista-receta .mods { padding: 0 0 8px 10px; margin-left: 27px; border-left: 2px solid var(--amarillo); }
+#vista-receta .chip { display: inline-block; margin: 6px 6px 0 0; padding: 4px 10px; background: var(--hueco); font: 600 14px Rajdhani, sans-serif; color: #fff;
+  transition: transform var(--pulsar) ease-out; }
+#vista-receta .chip:active { transform: scale(.97); }
+#vista-receta .chip[aria-pressed="true"] { background: var(--amarillo); color: var(--negro); }
+
+/* Una pieza cogida: su número de orden, de qué canción sale, sus pasos y ✕. */
+#vista-receta .cogida { display: flex; align-items: center; gap: 14px; height: 50px; padding: 0 12px; margin-top: 8px;
+  background: var(--panel); border-left: 2px solid var(--amarillo); color: var(--tenue); font-variant-numeric: tabular-nums; }
+#vista-receta .cogida b { display: block; font: 700 16px/1.25 Rajdhani, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #fff; }
+#vista-receta .cogida small { display: block; font-size: 14px; line-height: 1.25; }
+#vista-receta .cogida :is(b, small) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#vista-receta .quitar { width: 24px; height: 24px; margin-right: -6px; text-align: center; }
+#vista-receta .quitar:hover { color: var(--rojo); }
+#vista-receta .vacia { margin: 8px 0 0; font-size: 16px; line-height: 1.25; color: var(--tenue); }
+
+#vista-receta .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin: 8px 0 10px; }
+#vista-receta .dos button { padding: 7px 0; background: var(--panel); color: var(--tenue); font: 700 14px Rajdhani, sans-serif; letter-spacing: .06em; text-align: center; }
+#vista-receta .dos [aria-pressed="true"] { background: var(--hueco); color: #fff; }
+#vista-receta .fin { display: flex; align-items: center; gap: 14px; }
+#vista-receta .cuenta { flex: 1; font-size: 16px; line-height: 1.25; color: var(--tenue); font-variant-numeric: tabular-nums; }
+#vista-receta .cuenta.ro { font-size: 14px; line-height: 1.15; color: var(--rojo); }
+#vista-receta .cta:disabled { background: var(--hueco); color: var(--tenue); cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  #vista-receta .chip { transition: none; }
+}
