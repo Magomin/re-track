@@ -33,3 +33,5 @@ node_modules/
 .context/
 
 storybook-static/
+test-results/
+playwright-report/
