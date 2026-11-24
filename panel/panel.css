@@ -237,22 +237,35 @@ body.inicio .elegir { display: block; }
 @keyframes sale-2 { 0%, 30% { opacity: 1; } 31%, 96% { opacity: 0; } 97%, 100% { opacity: 1; } }
 @keyframes sale-3 { 0%, 60% { opacity: 1; } 61%, 96% { opacity: 0; } 97%, 100% { opacity: 1; } }
 @keyframes flash-3 { 0%, 60% { opacity: 0; } 63% { opacity: .5; } 74%, 100% { opacity: 0; } }
-/* El device viaja en el tercer tiempo. X e Y van en dos elementos con curvas distintas: el recorrido sale en arco. */
+/* El device viaja en el tercer tiempo. X e Y van en dos elementos con curvas distintas: el recorrido sale en arco.
+   Al soltarlo (80 %) tiembla en tres saltos secos y desaparece, sin pausa; el hueco parpadea con él. */
 @keyframes demo-x {
   0%, 60% { opacity: 0; transform: none; }
   62% { opacity: 1; }
-  66% { opacity: 1; transform: none; animation-timing-function: cubic-bezier(.77, 0, .175, 1); }
-  82%, 94% { opacity: 1; transform: translateX(var(--dx)); }
-  97%, 100% { opacity: 0; transform: translateX(var(--dx)); }
+  65% { opacity: 1; transform: none; animation-timing-function: cubic-bezier(.77, 0, .175, 1); }
+  80% { opacity: 1; transform: translateX(var(--dx)); animation-timing-function: steps(1); }
+  81% { opacity: 1; transform: translateX(calc(var(--dx) + 7px)); animation-timing-function: steps(1); }
+  82% { opacity: .5; transform: translateX(calc(var(--dx) - 6px)); animation-timing-function: steps(1); }
+  83% { opacity: 1; transform: translateX(calc(var(--dx) + 2px)); animation-timing-function: steps(1); }
+  84%, 100% { opacity: 0; transform: translateX(var(--dx)); }
 }
 @keyframes demo-y {
   0%, 62% { transform: scale(1); }
-  66% { transform: scale(1.08) rotate(-5deg); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
-  82% { transform: translateY(var(--dy)) scale(1.08) rotate(-5deg); }
-  85% { transform: translateY(var(--dy)) scale(.94); }
-  88%, 100% { transform: translateY(var(--dy)) scale(1); }
+  65% { transform: scale(1.08) rotate(-5deg); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
+  80% { transform: translateY(var(--dy)) scale(1.08) rotate(-5deg); animation-timing-function: steps(1); }
+  81% { transform: translateY(var(--dy)) skewX(-16deg); animation-timing-function: steps(1); }
+  82% { transform: translateY(calc(var(--dy) + 2px)) scale(1.06, .7); animation-timing-function: steps(1); }
+  83% { transform: translateY(calc(var(--dy) - 1px)) skewX(8deg); animation-timing-function: steps(1); }
+  84%, 100% { transform: translateY(var(--dy)); }
 }
-@keyframes demo-destello { 0%, 82% { opacity: 0; } 85% { opacity: .45; } 94%, 100% { opacity: 0; } }
+@keyframes demo-destello {
+  0% { opacity: 0; }
+  80% { opacity: 0; animation-timing-function: steps(1); }
+  81% { opacity: .6; animation-timing-function: steps(1); }
+  82% { opacity: .15; animation-timing-function: steps(1); }
+  83% { opacity: .45; }
+  89%, 100% { opacity: 0; }
+}
 
 /* Más glitch, siempre en saltos secos (steps): un rasgado cian/magenta que cruza el espejo, la pestaña LIVE que salta,
    el tramo del paso actual que parpadea y, en la Ruta, el nodo donde toca seguir. */
@@ -270,8 +283,28 @@ body.inicio .elegir { display: block; }
 @keyframes parpadeo { 0%, 78%, 100% { opacity: 1; } 80% { opacity: .25; } 86% { opacity: 1; } 90% { opacity: .5; } }
 .parada.sig .nodo { animation: salto 4s steps(1) infinite; }
 
+/* La Ruta también glitchea: un rasgado cruza la pantalla, el camino suelta un eco cian y otro magenta, y las cifras saltan. */
+#vista-modulos { position: relative; }
+#vista-modulos::after { content: ""; position: absolute; left: -16px; right: -16px; top: 0; height: 4px; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, var(--cian) 0 22%, transparent 22% 26%, var(--magenta) 26% 61%, transparent 61% 70%, var(--cian) 70%);
+  animation: rasgado-ruta 5.5s steps(1) infinite; }
+@keyframes rasgado-ruta {
+  0%, 39%, 45%, 79%, 84%, 100% { opacity: 0; }
+  40% { opacity: .85; transform: translateY(70px); } 41% { opacity: .5; transform: translateY(210px) scaleX(.55); } 42% { opacity: .85; transform: translateY(140px); }
+  43% { opacity: .6; transform: translateY(330px) scaleX(.8); } 44% { opacity: .85; transform: translateY(36px); }
+  80% { opacity: .85; transform: translateY(260px); } 81% { opacity: .5; transform: translateY(96px) scaleX(.7); } 82% { opacity: .85; transform: translateY(300px); }
+}
+.eco { opacity: 0; animation: eco 5.5s steps(1) infinite; }
+.eco-b { animation-name: eco-b; }
+@keyframes eco { 0%, 39%, 45%, 100% { opacity: 0; } 40% { opacity: .9; transform: translate(-7px, 2px); } 42% { opacity: .7; transform: translate(5px, -1px); } 44% { opacity: .9; transform: translate(-3px, 0); } }
+@keyframes eco-b { 0%, 39%, 45%, 79%, 84%, 100% { opacity: 0; } 40% { opacity: .9; transform: translate(7px, -2px); } 42% { opacity: .7; transform: translate(-6px, 2px); } 80% { opacity: .9; transform: translate(6px, 1px); } 82% { opacity: .8; transform: translate(-5px, -1px); } }
+.stats b { animation: salto 5.5s steps(1) infinite; }
+.stats div:nth-child(2) b { animation-delay: -1.9s; }
+.stats div:nth-child(3) b { animation-delay: -3.7s; }
+.sig-caja { animation: salto 5.5s steps(1) -.55s infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .logo, .logo::after, .glitch-on, .demo *, .demo.espejo::after, .zona b, .tramos i.sig, .parada.sig .nodo { animation: none !important; }
+  #vista-modulos::after, .eco, .stats b, .sig-caja, .logo, .logo::after, .glitch-on, .demo *, .demo.espejo::after, .zona b, .tramos i.sig, .parada.sig .nodo { animation: none !important; }
   .carro, .cta { transition: none; }
 }
 

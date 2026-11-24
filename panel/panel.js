@@ -27,8 +27,6 @@ const NOMBRES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 const nombreNota = (pitch) => `${NOMBRES[pitch % 12]}${Math.floor(pitch / 12) - 2}`; // Live: C3 = 60
 const dos = (n) => String(n).padStart(2, "0");
 const num = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2));
-// Pasos con lectura y aguja: un parámetro de device o el fader de una pista (en dB).
-const conMedida = (paso) => paso && (paso.check === "parametro_en_rango" || paso.check === "volumen_en_rango");
 
 function svg(etiqueta, atributos, texto) {
   const el = document.createElementNS("http://www.w3.org/2000/svg", etiqueta);
@@ -52,12 +50,6 @@ function objetivoDe(paso) {
   const { min, max } = paso.valor;
   return min === max ? num(min) : esVolumen(paso) ? `${num(min)} … ${num(max)} dB` : `${num(min)}–${num(max)}`;
 }
-// El paso en una línea, para la caja «Siguiente»: lo que se mide, o la primera frase de la instrucción.
-function enCorto(paso) {
-  if (!conMedida(paso)) return paso.instruccion.split(/[.:,]\s/)[0].replace(/\.$/, "");
-  return `${esVolumen(paso) ? `Volumen ${paso.valor.pista}` : paso.valor.parametro} → ${objetivoDe(paso)}`;
-}
-
 // Cambio de valor = efecto glitch: los dígitos se barajan ~0.3 s hasta el número real.
 const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)");
 let animacion = 0;
@@ -429,8 +421,9 @@ function dibujarEspejo(d = {}) {
   espejo = { clave, ajusta };
   $("espejo").hidden = false;
   $("zona-live").textContent = zona;
+  // La demo arranca al final, con las distancias de `despues` ya puestas: WebView2 se queda con las del arranque.
+  $("espejo").classList.remove("demo");
   $("dibujo").replaceChildren(...dibujo);
-  $("espejo").classList.toggle("demo", Boolean(demo));
   // Los gestos van numerados y en su orden; si falta algo previo (la pista, el device), una sola línea lo dice.
   if (gestos) {
     $("globo").replaceChildren(...gestos.map((g, i) => {
@@ -440,6 +433,7 @@ function dibujarEspejo(d = {}) {
     }));
   } else trozos($("globo"), globo);
   despues?.();
+  $("espejo").classList.toggle("demo", Boolean(demo));
 }
 
 function pintar() {
@@ -497,7 +491,14 @@ async function verModulos(nombre) {
     svg("polyline", { points: modulos.slice(0, hasta).map((_, i) => paradaEn(i).join(",")).join(" "), fill: "none", stroke: color, "stroke-width": 6 });
   trazo.append(linea(modulos.length, "#26262c"));
   // El tramo amarillo llega hasta el módulo en curso.
-  trazo.append(linea(actual ? modulos.indexOf(actual) + 1 : modulos.length, "#fcee0a"));
+  const hasta = actual ? modulos.indexOf(actual) + 1 : modulos.length;
+  // Dos ecos del tramo recorrido, cian y magenta: solo se ven un instante, desplazados (glitch de panel.css).
+  for (const [color, eco] of [["#00e5ff", "eco"], ["#ff2fb0", "eco eco-b"]]) {
+    const linea_eco = linea(hasta, color);
+    linea_eco.setAttribute("class", eco);
+    trazo.append(linea_eco);
+  }
+  trazo.append(linea(hasta, "#fcee0a"));
   camino.append(trazo);
   modulos.forEach((m, i) => {
     const hecho = m.hechos >= m.total;
@@ -522,7 +523,7 @@ async function verModulos(nombre) {
       invoke("pasos", { leccion, modulo: actual.id }),
       invoke("progreso", { leccion, modulo: actual.id }),
     ]);
-    texto.append(crea("span", "et ro", `▸ Siguiente · ${nombreDe(actual)} · paso ${dos(i + 1)}/${dos(actual.total)}`), crea("strong", "", enCorto(susPasos[i])));
+    texto.append(crea("span", "et ro", `▸ Siguiente · ${nombreDe(actual)} · paso ${dos(i + 1)}/${dos(actual.total)}`), crea("strong", "", tituloDe(susPasos[i]).flat().join("")));  // la misma orden que titula la pantalla de paso
     boton.textContent = `${suma ? "Continuar" : "Empezar"} ▸`;
     boton.addEventListener("click", () => abrirModulo(actual.id, actual.titulo));
   } else {
