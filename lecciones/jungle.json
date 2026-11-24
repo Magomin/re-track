@@ -67,6 +67,27 @@
       ]
     },
     {
+      "id": "arreglo",
+      "titulo": "Arreglo: la estructura del tema",
+      "tempo": 134,
+      "tonalidad": "G#m",
+      "pasos": [
+        {"id": "pad-intro", "instruccion": "Vista Arrangement (Tab). Clip de PAD de 2 a 10: el compás 1 es el pickup vocal. En el 10, corte seco: −21 → −57 dB en una corchea.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 2, "hasta": 10}},
+        {"id": "pad-vuelta", "instruccion": "PAD de 26 a 42: vuelve tras la parte vocal y atraviesa el build (34–41). En el original se apaga en ~5/8 de compás.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 26, "hasta": 42}},
+        {"id": "drop1-drums", "instruccion": "Drop 1: DRUMS de 46 a 54. Ocho compases de 909, kick a negras.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 46, "hasta": 54}},
+        {"id": "drop1-bass", "instruccion": "BASS de 46 a 54. En el 54 hay un stop de 2 compases: el original corta el bajo ~60 ms antes del compás.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 46, "hasta": 54}},
+        {"id": "drop1b-drums", "instruccion": "Drop 1b: DRUMS de 56 a 66, después del stop (54–55).", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 56, "hasta": 66}},
+        {"id": "drop1b-bass", "instruccion": "BASS de 56 a 66. Segundo stop en el 66, otros 2 compases.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 56, "hasta": 66}},
+        {"id": "drop2-lead", "instruccion": "Drop 2: LEAD de 68 a 82. La alarma E4 ↔ D#4 durante 14 compases.", "check": "clip_en_arreglo", "valor": {"pista": "LEAD", "desde": 68, "hasta": 82}},
+        {"id": "drop2-pad", "instruccion": "PAD de 68 a 82, transpuesto +12 (una octava arriba). En el original va a velocity 50, por debajo de la alarma.", "check": "clip_en_arreglo", "valor": {"pista": "PAD", "desde": 68, "hasta": 82}},
+        {"id": "drop2-drums", "instruccion": "DRUMS de 68 a 82. El sub de los drops descansa aquí: en el original suena otro bajo que sigue los acordes.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 68, "hasta": 82}},
+        {"id": "drop3-drums", "instruccion": "Drop 3: DRUMS de 84 a 92, tras 2 compases de build (82–83).", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 84, "hasta": 92}},
+        {"id": "drop3-bass", "instruccion": "BASS de 84 a 92. El compás 92–93 es el fill antes del final.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 84, "hasta": 92}},
+        {"id": "final-drums", "instruccion": "Final drop: DRUMS de 94 a 108, 14 compases.", "check": "clip_en_arreglo", "valor": {"pista": "DRUMS", "desde": 94, "hasta": 108}},
+        {"id": "final-bass", "instruccion": "BASS de 94 a 108. En el 108 empieza el END: solo queda un kick filtrado (~700–800 Hz) hasta el 110.", "check": "clip_en_arreglo", "valor": {"pista": "BASS", "desde": 94, "hasta": 108}}
+      ]
+    },
+    {
       "id": "mezcla",
       "titulo": "Mezcla: niveles y master",
       "tempo": 134,

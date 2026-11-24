@@ -67,6 +67,13 @@ pub enum Check {
         min: f64,
         max: f64,
     },
+    // Clips de la pista en el Arrangement que ocupan justo los compases desde -> hasta
+    // (compases de Live, 4/4; hasta = donde se corta, no incluido).
+    ClipEnArreglo {
+        pista: String,
+        desde: u32,
+        hasta: u32,
+    },
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
@@ -100,6 +107,12 @@ pub fn desde_texto(texto: &str) -> Result<Leccion, String> {
             _ => false,
         }) {
             return Err(format!("el paso {} tiene min > max", paso.id));
+        }
+        if let Some(paso) = modulo.pasos.iter().find(|p| match &p.check {
+            Check::ClipEnArreglo { desde, hasta, .. } => *desde < 1 || desde >= hasta,
+            _ => false,
+        }) {
+            return Err(format!("el paso {} necesita 1 <= desde < hasta", paso.id));
         }
     }
     Ok(leccion)

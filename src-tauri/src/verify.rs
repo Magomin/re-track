@@ -28,6 +28,7 @@ pub struct Pista {
     pub name: String,
     pub devices: Vec<Device>,
     pub clip_slots: Vec<Hueco>,
+    pub arrangement_clips: Vec<ClipArreglo>,
     // El snapshot solo trae el valor bruto del fader; el dB lo pone `leer_volumen`.
     #[serde(skip)]
     pub volumen_db: Option<f64>,
@@ -58,6 +59,13 @@ pub struct Parametro {
 #[serde(default)]
 pub struct Cadena {
     pub devices: Vec<Device>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct ClipArreglo {
+    pub start_time: f64,
+    pub end_time: f64,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -122,6 +130,61 @@ pub fn cumple(check: &Check, snapshot: &Snapshot) -> bool {
         } => pista(snapshot, nombre)
             .and_then(|p| p.volumen_db)
             .is_some_and(|db| (*min..=*max).contains(&db)),
+        Check::ClipEnArreglo {
+            pista: nombre,
+            desde,
+            hasta,
+        } => tramo_que_toca(snapshot, nombre, *desde, *hasta) == Some(compases(*desde, *hasta)),
+    }
+}
+
+// Compases de Live (4/4, el 1 empieza en el beat 0) a semicorcheas.
+fn compases(desde: u32, hasta: u32) -> (i64, i64) {
+    ((desde as i64 - 1) * 16, (hasta as i64 - 1) * 16)
+}
+
+// Posición en semicorcheas como la escribe Live: "46" en el compás justo, "45.4" si cae en un beat.
+fn posicion(semicorcheas: i64) -> String {
+    let (compas, resto) = (semicorcheas.div_euclid(16) + 1, semicorcheas.rem_euclid(16));
+    if resto == 0 {
+        compas.to_string()
+    } else {
+        format!("{compas}.{}", resto / 4 + 1)
+    }
+}
+
+// Los clips del Arrangement de la pista fundidos en tramos continuos (dos clips pegados = un tramo),
+// y de esos el primero que pisa los compases buscados.
+fn tramo_que_toca(snapshot: &Snapshot, nombre: &str, desde: u32, hasta: u32) -> Option<(i64, i64)> {
+    let mut clips: Vec<(i64, i64)> = pistas(snapshot, nombre)
+        .flat_map(|p| &p.arrangement_clips)
+        .map(|c| (en_rejilla(c.start_time), en_rejilla(c.end_time)))
+        .collect();
+    clips.sort();
+    let mut tramos: Vec<(i64, i64)> = Vec::new();
+    for (inicio, fin) in clips {
+        match tramos.last_mut() {
+            Some(ultimo) if inicio <= ultimo.1 => ultimo.1 = ultimo.1.max(fin),
+            _ => tramos.push((inicio, fin)),
+        }
+    }
+    let (d, h) = compases(desde, hasta);
+    tramos
+        .into_iter()
+        .find(|&(inicio, fin)| inicio < h && fin > d)
+}
+
+pub fn detalle_arreglo(snapshot: &Snapshot, nombre: &str, desde: u32, hasta: u32) -> String {
+    if pista(snapshot, nombre).is_none() {
+        return format!("No encuentro la pista {nombre}");
+    }
+    match tramo_que_toca(snapshot, nombre, desde, hasta) {
+        None => format!("No hay clip de {nombre} entre {desde} y {hasta} en el Arrangement"),
+        Some((inicio, fin)) => format!(
+            "{nombre} suena de {} a {}; tiene que ir de {desde} a {hasta}",
+            posicion(inicio),
+            posicion(fin)
+        ),
     }
 }
 
@@ -603,5 +666,51 @@ mod tests {
             "No encuentro la pista LEAD"
         );
         assert!(leer_volumen(&mut s, "PAD", |_| Ok(json!({"volume": "??"}))).is_err());
+    }
+
+    #[test]
+    fn clip_en_arreglo() {
+        let arreglo = |clips: serde_json::Value| {
+            snap(json!({"tracks": [{"name": "BASS", "arrangement_clips": clips}]}))
+        };
+        let check = Check::ClipEnArreglo {
+            pista: "bass".into(),
+            desde: 46,
+            hasta: 54,
+        };
+        // 46 -> 54 = beats 180 -> 212. Dos clips pegados cuentan como uno.
+        let bien = arreglo(
+            json!([{"start_time": 180.0, "end_time": 196.0}, {"start_time": 196.0, "end_time": 212.0}]),
+        );
+        assert!(cumple(&check, &bien));
+        // Se pasa del stop del 54: no vale aunque cubra el tramo.
+        let largo = arreglo(json!([{"start_time": 180.0, "end_time": 260.0}]));
+        assert!(!cumple(&check, &largo));
+        assert_eq!(
+            detalle_arreglo(&largo, "BASS", 46, 54),
+            "BASS suena de 46 a 66; tiene que ir de 46 a 54"
+        );
+        // Con hueco en medio: el primer tramo no llega al 54.
+        let hueco = arreglo(
+            json!([{"start_time": 180.0, "end_time": 194.0}, {"start_time": 196.0, "end_time": 212.0}]),
+        );
+        assert!(!cumple(&check, &hueco));
+        assert_eq!(
+            detalle_arreglo(&hueco, "BASS", 46, 54),
+            "BASS suena de 46 a 49.3; tiene que ir de 46 a 54"
+        );
+        // Otros clips de la pista fuera del tramo no molestan.
+        let con_otro = arreglo(
+            json!([{"start_time": 0.0, "end_time": 32.0}, {"start_time": 180.0, "end_time": 212.0}]),
+        );
+        assert!(cumple(&check, &con_otro));
+        assert_eq!(
+            detalle_arreglo(&arreglo(json!([])), "BASS", 46, 54),
+            "No hay clip de BASS entre 46 y 54 en el Arrangement"
+        );
+        assert_eq!(
+            detalle_arreglo(&arreglo(json!([])), "PAD", 2, 10),
+            "No encuentro la pista PAD"
+        );
     }
 }
